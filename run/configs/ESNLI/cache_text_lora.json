@@ -1,0 +1,69 @@
+{
+  "training_params": {
+    "tdqm_disable": false,
+    "wandb_disable": false,
+    "batch_size": 4,
+    "test_batch_size": 4
+  },
+  "early_stopping": {
+    "end_of_epoch_check": false,
+    "n_steps_stop": 100,
+    "save_every_valstep": 10,
+    "validate_every": 100
+  },
+  "optimizer": {
+    "type": "Adaw",
+    "learning_rate": 0.00001,
+    "momentum": 0.9,
+    "weight_decay": 0.00001,
+    "beta1": 0.9,
+    "beta2": 0.999
+  },
+  "dataset": {
+      "data_split": {
+        "fold": 0
+      }
+  },
+  "model": {
+    "model_name": "Qwen/Qwen3-VL-2B-Instruct",
+    "model_class": "QwenVL_ScienceQA_Cached_Text",
+    "args": {
+      "d_model": 512, "num_classes": 3, "fc_inner": 64, "dropout": 0.1,
+      "cls_emb_path": "SynIBCache_LoRaEmb_fold0_lr0.0001_wd0.01_bs5_cls_embedding.pt",
+      "cls_finetune": false,
+      "cls_type": "linear",
+      "clip_grad": false,
+      "bias_infusion": {
+        "method": "false",
+        "l": 0.1,
+        "starting_epoch": 0,
+        "ending_epoch": 1500,
+        "use": true,
+        "plot": false
+      },
+      "lora_config": {
+      "use_lora": true,  "lora_r": 16, "lora_alpha": 32,  "lora_dropout": 0.05,  "lora_target_modules": ["q_proj", "v_proj"],  "lora_bias": "none", "lora_lr": 0.0002
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+             "combined": 0, "c": 0, "g": 0
+          }
+      }
+    },
+    "load_ongoing": false,
+    "save_dir": "Uni_Text_LoRa_{}.pth.tar",
+    "encoders": [
+      {
+        "model": "LinearHead_Qwen",
+        "args": {
+          "d_model": 2048,
+          "num_classes": 3
+        },
+        "pretrainedEncoder": {
+          "use": true,
+          "dir": "Qwen3VL2B_LHead_fold{}.pth.tar"
+        }
+      }
+    ]
+  }
+}

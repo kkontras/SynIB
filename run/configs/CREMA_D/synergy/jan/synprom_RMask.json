@@ -1,0 +1,120 @@
+{
+  "training_params": {
+    "batch_size": 128,
+    "test_batch_size": 128,
+    "tdqm_disable": false
+  },
+  "early_stopping": {
+    "end_of_epoch_check": true,
+    "n_steps_stop": 30,
+    "save_every_valstep": 10,
+    "validate_every": 25,
+    "validate_with": "accuracy"
+  },
+  "optimizer": {
+    "type": "Adam",
+    "learning_rate": 0.00001,
+    "momentum": 0.9,
+    "weight_decay": 0.00001,
+    "beta1": 0.9,
+    "beta2": 0.999
+  },
+  "dataset": {
+    "norm": false,
+    "return_data": {
+      "video": true,
+      "spectrogram": true,
+      "audio": false,
+      "face": false
+    },
+    "sampling_rate": 22050,
+    "data_split": {
+      "fold": 0
+    }
+  },
+  "model": {
+    "model_class": "FusionIBModel_Mask",
+    "args": {
+      "d_model": 512,
+      "num_classes": 7,
+      "fc_inner": 64,
+      "in_dim": 64,
+      "dropout": 0.1,
+      "cls_type": "mlp",
+      "norm_decision": false,
+      "bias_infusion": {
+        "l": 1.0,
+        "contrcoeff": 0.0
+      },
+      "multi_loss": {
+        "multi_supervised_w": { "combined": 1, "c": 1, "g": 1 }
+      },
+      "synergy_type": "gaussian"
+    },
+    "ceu": {"val": "./artifacts/ceus/cremad/cremadplus_ceu_val_res_{}.pkl", "test": "./artifacts/ceus/cremad/cremadplus_ceu_test_res_{}.pkl"},
+    "load_ongoing": false,
+    "save_dir": "SynIB_RMask_{}.pth.tar",
+    "encoders": [
+      {
+        "name": "enc_0_modality1_encoder",
+        "model": "Audio_ResNet",
+        "args": {
+          "d_model": 512,
+          "num_classes": 7,
+          "fc_inner": 64,
+          "dropout": 0.1,
+          "freeze_encoder": false
+        },
+        "pretrainedEncoder": {
+          "use": true,
+          "dir": "unimodal_audio_fold{}_lr0.001_wd0.0001_clsmlp_bs64.pth.tar"
+        },
+        "save_encoder": false
+      },
+      {
+        "name": "enc_1_modality2_encoder",
+        "model": "Video_ResNet",
+        "args": {
+          "d_model": 512,
+          "num_classes": 7,
+          "fc_inner": 64,
+          "dropout": 0.1,
+          "freeze_encoder": false
+        },
+        "pretrainedEncoder": {
+          "use": true,
+          "dir": "unimodal_video_fold{}_lr0.0001_wd0.0001_clsmlp_bs64.pth.tar"
+        },
+        "save_encoder": false
+      },
+      {
+        "name": "enc_2_fusion_trunk",
+        "model": "FusionTrunkLinear",
+        "args": { "d_model": 512, "fc_inner": 64, "dropout": 0.1, "freeze_encoder": false },
+        "pretrainedEncoder": { "use": false, "dir": "enc_2_fusion_trunk_fold{}.pth.tar" },
+        "save_encoder": false
+      },
+      {
+        "name": "enc_3_fusion_head",
+        "model": "LinearHead",
+        "args": { "in_dim": 64, "num_classes": 7, "freeze_encoder": false },
+        "pretrainedEncoder": { "use": false, "dir": "enc_3_fusion_head_fold{}.pth.tar" },
+        "save_encoder": false
+      },
+      {
+        "name": "enc_4_unimodal_head_1",
+        "model": "MLPHead",
+        "args": { "in_dim": 512, "hidden_dim": 64, "num_classes": 7, "dropout": 0.1, "freeze_encoder": false },
+        "pretrainedEncoder": { "use": false, "dir": "enc_4_unimodal1_fold{}.pth.tar" },
+        "save_encoder": false
+      },
+      {
+        "name": "enc_5_unimodal_head_2",
+        "model": "MLPHead",
+        "args": { "in_dim": 512, "hidden_dim": 64, "num_classes": 7, "dropout": 0.1, "freeze_encoder": false },
+        "pretrainedEncoder": { "use": false, "dir": "enc_5_unimodal2_fold{}.pth.tar" },
+        "save_encoder": false
+      }
+    ]
+  }
+}

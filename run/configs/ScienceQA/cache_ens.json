@@ -1,0 +1,140 @@
+{
+  "training_params": {
+    "tdqm_disable": false,
+    "wandb_disable": false,
+    "batch_size": 16,
+    "test_batch_size": 16
+  },
+  "early_stopping": {
+    "max_epoch": 0
+  },
+  "dataset": {
+    "data_split": {
+      "fold": 0
+    }
+  },
+  "model": {
+    "model_class": "Base_Ensemble_Model",
+    "args": {"num_classes": 5, "multi_loss": { "multi_supervised_w": { "combined": 0, "c": 0, "g": 0}}
+    },
+    "ceu": {"val": "./artifacts/ceus/scienceqa/scienceqa_ceu_val.pkl", "test": "./artifacts/ceus/scienceqa/scienceqa_ceu_test.pkl"},
+    "load_ongoing": false,
+    "save_dir": "SynIBCache_Ens_LoRa_{}.pth.tar",
+    "encoders": [
+      {
+        "model": "QwenVL_ScienceQA_Cached",
+        "args": {
+          "model_class": "QwenVL_ScienceQA_Cached",
+          "d_model": 512,
+          "num_classes": 5,
+          "fc_inner": 64,
+          "dropout": 0.1,
+          "cls_emb_path": "Synprom_IBInput2_fold0_lr0.0001_wd0.0001_cls_embedding.pt",
+          "cls_finetune": false,
+          "cls_type": "linear",
+          "clip_grad": false,
+          "bias_infusion": {
+            "method": "false",
+            "l": 0.1,
+            "starting_epoch": 0,
+            "ending_epoch": 1500,
+            "use": true,
+            "plot": false
+          },
+          "lora_config": {
+            "use_lora": true,
+            "lora_r": 16,
+            "lora_alpha": 32,
+            "lora_dropout": 0.05,
+            "lora_target_modules": ["q_proj", "v_proj"],
+            "lora_bias": "none",
+            "lora_lr": 0.0002
+          },
+          "multi_loss": {
+            "multi_supervised_w": {
+              "combined": 0,
+              "c": 0,
+              "g": 0
+            }
+          }
+        },
+        "load_ongoing": false,
+        "save_dir": "SynIBCache_LoRa_{}.pth.tar",
+        "encoders": [
+          {
+            "model": "LinearHead_Qwen",
+            "args": {
+              "d_model": 2048,
+              "num_classes": 5
+            },
+            "pretrainedEncoder": {
+              "use": true,
+              "dir": "Qwen3VL_LHead_fold0.pth.tar"
+            }
+          }
+        ],
+        "pretrainedEncoder": {
+              "use": true,
+              "dir": "SynIBCache_Image_LoRa_fold{}_lr0.0001_wd0.01_bs8.pth.tar"
+            }
+      },
+      {
+        "model": "QwenVL_ScienceQA_Cached",
+        "args": {
+          "model_class": "QwenVL_ScienceQA_Cached",
+          "d_model": 512,
+          "num_classes": 5,
+          "fc_inner": 64,
+          "dropout": 0.1,
+          "cls_emb_path": "Synprom_IBInput2_fold0_lr0.0001_wd0.0001_cls_embedding.pt",
+          "cls_finetune": false,
+          "cls_type": "linear",
+          "clip_grad": false,
+          "bias_infusion": {
+            "method": "false",
+            "l": 0.1,
+            "starting_epoch": 0,
+            "ending_epoch": 1500,
+            "use": true,
+            "plot": false
+          },
+          "lora_config": {
+            "use_lora": true,
+            "lora_r": 16,
+            "lora_alpha": 32,
+            "lora_dropout": 0.05,
+            "lora_target_modules": ["q_proj", "v_proj"],
+            "lora_bias": "none",
+            "lora_lr": 0.0002
+          },
+          "multi_loss": {
+            "multi_supervised_w": {
+              "combined": 0,
+              "c": 0,
+              "g": 0
+            }
+          }
+        },
+        "load_ongoing": false,
+        "save_dir": "SynIBCache_LoRa_{}.pth.tar",
+        "encoders": [
+          {
+            "model": "LinearHead_Qwen",
+            "args": {
+              "d_model": 2048,
+              "num_classes": 5
+            },
+            "pretrainedEncoder": {
+              "use": true,
+              "dir": "Qwen3VL_LHead_fold0.pth.tar"
+            }
+          }
+        ],
+        "pretrainedEncoder": {
+              "use": true,
+              "dir": "Uni_Text_LoRa_fold{}_lr0.0001_wd0.01_bs8.pth.tar"
+            }
+      }
+    ]
+  }
+}

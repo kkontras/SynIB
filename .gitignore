@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+.env
+.idea/
+.vscode/
+.mypy_cache/
+.pytest_cache/
+*.pth.tar
+*.pt
+*.log
+outputs/
+wandb/
+artifacts/
+lightning_logs/
+condor_logs/
+lm_call_dump/
+debug_viz/
+.DS_Store
+
+# CREMAD dataset artifacts in mydatasets
+src/synib/mydatasets/CREMAD/*.json
+src/synib/mydatasets/CREMAD/*.pkl
