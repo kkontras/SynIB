@@ -1,28 +1,49 @@
 # Run Scripts
 
-Top-level entrypoints:
+This folder contains small wrappers around the Python entrypoints:
 
-- `./run/train_crema_d.sh`
-- `./run/eval_crema_d.sh`
-- `./run/train_scienceqa.sh`
-- `./run/eval_scienceqa.sh`
-- `./run/train_esnli.sh`
-- `./run/eval_esnli.sh`
-- `./run/train_xor.sh`
-- `./run/eval_xor.sh`
+- `synib.entrypoints.train`
+- `synib.entrypoints.show`
 
-List configs:
+Each dataset folder (`crema_d`, `scienceqa`, `esnli`) has its own `train.sh` and `show.sh`.
+
+## Quick start
+
+```bash
+# CREMA-D
+./run/crema_d/train.sh
+./run/crema_d/show.sh
+
+# ScienceQA
+./run/scienceqa/train.sh
+./run/scienceqa/show.sh
+
+# e-SNLI
+./run/esnli/train.sh
+./run/esnli/show.sh
+```
+
+## Browse available configs
 
 ```bash
 ./run/list_configs.sh all
 ./run/list_configs.sh crema_d
 ./run/list_configs.sh scienceqa
 ./run/list_configs.sh esnli
-./run/list_configs.sh xor
 ```
 
-Dataset-specific scripts and examples remain under:
-- `run/crema_d/`
-- `run/scienceqa/`
-- `run/esnli/`
-- `run/xor/`
+## Passing overrides
+
+All scripts forward extra CLI flags directly to the Python entrypoint, so overrides are easy:
+
+```bash
+./run/scienceqa/train.sh run/configs/ScienceQA/cache_synib_lora.json --lr 1e-4 --wd 1e-5
+./run/esnli/show.sh run/configs/ESNLI/cache_ens.json --fold 0
+```
+
+## Notes
+
+- Use dataset-specific READMEs for scenario names and examples:
+  - `run/crema_d/README.md`
+  - `run/scienceqa/README.md`
+  - `run/esnli/README.md`
