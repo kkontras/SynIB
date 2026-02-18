@@ -1,27 +1,12 @@
 # SynIB
 
-`SynIB` is organized as a proper, source-first repository for the selected workloads:
+SynIB is the training/evaluation codebase for:
+
 - CREMA-D
 - ScienceQA
-- ESNLI
-- XOR
+- e-SNLI
 
-`Synergy` was not modified.
-
-## Structure
-
-- `src/synib/`: all source code (single source-of-truth)
-  - `src/synib/training/`: training pipeline orchestration and helpers
-  - `src/synib/models/`: task-organized model implementations
-  - `src/synib/mydatasets/`: dataset loaders and task-specific dataset utilities
-  - `src/synib/utils/`: config/system/metrics/optimization utilities
-  - `src/synib/entrypoints/`: train/show entrypoint scripts
-- `run/configs/`: all task configs (`CREMA_D`, `ScienceQA`, `ESNLI`, `xor`)
-- `run/`: top-level execution scripts for users
-
-## Model Navigation
-
-See `src/synib/models/README.md`.
+If you are new to this repo, start from the `run/` scripts. They wrap the Python entrypoints and are the easiest way to launch experiments.
 
 ## Install
 
@@ -29,30 +14,73 @@ See `src/synib/models/README.md`.
 pip install -r requirements.txt
 ```
 
-## Run (Top-level)
+## Quickstart (from repo root)
 
 ```bash
-./run/train_crema_d.sh
-./run/eval_crema_d.sh
+# CREMA-D
+./run/crema_d/train.sh
+./run/crema_d/show.sh
 
-./run/train_scienceqa.sh
-./run/eval_scienceqa.sh
+# ScienceQA
+./run/scienceqa/train.sh
+./run/scienceqa/show.sh
 
-./run/train_esnli.sh
-./run/eval_esnli.sh
-
-./run/train_xor.sh
-./run/eval_xor.sh
+# e-SNLI
+./run/esnli/train.sh
+./run/esnli/show.sh
 ```
 
-List configs:
+## Command pattern
+
+All dataset scripts follow the same shape:
+
+```bash
+./run/<dataset>/train.sh [config_or_scenario] [extra args]
+./run/<dataset>/show.sh  [config_or_scenario] [extra args]
+```
+
+Examples:
+
+```bash
+./run/crema_d/train.sh run/configs/CREMA_D/synergy/dec/synprom_RMask.json --fold 0
+./run/scienceqa/train.sh run/configs/ScienceQA/cache_synib_lora.json --lr 1e-4
+./run/esnli/show.sh run/configs/ESNLI/cache_ens.json --fold 0
+```
+
+## Browse configs
 
 ```bash
 ./run/list_configs.sh all
+./run/list_configs.sh crema_d
+./run/list_configs.sh scienceqa
+./run/list_configs.sh esnli
 ```
 
-Run with a specific config:
+## CREMA-D named scenarios
+
+CREMA-D supports explicit named scenarios so train and show use identical settings.
 
 ```bash
-./run/train_crema_d.sh run/configs/CREMA_D/synergy/dec/synprom_RMask.json --fold 0
+./run/crema_d/train.sh --scenarios
+./run/crema_d/show.sh --scenarios
+
+./run/crema_d/train.sh rmask-random-l1.0-pmin0.20 --fold 0
+./run/crema_d/show.sh rmask-random-l1.0-pmin0.20 --fold 0
 ```
+
+## Repository map
+
+- `run/`: user-facing shell wrappers
+- `run/configs/`: experiment configs (JSON)
+- `src/synib/entrypoints/`: Python CLI entrypoints (`train`, `show`)
+- `src/synib/training/`: training orchestration
+- `src/synib/models/`: model implementations
+- `src/synib/mydatasets/`: dataset loaders/utilities
+
+## More documentation
+
+- `run/README.md`
+- `run/crema_d/README.md`
+- `run/scienceqa/README.md`
+- `run/esnli/README.md`
+- `src/synib/models/README.md`
