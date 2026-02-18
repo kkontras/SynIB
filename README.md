@@ -6,7 +6,7 @@ SynIB is the training/evaluation codebase for:
 - ScienceQA
 - e-SNLI
 
-If you are new to this repo, start from the `run/` scripts. They wrap the Python entrypoints and are the easiest way to launch experiments.
+Start from the `run/` scripts. They wrap the Python entrypoints and are the easiest way to launch experiments.
 
 ## Install
 
