@@ -22,3 +22,6 @@ debug_viz/
 # CREMAD dataset artifacts in mydatasets
 src/synib/mydatasets/CREMAD/*.json
 src/synib/mydatasets/CREMAD/*.pkl
+
+# Trifeatures dataset artifacts in mydatasets
+src/synib/mydatasets/Trifeatures/data
