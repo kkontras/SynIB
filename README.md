@@ -42,7 +42,7 @@ All dataset scripts follow the same shape:
 Examples:
 
 ```bash
-./run/crema_d/train.sh run/configs/CREMA_D/synergy/dec/synprom_RMask.json --fold 0
+./run/crema_d/train.sh run/configs/CREMA_D/synergy/jan/synprom_RMask.json --fold 0
 ./run/scienceqa/train.sh run/configs/ScienceQA/cache_synib_lora.json --lr 1e-4
 ./run/esnli/show.sh run/configs/ESNLI/cache_ens.json --fold 0
 ```
