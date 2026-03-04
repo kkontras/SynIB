@@ -25,3 +25,6 @@ src/synib/mydatasets/CREMAD/*.pkl
 
 # Trifeatures dataset artifacts in mydatasets
 src/synib/mydatasets/Trifeatures/data
+
+src/synib/mydatasets/MultimodalQA/dataset
+src/synib/mydatasets/MultimodalQA/final_dataset_images

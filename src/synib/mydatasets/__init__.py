@@ -11,3 +11,4 @@ from .ESNLI.ESNLI_CB_MEM import *
 from .ESNLI.ESNLI_CodeBook import *
 from .ESNLI.ESNLI_CodeBook_v2 import *
 from .Xor.Xor_dataset import *
+from .MultimodalQA.MultimodalQA_Dataset import *
