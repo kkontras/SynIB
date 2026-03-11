@@ -25,7 +25,7 @@
       }
   },
   "model": {
-    "model_class": "QwenVL_ScienceQA_Cached_MMPareto",
+    "model_class": "QwenVL_Cached_MMPareto",
     "args": {
       "model_name": "Qwen/Qwen3-VL-2B-Instruct",
       "d_model": 512, "num_classes": 5, "fc_inner": 64, "dropout": 0.1,

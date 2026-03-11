@@ -22,7 +22,7 @@
     "encoders": [
       {
         "model_name": "Qwen/Qwen3-VL-2B-Instruct",
-        "model": "QwenVL_ScienceQA_Cached",
+        "model": "QwenVL_Cached",
         "args": {
           "d_model": 512,
           "num_classes": 3,
@@ -79,7 +79,7 @@
       },
       {
         "model_name": "Qwen/Qwen3-VL-2B-Instruct",
-        "model": "QwenVL_ScienceQA_Cached",
+        "model": "QwenVL_Cached",
         "args": {
           "d_model": 512,
           "num_classes": 3,

@@ -26,7 +26,7 @@
   },
   "model": {
     "model_name": "Qwen/Qwen3-VL-2B-Instruct",
-    "model_class": "QwenVL_ScienceQA_Cached_Image",
+    "model_class": "QwenVL_Cached_Image",
     "args": {
       "d_model": 512, "num_classes": 3, "fc_inner": 64, "dropout": 0.1,
       "cls_emb_path": "SynIBCache_LoRaEmb_fold0_lr0.0001_wd0.01_bs5_cls_embedding.pt",

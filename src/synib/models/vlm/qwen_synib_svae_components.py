@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import wandb
-from synib.models.vlm.qwen_synergy_decoder_models import *
+from synib.models.vlm.qwen_base_models import *
 # ============================================================
 # Utilities
 # ============================================================

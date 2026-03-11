@@ -18,7 +18,7 @@ from diffusers import StableDiffusionPipeline
 from torchvision.utils import make_grid
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from synib.models.vlm.qwen_synergy_svae_models import TF_Fusion_Transformer
+from synib.models.vlm.qwen_synib_svae_components import TF_Fusion_Transformer
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 import torch
 

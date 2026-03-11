@@ -25,7 +25,7 @@
       }
   },
   "model": {
-    "model_class": "QwenVL_ESNLI",
+    "model_class": "QwenVL_Synergy",
     "args": {
       "d_model": 512, "num_classes": 3, "fc_inner": 64, "dropout": 0.1,
       "cls_type": "linear",
