@@ -12,10 +12,13 @@ Models are grouped by dataset/task for easier onboarding.
 - XOR and SynProm family models (`Fusion_Synprom*`, `TriModalFusionClassifier`, etc.)
 
 ## `src/synib/models/vlm/`
-- `qwen_synergy_decoder_models.py`
-- `qwen_synergy_svae_models.py`
-- ScienceQA/ESNLI VLM and SynIB models (`QwenVL_*`, `FusionIBModel*`, etc.)
+- `qwen_base_models.py`
+- `qwen_prompt_models.py`
+- `qwen_cached.py`
+- `synib_mask_model.py`
+- Qwen VLM families split by pipeline: `qwen_prompt_models.py` for prompt-driven variants and `qwen_cached.py` for cached variants.
+- `synib_mask_model.py` holds the reusable SynIB / transformer components still used outside the Qwen cached stack.
 
 ## Shared utilities
 - `src/synib/models/model_utils/`
-- `src/synib/models/VAVL_git/VAVL/conformer/` (kept minimal to support current imports)
+- `src/synib/models/conformer/` (Conformer encoder, Apache 2.0, Soohwan Kim)

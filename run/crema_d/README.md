@@ -36,5 +36,5 @@ The same scenario name can be used for both training and evaluation so you do no
 ./run/crema_d/train.sh rmask-random-l1.0-pmin0.20 --fold 0
 ./run/crema_d/train.sh rmask-learned-l1.0-lsparse0.010 --fold 0
 ./run/crema_d/show.sh rmask-random-l1.0-pmin0.20 --fold 0
-./run/crema_d/show.sh run/configs/CREMA_D/release/res/MCR.json --fold 1
+./run/crema_d/show.sh run/configs/CREMA_D/default_config_cremadplus_res_syn.json --fold 1
 ```

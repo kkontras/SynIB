@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-DEFAULT_CONFIG_PATH="run/configs/CREMA_D/default_config_cremad_res.json"
-DEFAULT_TRAIN_SHOW_CONFIG="run/configs/CREMA_D/release/res/joint_training.json"
-RMASK_CONFIG_PATH="run/configs/CREMA_D/synergy/dec/synprom_RMask.json"
+DEFAULT_CONFIG_PATH="run/configs/CREMA_D/default_config_cremadplus_res_syn.json"
+DEFAULT_TRAIN_SHOW_CONFIG="run/configs/CREMA_D/default_config_cremadplus_res_syn.json"
+RMASK_CONFIG_PATH="run/configs/CREMA_D/default_config_cremadplus_res_syn.json"
 
 print_cremad_scenarios() {
   cat <<'EOF'
 Available CREMA-D scenarios:
   default
-    - run/configs/CREMA_D/release/res/joint_training.json
+    - run/configs/CREMA_D/default_config_cremadplus_res_syn.json
   rmask-random-l0.5-pmin0.10
     - --perturb random --perturb_fill random --l 0.5 --perturb_pmin 0.10
   rmask-random-l1.0-pmin0.20

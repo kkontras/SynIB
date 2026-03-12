@@ -3,7 +3,7 @@ import wandb
 from synib.models.model_utils.backbone import resnet18
 import einops
 import copy
-from synib.models.VAVL_git.VAVL.conformer.model import Conformer
+from synib.models.conformer.model import Conformer
 from synib.models.model_utils.fusion_gates import *
 from typing import Dict
 from transformers import VivitModel, VivitConfig, ASTConfig, Wav2Vec2Model, AutoModel
@@ -18,7 +18,7 @@ from diffusers import StableDiffusionPipeline
 from torchvision.utils import make_grid
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from synib.models.vlm.qwen_synergy_svae_models import TF_Fusion_Transformer
+from synib.models.vlm.synib_mask_model import TF_Fusion_Transformer
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 import torch
 

@@ -26,7 +26,7 @@
   },
   "model": {
     "model_name": "Qwen/Qwen3-VL-2B-Instruct",
-    "model_class": "QwenVL_ESNLI_Synergy_FrozenCLS_VisualEmb",
+    "model_class": "QwenVL_Synergy_FrozenCLS_VisualEmb",
     "args": {
       "d_model": 512, "num_classes": 5, "fc_inner": 64, "dropout": 0.1,
       "cls_emb_path": "Synprom_IBInput2_fold0_lr0.0001_wd0.0001_cls_embedding.pt",

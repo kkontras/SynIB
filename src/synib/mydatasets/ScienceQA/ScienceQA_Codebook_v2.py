@@ -997,11 +997,11 @@ def main():
 if __name__ == "__main__":
     main()
 #
-# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/scratch/kkontras/ESNLI" --out_dir "/scratch/kkontras/ScienceQA/cache_tokens8B" --model_name "Qwen/Qwen3-VL-8B-Instruct" --split test
-# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/scratch/kkontras/ScienceQA" --out_dir "/scratch/kkontras/ScienceQA/cache_tokens8B" --model_name "Qwen/Qwen3-VL-8B-Instruct" --split validation
-# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/scratch/kkontras/ScienceQA" --out_dir "/scratch/kkontras/ScienceQA/cache_tokens8B" --model_name "Qwen/Qwen3-VL-8B-Instruct"
+# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/path/to/ScienceQA" --out_dir "/path/to/ScienceQA/cache_tokens8B" --model_name "Qwen/Qwen3-VL-8B-Instruct" --split test
+# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/path/to/ScienceQA" --out_dir "/path/to/ScienceQA/cache_tokens8B" --model_name "Qwen/Qwen3-VL-8B-Instruct" --split validation
+# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/path/to/ScienceQA" --out_dir "/path/to/ScienceQA/cache_tokens8B" --model_name "Qwen/Qwen3-VL-8B-Instruct"
 #
-# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/scratch/kkontras/ScienceQA" --out_dir "/scratch/kkontras/ScienceQA/cache_tokens32B" --model_name "Qwen/Qwen3-VL-32B-Instruct" --split test
-# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/scratch/kkontras/ScienceQA" --out_dir "/scratch/kkontras/ScienceQA/cache_tokens32B" --model_name "Qwen/Qwen3-VL-32B-Instruct" --split validation
-# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/scratch/kkontras/ScienceQA" --out_dir "/scratch/kkontras/ScienceQA/cache_tokens32B" --model_name "Qwen/Qwen3-VL-32B-Instruct"
+# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/path/to/ScienceQA" --out_dir "/path/to/ScienceQA/cache_tokens32B" --model_name "Qwen/Qwen3-VL-32B-Instruct" --split test
+# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/path/to/ScienceQA" --out_dir "/path/to/ScienceQA/cache_tokens32B" --model_name "Qwen/Qwen3-VL-32B-Instruct" --split validation
+# CUDA_VISIBLE_DEVICES=4 python ScienceQA_Codebook.py --data_root "/path/to/ScienceQA" --out_dir "/path/to/ScienceQA/cache_tokens32B" --model_name "Qwen/Qwen3-VL-32B-Instruct"
 

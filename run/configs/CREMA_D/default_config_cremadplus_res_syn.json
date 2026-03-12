@@ -41,10 +41,10 @@
     "validate_with": "accuracy"
   },
   "dataset": {
-      "dataloader_class": "CramedDPlus_Dataloader",
+      "dataloader_class": "IronyCremadDataloader",
       "data_roots": "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/CremaD/CREMA-D",
-      "norm_wav_path": "./mydatasets/CREMAD/wav_norm_22050_fold{}.pkl",
-      "norm_face_path": "./mydatasets/CREMAD/norm_face_path_fold{}.pkl",
+      "norm_wav_path": "./src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold{}.pkl",
+      "norm_face_path": "./src/synib/mydatasets/Irony_Cremad/assets/norms/norm_face_path_fold{}.pkl",
       "return_data": {"video": true, "spectrogram": true, "audio": false, "face": false},
       "data_split": {
           "method": "non_inclusive",
@@ -61,4 +61,3 @@
     "save_base_dir": "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/data/2025_data/synergy/CremadPlus/v2"
   }
 }
-
