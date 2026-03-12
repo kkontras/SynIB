@@ -42,67 +42,32 @@ def print_search(config_path, default_config_path, args):
         m += "_epochstage{}".format(args.recon_epochstages)
     if "recon_ensemblestages" in args and args.recon_ensemblestages is not None:
         m += "_ensstage{}".format(args.recon_ensemblestages)
-    if "tanh_mode" in args and args.tanh_mode is not None and args.tanh_mode != "None":
-        m += "_tanhmode{}".format(args.tanh_mode)
     if "num_classes" in args and args.num_classes is not None and args.num_classes != "None":
         m += "_numclasses{}".format(args.num_classes)
     if "tanh_mode_beta" in args and args.tanh_mode_beta is not None and args.tanh_mode_beta != "None":
         m += "_beta{}".format(args.tanh_mode_beta)
-    if "transform_type" in args and args.transform_type is not None:
-        m += "_tt{}".format(args.transform_type)
-    if "trasform_before" in args and args.trasform_before is not None:
-        m += "_tb{}".format(args.trasform_before)
     if "regby" in args and args.regby is not None and args.regby != "None":
         m += "_regby{}".format(args.regby)
-    if "clip" in args and args.clip is not None and args.clip != "None":
-        m += "_clip{}".format(args.clip)
     if "l" in args and args.l is not None and args.l != "None":
         m += "_l{}".format(args.l)
     if "multil" in args and args.multil is not None:
         m += "_multil{}".format(args.multil)
-    if "l_diffsq" in args and args.l_diffsq is not None and args.l_diffsq != "None":
-        m += "_ldiffsq{}".format(args.l_diffsq)
     if "lib" in args and args.lib is not None and args.lib != "None":
         m += "_lib{}".format(args.lib)
-    if "ratio_us" in args and args.ratio_us is not None:
-        m += "_ratio{}".format(args.ratio_us)
     if "kmepoch" in args and args.kmepoch is not None and args.kmepoch != "None":
         m += "_kmepoch{}".format(args.kmepoch)
-    if "mmcosine_scaling" in args and args.mmcosine_scaling is not None and args.mmcosine_scaling != "None":
-        m += "_mmcosinescaling{}".format(args.mmcosine_scaling)
-    if "ilr_c" in args and "ilr_g" in args and args.ilr_c is not None and args.ilr_g is not None and args.ilr_c != "None" and args.ilr_g != "None":
-        m += "_ilrcg{}_{}".format(args.ilr_c, args.ilr_g)
     if "ending_epoch" in args and args.ending_epoch is not None and args.ending_epoch != "None":
         m += "_endingepoch{}".format(args.ending_epoch)
     if "num_samples" in args and args.num_samples is not None and args.num_samples != "None":
         m += "_numsamples{}".format(args.num_samples)
-    if "pow" in args and args.pow is not None and args.pow != "None":
-        m += "_pow{}".format(args.pow)
-    if "nstep" in args and args.nstep is not None and args.nstep != "None":
-        m += "_nstep{}".format(args.nstep)
     if "contrcoeff" in args and args.contrcoeff is not None and args.contrcoeff != "None":
         m += "_contrcoeff{}".format(args.contrcoeff)
-    if "kde_coeff" in args and args.kde_coeff is not None and args.kde_coeff != "None":
-        m += "_kde_coeff{}".format(args.kde_coeff)
-    if "etube" in args and args.etube is not None and args.etube != "None":
-        m += "_etube{}".format(args.etube)
-    if "temperature" in args and args.temperature is not None and args.temperature != "None":
-        m += "_temp{}".format(args.temperature)
     if "shuffle_type" in args and args.shuffle_type is not None and args.shuffle_type != "None":
         m += "_st{}".format(args.shuffle_type)
     if "contr_type" in args and args.contr_type is not None and args.contr_type != "None":
         m += "_contrtype{}".format(args.contr_type)
     if "validate_with" in args and args.validate_with is not None and args.validate_with != "None":
         m += "_vld{}".format(args.validate_with)
-
-    if "base_alpha" in args and args.base_alpha is not None and args.base_alpha != "None":
-        m += "_basealpha{}".format(args.base_alpha)
-    if "alpha_var" in args and args.alpha_var is not None and args.alpha_var != "None":
-        m += "_alphavar{}".format(args.alpha_var)
-    if "base_beta" in args and args.base_beta is not None and args.base_beta != "None":
-        m += "_basebeta{}".format(args.base_beta)
-    if "beta_var" in args and args.beta_var is not None and args.beta_var != "None":
-        m += "_betavar{}".format(args.beta_var)
 
     if "ironic_rate" in args and args.ironic_rate is not None:
         m += "_ir{}".format(float(args.ironic_rate))
@@ -126,8 +91,6 @@ def print_search(config_path, default_config_path, args):
         m += "_lr{}".format(args.lr)
     if "wd" in args and args.wd is not None:
         m += "_wd{}".format(args.wd)
-    if "mm" in args and args.mm is not None:
-        m += "_mm{}".format(args.mm)
     if "cls" in args and args.cls is not None:
         m += "_cls{}".format(args.cls)
     if "batch_size" in args and args.batch_size is not None:
@@ -332,47 +295,27 @@ if __name__ == "__main__":
     parser.add_argument('--fold', help="Fold")
     parser.add_argument('--alpha', help="Alpha")
     parser.add_argument('--validate_with', help="validate_with")
-    parser.add_argument('--transform_type', help="transform_type")
-    parser.add_argument('--trasform_before', help="trasform_before")
-    parser.add_argument('--tanh_mode', help="tanh_mode")
     parser.add_argument('--tanh_mode_beta', help="tanh_mode_beta")
     parser.add_argument('--regby', help="regby")
-    parser.add_argument('--clip', help="Gradient Clip Value")
     parser.add_argument('--batch_size', help="batch_size")
     parser.add_argument('--l', help="L for Gat")
     parser.add_argument('--multil', help="Coeff of Multi-Loss")
-    parser.add_argument('--l_diffsq', help="L for Gat")
     parser.add_argument('--lib', help="L for Gat")
-    parser.add_argument('--ratio_us', help="lib for Gat")
     parser.add_argument('--kmepoch', help="keep memory epoch")
     parser.add_argument('--num_samples', help="Number of samples for Gat")
-    parser.add_argument('--pow', help="ShuffleGrad power")
-    parser.add_argument('--nstep', help="ShuffleGrad nstep Reg-Dist-Sep")
     parser.add_argument('--contrcoeff', help="ShuffleGrad Contrastive Coefficient")
-    parser.add_argument('--kde_coeff', help="ShuffleGrad kde_coeff Coefficient")
-    parser.add_argument('--etube', help="ShuffleGrad Etube")
-    parser.add_argument('--temperature', help="ShuffleGrad Contrastive Temperature")
     parser.add_argument('--contr_type', help="ShuffleGrad Contrastive type")
     parser.add_argument('--shuffle_type', help="shuffle_type")
     parser.add_argument('--num_classes', help="num_classes")
-    parser.add_argument('--base_alpha', help="Synthetic Alpha")
-    parser.add_argument('--alpha_var', help="Synthetic Alpha Variance")
-    parser.add_argument('--base_beta', help="Synthetic Beta")
-    parser.add_argument('--beta_var', help="Synthetic Beta Variance")
     parser.add_argument('--optim_method', help="Optim for Gat")
-    parser.add_argument('--ilr_c', help="Initial Learning Rate Audio")
-    parser.add_argument('--ilr_g', help="Initial Learning Rate Video")
-    parser.add_argument('--mmcosine_scaling', help="mmcosine_scaling")
     parser.add_argument('--ending_epoch', help="Ending epoch")
     parser.add_argument('--load_ongoing', help="Ending epoch")
-    parser.add_argument('--commonlayers', help="Fusion with Conformer Layers")
     parser.add_argument('--recon_weight1', help="ReconBoost Parameters")
     parser.add_argument('--recon_weight2', help="ReconBoost Parameters")
     parser.add_argument('--recon_epochstages', help="ReconBoost Parameters")
     parser.add_argument('--recon_ensemblestages', help="ReconBoost Parameters")
     parser.add_argument('--lr', required=False, help="Learning Rate", default=None)
     parser.add_argument('--wd', required=False, help="Weight Decay", default=None)
-    parser.add_argument('--mm', required=False, help="Optimizer Momentum", default=None)
     parser.add_argument('--cls', required=False, help="CLS linear, nonlinear, highlynonlinear", default=None)
     parser.add_argument('--printing', required=False, help="print_results", default=True)
     parser.add_argument('--ironic_rate', required=False, help="Perturbation type of MCR", default=None)
@@ -381,6 +324,10 @@ if __name__ == "__main__":
     parser.add_argument('--perturb_pmax', required=False, help="Fill for mask type perturbation of MCR", default=None)
     parser.add_argument('--perturb_pmin', required=False, help="Fill for mask type perturbation of MCR", default=None)
     parser.add_argument('--perturb_lsparse', required=False, help="Fill for mask type perturbation of MCR", default=None)
+    parser.add_argument('--rmask', required=False, help="Shortcut alias for --perturb and --perturb_fill", default=None)
+    parser.add_argument('--pmin', required=False, help="Shortcut alias for --perturb_pmin", default=None)
+    parser.add_argument('--pmax', required=False, help="Shortcut alias for --perturb_pmax", default=None)
+    parser.add_argument('--lsparse', required=False, help="Shortcut alias for --perturb_lsparse", default=None)
     parser.add_argument('--pre', action='store_true')
     parser.add_argument('--frozen', action='store_true')
     parser.add_argument('--tdqm_disable', action='store_true')
@@ -391,6 +338,22 @@ if __name__ == "__main__":
     parser.set_defaults(tdqm_disable=False)
 
     args = parser.parse_args()
+
+    for var_name in vars(args):
+        var_value = getattr(args, var_name)
+        if var_value == "None":
+            setattr(args, var_name, None)
+
+    if args.rmask is not None:
+        args.perturb = args.rmask
+        if args.perturb_fill is None:
+            args.perturb_fill = args.rmask
+    if args.pmin is not None:
+        args.perturb_pmin = args.pmin
+    if args.pmax is not None:
+        args.perturb_pmax = args.pmax
+    if args.lsparse is not None:
+        args.perturb_lsparse = args.lsparse
 
     config_li = list(args.config.split(","))
     val = {}

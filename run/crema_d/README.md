@@ -8,7 +8,7 @@ Use this folder to train/evaluate CREMA-D experiments.
 
 ## Scenarios
 
-`train.sh` and `show.sh` support named scenarios (for readable, reproducible settings).
+`train.sh` and `show.sh` support named scenarios, but the preferred usage is to pass explicit flags so the command itself shows the actual setup.
 
 List them with:
 
@@ -17,24 +17,30 @@ List them with:
 ./run/crema_d/show.sh --scenarios
 ```
 
-The same scenario name can be used for both training and evaluation so you do not have to manually retype `--perturb`, `--l`, `--perturb_pmin`, or `--perturb_lsparse`.
+Short aliases:
+
+- `--rmask random` maps to `--perturb random --perturb_fill random`
+- `--rmask learned` maps to `--perturb learned --perturb_fill learned`
+- `--pmin` maps to `--perturb_pmin`
+- `--pmax` maps to `--perturb_pmax`
+- `--lsparse` maps to `--perturb_lsparse`
 
 ## Typical workflow
 
 ```bash
-# 1) train a scenario
-./run/crema_d/train.sh rmask-random-l1.0-pmin0.20 --fold 0
+# 1) train with explicit flags
+./run/crema_d/train.sh --rmask random --l 1.0 --pmin 0.20 --fold 0
 
-# 2) evaluate exactly the same scenario
-./run/crema_d/show.sh rmask-random-l1.0-pmin0.20 --fold 0
+# 2) evaluate exactly the same setup
+./run/crema_d/show.sh --rmask random --l 1.0 --pmin 0.20 --fold 0
 ```
 
 ## More examples
 
 ```bash
 ./run/crema_d/train.sh
-./run/crema_d/train.sh rmask-random-l1.0-pmin0.20 --fold 0
-./run/crema_d/train.sh rmask-learned-l1.0-lsparse0.010 --fold 0
-./run/crema_d/show.sh rmask-random-l1.0-pmin0.20 --fold 0
+./run/crema_d/train.sh --rmask random --l 1.0 --pmin 0.20 --fold 0
+./run/crema_d/train.sh --rmask learned --l 1.0 --lsparse 0.010 --fold 0
+./run/crema_d/show.sh --rmask random --l 1.0 --pmin 0.20 --fold 0
 ./run/crema_d/show.sh run/configs/CREMA_D/default_config_cremadplus_res_syn.json --fold 1
 ```

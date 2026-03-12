@@ -218,8 +218,6 @@ class Monitor_n_Save():
                 step = int(current_step / self.agent.config.early_stopping.validate_every)
                 message = Fore.WHITE + "Epoch {0:d} step {1:d} with ".format(self.agent.logs["current_epoch"], step)
 
-            if not self.agent.config.training_params.tdqm_disable and not self.agent.trainer.end_of_epoch_check: print()
-
             if test:
                 message = Fore.WHITE + "Test "
             else:
@@ -329,4 +327,3 @@ class Monitor_n_Save():
 
         if training_cycle > self.agent.config.early_stopping.n_steps_stop_after and self.agent.logs["steps_no_improve"] >= self.agent.config.early_stopping.n_steps_stop - 1:
             self.agent.evaluators.train_evaluator.set_early_stop()
-
