@@ -15,10 +15,10 @@ Models are grouped by dataset/task for easier onboarding.
 - `qwen_base_models.py`
 - `qwen_prompt_models.py`
 - `qwen_cached.py`
-- `qwen_synib_svae_components.py`
+- `synib_mask_model.py`
 - Qwen VLM families split by pipeline: `qwen_prompt_models.py` for prompt-driven variants and `qwen_cached.py` for cached variants.
-- `qwen_synib_svae_components.py` holds the reusable SVAE / transformer components still used outside the Qwen cached stack.
+- `synib_mask_model.py` holds the reusable SynIB / transformer components still used outside the Qwen cached stack.
 
 ## Shared utilities
 - `src/synib/models/model_utils/`
-- `src/synib/models/VAVL_git/VAVL/conformer/` (kept minimal to support current imports)
+- `src/synib/models/conformer/` (Conformer encoder, Apache 2.0, Soohwan Kim)

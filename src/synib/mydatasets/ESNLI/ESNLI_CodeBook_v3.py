@@ -21,6 +21,7 @@ Important:
 - This script is padding-proof by trimming with keep = attention_mask.bool() PER SAMPLE.
 - It supports batch_size > 1 and saves each sample as its own item (still with leading batch dim 1).
 """
+print("[BOOTSTRAP] CodeBook_v3 starting import sequence...", flush=True)
 
 import os
 import json
@@ -29,20 +30,35 @@ import zipfile
 import random
 import argparse
 import logging
+import time
 import urllib.request
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-import numpy as np
-import pandas as pd
-import torch
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
-from PIL import Image
+def _bootstrap_import(label: str, stmt: str) -> None:
+    t0 = time.time()
+    print(f"[BOOTSTRAP] importing {label} ...", flush=True)
+    exec(stmt, globals())
+    dt = time.time() - t0
+    print(f"[BOOTSTRAP] imported {label} ({dt:.2f}s)", flush=True)
 
-from transformers import AutoProcessor, Qwen3VLForConditionalGeneration
 
-from transformers import AutoProcessor, AutoConfig
-from tqdm import tqdm
+# Keep transformers import lean during startup.
+os.environ.setdefault("TRANSFORMERS_NO_TF", "1")
+os.environ.setdefault("TRANSFORMERS_NO_FLAX", "1")
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
+_bootstrap_import("numpy", "import numpy as np")
+_bootstrap_import("pandas", "import pandas as pd")
+_bootstrap_import("torch", "import torch")
+_bootstrap_import("torch dataloader", "from torch.utils.data import Dataset, DataLoader")
+_bootstrap_import("torchvision", "from torchvision import transforms")
+_bootstrap_import("PIL", "from PIL import Image")
+_bootstrap_import(
+    "transformers symbols",
+    "from transformers import AutoProcessor, Qwen3VLForConditionalGeneration, AutoConfig",
+)
+_bootstrap_import("tqdm", "from tqdm import tqdm")
+print("[BOOTSTRAP] CodeBook_v3 imports ready.", flush=True)
 
 
 LABEL2IDX = {"entailment": 0, "neutral": 1, "contradiction": 2}
@@ -62,7 +78,7 @@ def _download_url(url: str, dst_path: str, logger: logging.Logger) -> None:
 
 def ensure_esnli_repo(cache_root: str, source: str, logger: logging.Logger) -> str:
     if source == "evil":
-        zip_url = "https://github.com/multimodal-ai-lab/e-ViL/archive/refs/heads/main.zip"
+        zip_url = "https://github.com/maximek3/e-ViL/archive/refs/heads/main.zip"
         zip_name = "e-ViL-main.zip"
         extracted_folder_name = "e-ViL-main"
     elif source == "virginie":
@@ -203,6 +219,7 @@ class ESNLIVE_Dataset(Dataset):
         source: str = "evil",
         image_size: int = 224,
         max_samples: Optional[int] = None,
+        max_images: Optional[int] = None,
         seed: int = 0,
         drop_invalid_labels: bool = True,
     ):
@@ -238,12 +255,32 @@ class ESNLIVE_Dataset(Dataset):
             rnd.shuffle(keep)
             keep = keep[:max_samples]
 
+        # Filter to the first max_images unique Flickr30k image IDs (in dataset order),
+        # keeping ALL hypothesis rows that belong to those images.
+        if max_images is not None and max_images > 0:
+            _fid_keys = ["Flikr30kID", "Flickr30kID", "flickr30k_id", "image_id"]
+            seen_fids: list = []
+            fid_set: set = set()
+            for i in keep:
+                fid = str(pick_first(self.rows[i], _fid_keys, default="")).strip()
+                if fid not in fid_set:
+                    fid_set.add(fid)
+                    seen_fids.append(fid)
+                if len(fid_set) >= max_images:
+                    break
+            keep = [i for i in keep
+                    if str(pick_first(self.rows[i], _fid_keys, default="")).strip() in fid_set]
+            self.logger.info(
+                f"max_images={max_images}: keeping {len(fid_set)} unique images "
+                f"→ {len(keep)} rows (images: {seen_fids})"
+            )
+
         self.keep = keep
         self.tf = transforms.Compose([transforms.Resize((image_size, image_size)), transforms.ToTensor()])
         self.logger.info(f"split={split} kept {len(self.keep)} / {len(self.rows)}")
 
     def __len__(self) -> int:
-        return int(len(self.keep)/2)
+        return len(self.keep)
 
     def __getitem__(self, idx: int) -> Dict[str, Any]:
         ex = self.rows[self.keep[idx]]
@@ -455,6 +492,57 @@ def _stack_deep_levels_per_sample(deep_stack_viz_list: Any, B: int) -> List[torc
         else:
             out.append(torch.cat([x.unsqueeze(0) for x in per_sample_levels[i]], dim=0))  # (K,64,2048)
     return out
+
+
+def _unpack_image_feature_outputs(feat_out: Any) -> Tuple[List[torch.Tensor], Any]:
+    """
+    Robustly unpack model.get_image_features(...) across API variants.
+
+    Supported patterns:
+      - image_embeds_list
+      - (image_embeds_list, deep_stack_viz_list)
+      - (image_embeds_list, deep_stack_viz_list, *extras)
+      - image_embeds_tensor
+    """
+    if isinstance(feat_out, tuple):
+        if len(feat_out) == 0:
+            raise RuntimeError("get_image_features returned an empty tuple.")
+        image_part = feat_out[0]
+        deep_part = feat_out[1] if len(feat_out) > 1 else []
+    else:
+        image_part = feat_out
+        deep_part = []
+        # Newer transformers can return a ModelOutput object
+        # (e.g., BaseModelOutputWithDeepstackFeatures).
+        if hasattr(feat_out, "pooler_output") or hasattr(feat_out, "last_hidden_state"):
+            pooler = getattr(feat_out, "pooler_output", None)
+            hidden = getattr(feat_out, "last_hidden_state", None)
+            deep = getattr(feat_out, "deepstack_features", None)
+            image_part = pooler if pooler is not None else hidden
+            deep_part = deep if deep is not None else []
+        elif isinstance(feat_out, dict):
+            pooler = feat_out.get("pooler_output", None)
+            hidden = feat_out.get("last_hidden_state", None)
+            deep = feat_out.get("deepstack_features", None)
+            image_part = pooler if pooler is not None else (hidden if hidden is not None else feat_out)
+            deep_part = deep if deep is not None else []
+
+    if torch.is_tensor(image_part):
+        image_embeds_list = [image_part]
+    elif isinstance(image_part, (list, tuple)):
+        image_embeds_list = [t for t in image_part if torch.is_tensor(t)]
+    else:
+        raise RuntimeError(f"Unexpected image feature type: {type(image_part)}")
+
+    if len(image_embeds_list) == 0:
+        raise RuntimeError("No tensor image embeddings produced by get_image_features.")
+
+    return image_embeds_list, deep_part
+
+
+def _is_cuda_invalid_argument_error(err: BaseException) -> bool:
+    msg = str(err).lower()
+    return ("cuda" in msg) and ("invalid argument" in msg)
 
 @torch.no_grad()
 def compute_qwen3vl_visual_outputs(
@@ -695,16 +783,47 @@ def build_token_type_ids(
         if not text:
             return start
 
-        needle = _tokenize_no_special(tok, text+"\n")
-        i = _find_subseq(ids, needle[:-1], start=start, end=L)
+        candidates = [
+            text,
+            f"Hypothesis:{text}",
+            f"Hypothesis: {text}",
+            text + "\n",
+            f"Hypothesis:{text}\n",
+            f"Hypothesis: {text}\n",
+        ]
+        # BPE suffix-merge fix: the prompt template places the hypothesis before
+        # multiple \n characters (e.g. \n\n\n\n\n\n from "\n\n".join([..., "\n", instr, ...]))
+        # which causes the tokenizer to merge the last hypothesis character with
+        # the trailing newlines into a single BPE token (e.g. ".\n\n\n\n\n\n" → ".ĊĊĊĊĊĊ").
+        # Adding candidates with 2-8 trailing newlines ensures we find the span.
+        for _n in range(2, 9):
+            _nl = "\n" * _n
+            candidates += [
+                text + _nl,
+                f"Hypothesis:{text}" + _nl,
+                f"Hypothesis: {text}" + _nl,
+            ]
+
+        i = -1
+        needle = []
+        for cand in candidates:
+            cand_ids = _tokenize_no_special(tok, cand)
+            if len(cand_ids) == 0:
+                continue
+            hit = _find_subseq(ids, cand_ids, start=start, end=L)
+            if hit >= 0:
+                i = hit
+                needle = cand_ids
+                break
+
         if i < 0:
             if verbose:
                 print(f"[MISS] {name}: couldn't find tokens for text={text[:80]!r}")
-                print(f"  needle_len={len(needle)} start={start} L={L}")
+                print(f"  tried={len(candidates)} start={start} L={L}")
             return start
 
         # label span, but don't overwrite images/cls
-        for k in range(i, min(i + len(needle)-1, L)):
+        for k in range(i, min(i + len(needle), L)):
             if ttid[k] not in (TT_IMAGE, TT_CLS):
                 ttid[k] = tt
 
@@ -756,6 +875,7 @@ def build_and_save_cache(
     num_workers: int,
     shard_size: int,
     max_samples: int,
+    max_images: int,
     require_image: bool,
     require_outside_knowledge: bool,
     drop_near_blank: bool,
@@ -763,12 +883,27 @@ def build_and_save_cache(
     cache_image_embeds: bool,
     device: str,
     dtype: str,
+    heartbeat_every: int,
+    local_files_only: bool,
 ):
+    def tmux_log(msg: str) -> None:
+        print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}", flush=True)
+
+    heartbeat_every = max(1, int(heartbeat_every))
     os.makedirs(out_dir, exist_ok=True)
     split_out = os.path.join(out_dir, split)
     os.makedirs(split_out, exist_ok=True)
+    hf_cache = os.path.join(data_root, "hf_cache")
+    os.makedirs(hf_cache, exist_ok=True)
 
-    processor = AutoProcessor.from_pretrained(model_name, cache_dir=data_root)
+    tmux_log(f"START split={split} data_root={data_root} out_dir={split_out}")
+    tmux_log(f"HF cache dir: {hf_cache}")
+    tmux_log(f"Loading processor/tokenizer: {model_name}")
+    processor = AutoProcessor.from_pretrained(
+        model_name,
+        cache_dir=hf_cache,
+        local_files_only=bool(local_files_only),
+    )
     tok = processor.tokenizer
     tok.padding_side = "left"
     if tok.pad_token is None:
@@ -779,22 +914,50 @@ def build_and_save_cache(
     cls_token_id = int(tok.convert_tokens_to_ids("<CLS>"))
 
     # Get image token id/str from config
-    cfg = AutoConfig.from_pretrained(model_name, cache_dir=data_root)
+    tmux_log(f"Loading model config: {model_name}")
+    cfg = AutoConfig.from_pretrained(
+        model_name,
+        cache_dir=hf_cache,
+        local_files_only=bool(local_files_only),
+    )
     if not hasattr(cfg, "image_token_id"):
         raise RuntimeError("Config has no image_token_id; cannot build image token masks.")
     image_token_id = int(getattr(cfg, "image_token_id"))
     image_token_str = tok.convert_ids_to_tokens(image_token_id)
 
     # Optional model for visual outputs caching
+    tmux_log(f"Loading model weights: {model_name} (device={device}, dtype={dtype})")
+    if dtype == "fp16":
+        model_dtype = torch.float16
+    elif dtype == "bf16":
+        model_dtype = torch.bfloat16
+    else:
+        model_dtype = torch.float32
+
+    load_kwargs = {
+        "trust_remote_code": True,
+        "cache_dir": hf_cache,
+        "torch_dtype": model_dtype,
+        "local_files_only": bool(local_files_only),
+    }
+    if str(device).startswith("cuda"):
+        load_kwargs["device_map"] = {"": device}
+
     model = Qwen3VLForConditionalGeneration.from_pretrained(
         model_name,
-        trust_remote_code=True,
-    ).cuda()
+        **load_kwargs,
+    )
+    if not str(device).startswith("cuda"):
+        model = model.to(device)
     model.eval()
+    tmux_log("Model loaded and set to eval().")
 
+    tmux_log(f"Building dataset split={split} ...")
     ds = ESNLIVE_Dataset(
         data_root=data_root,
-        split=split
+        split=split,
+        max_samples=max_samples if max_samples > 0 else None,
+        max_images=max_images if max_images > 0 else None,
     )
 
     dl = DataLoader(
@@ -823,13 +986,20 @@ def build_and_save_cache(
         torch.save(shard_items, shard_file)
         with open(manifest_path, "a", encoding="utf-8") as f:
             f.write(json.dumps({"shard": os.path.basename(shard_file), "num_items": len(shard_items)}) + "\n")
+        tmux_log(f"Flushed shard={os.path.basename(shard_file)} num_items={len(shard_items)}")
         shard_items = []
         shard_idx += 1
         return shard_file
 
+    tmux_log(f"Dataloader ready: batches={len(dl)} batch_size={batch_size} num_workers={num_workers}")
     pbar = tqdm(dl, desc=f"[cache] {split}", total=len(dl))
+    t0 = time.time()
+    items_seen = 0
+    last_beat = t0
+    batch_idx = 0
 
     for batch in pbar:
+        batch_idx += 1
         images = batch["images"]
         hint_texts = batch["texts"]
         labels = batch["labels"]
@@ -853,57 +1023,71 @@ def build_and_save_cache(
         input_ids = proc["input_ids"].to(device)           # (B, T)
         attention_mask = proc["attention_mask"].to(device)     # (B, T)
         pixel_values = proc["pixel_values"].to(device)         # (B, C, H, W)
-        image_grid_thw = proc["image_grid_thw"].to(device)  # (B, 3) typically
+        image_grid_thw_cpu = proc["image_grid_thw"]  # (B, 3)
+        image_grid_thw_dev = image_grid_thw_cpu.to(device)
 
 
-        try:
-            with torch.no_grad():
+        with torch.no_grad():
+            token_embeds = model.model.get_input_embeddings()(input_ids)  # (B,T,2048)
 
-                token_embeds = model.model.get_input_embeddings()(input_ids)  # (B,T,2048)
+            image_grid_thw_for_ops = image_grid_thw_dev
+            try:
+                image_feat_out = model.get_image_features(pixel_values, image_grid_thw_for_ops)
+            except RuntimeError as e:
+                if _is_cuda_invalid_argument_error(e):
+                    tmux_log("WARN get_image_features failed with CUDA image_grid_thw; retrying with CPU image_grid_thw.")
+                    image_grid_thw_for_ops = image_grid_thw_cpu
+                    image_feat_out = model.get_image_features(pixel_values, image_grid_thw_for_ops)
+                else:
+                    raise
+            image_embeds_list, deep_stack_viz_list = _unpack_image_feature_outputs(image_feat_out)
 
-                image_embeds_list, deep_stack_viz_list = model.get_image_features(pixel_values, image_grid_thw)
+            image_embeds_cat = torch.cat(image_embeds_list, dim=0).to(token_embeds.device, token_embeds.dtype)
 
-                image_embeds_cat = torch.cat(image_embeds_list, dim=0).to(token_embeds.device, token_embeds.dtype)
+            placeholder_mask, _ = model.model.get_placeholder_mask(
+                input_ids,
+                inputs_embeds=token_embeds,
+                image_features=image_embeds_cat,
+            )
+            placeholder_mask_2d = placeholder_mask[..., 0] if placeholder_mask.dim() == 3 else placeholder_mask  # (B,T)
 
-                placeholder_mask, _ = model.model.get_placeholder_mask(
-                    input_ids,
-                    inputs_embeds=token_embeds,
-                    image_features=image_embeds_cat,
-                )
-                placeholder_mask_2d = placeholder_mask[..., 0] if placeholder_mask.dim() == 3 else placeholder_mask  # (B,T)
+            token_embeds = token_embeds.masked_scatter(placeholder_mask, image_embeds_cat)
 
-                token_embeds = token_embeds.masked_scatter(placeholder_mask, image_embeds_cat)
-
-                # Force fp16 for caching (your requirement)
-                # token_embeds = token_embeds.to(torch.float16)
-
-                attention_mask_tensor = (
-                    attention_mask if not isinstance(attention_mask, dict) else attention_mask["full_attention"]
-                )
-                if attention_mask_tensor is not None and attention_mask_tensor.ndim == 4:
-                    attention_mask_tensor = torch.diagonal(attention_mask_tensor[:, 0], dim1=1, dim2=2)
-                    # Only apply conversion for floating point tensors (inverted masks)
-                    if attention_mask_tensor.dtype.is_floating_point:
-                        attention_mask_tensor = attention_mask_tensor / torch.finfo(attention_mask_tensor.dtype).min
-                        attention_mask_tensor = (1.0 - attention_mask_tensor).int()
+            attention_mask_tensor = (
+                attention_mask if not isinstance(attention_mask, dict) else attention_mask["full_attention"]
+            )
+            if attention_mask_tensor is not None and attention_mask_tensor.ndim == 4:
+                attention_mask_tensor = torch.diagonal(attention_mask_tensor[:, 0], dim1=1, dim2=2)
+                if attention_mask_tensor.dtype.is_floating_point:
+                    attention_mask_tensor = attention_mask_tensor / torch.finfo(attention_mask_tensor.dtype).min
+                    attention_mask_tensor = (1.0 - attention_mask_tensor).int()
+            try:
                 position_ids, _ = model.model.get_rope_index(
                     input_ids,
-                    image_grid_thw,
+                    image_grid_thw_for_ops,
                     None,
                     attention_mask=attention_mask_tensor,
                 )
+            except RuntimeError as e:
+                if _is_cuda_invalid_argument_error(e) and image_grid_thw_for_ops is image_grid_thw_dev:
+                    tmux_log("WARN get_rope_index failed with CUDA image_grid_thw; retrying with CPU image_grid_thw.")
+                    image_grid_thw_for_ops = image_grid_thw_cpu
+                    position_ids, _ = model.model.get_rope_index(
+                        input_ids,
+                        image_grid_thw_for_ops,
+                        None,
+                        attention_mask=attention_mask_tensor,
+                    )
+                else:
+                    raise
 
-            input_ids_cpu = input_ids.detach().cpu()
-            attention_cpu = attention_mask.detach().cpu()
-            placeholder_mask_2d_cpu = placeholder_mask_2d.detach().cpu()  # (B,T) bool
-            token_embeds_cpu = token_embeds.detach().cpu()  # (B,T,2048) fp16
-            position_ids_cpu = position_ids.detach().cpu()
-            pos_b = _normalize_pos_to_B_3_1_T(position_ids_cpu, len(labels))  # CPU
-            deep_per_sample = _stack_deep_levels_per_sample(deep_stack_viz_list, len(labels))
-
-
-        except Exception as e:
-            raise Exception(e)
+        input_ids_cpu = input_ids.detach().cpu()
+        attention_cpu = attention_mask.detach().cpu()
+        placeholder_mask_2d_cpu = placeholder_mask_2d.detach().cpu()  # (B,T) bool
+        token_embeds_cpu = token_embeds.detach().cpu()  # (B,T,2048) fp16
+        position_ids_cpu = position_ids.detach().cpu()
+        pos_b = _normalize_pos_to_B_3_1_T(position_ids_cpu, len(labels))  # CPU
+        deep_per_sample = _stack_deep_levels_per_sample(deep_stack_viz_list, len(labels))
 
         # gen_texts = generate_answer(
         #     backbone=model,
@@ -924,6 +1108,7 @@ def build_and_save_cache(
         #     print(t)
 
         B = input_ids.size(0)
+        items_seen += int(B)
         for i in range(B):
 
             keep = attention_cpu[i].bool()  # (T,)
@@ -971,8 +1156,29 @@ def build_and_save_cache(
                 # shard_path = flush_shard(items, split_out, shard_idx, manifest_path)
                 # verify_shard(shard_path, n_show=1)
 
+        if (batch_idx % heartbeat_every) == 0 or (time.time() - last_beat) > 120:
+            elapsed = time.time() - t0
+            ips = items_seen / max(elapsed, 1e-6)
+            cuda_msg = ""
+            if torch.cuda.is_available():
+                dev = torch.cuda.current_device()
+                mem_gb = torch.cuda.memory_allocated(dev) / (1024 ** 3)
+                cuda_msg = f" cuda_mem_gb={mem_gb:.2f}"
+            tmux_log(
+                f"Heartbeat split={split} batch={batch_idx}/{len(dl)} "
+                f"items={items_seen} shards_written={shard_idx} "
+                f"rate={ips:.2f} items/s elapsed_s={int(elapsed)}{cuda_msg}"
+            )
+            last_beat = time.time()
+
     shard_path = flush_shard()
-    verify_shard(shard_path, n_show=1)
+    if shard_path is None:
+        # All items were already flushed mid-loop; verify the last written shard
+        import glob as _glob
+        written = sorted(_glob.glob(os.path.join(split_out, "shard_*.pt")))
+        shard_path = written[-1] if written else None
+    if shard_path is not None:
+        verify_shard(shard_path, n_show=1)
 
     meta = {
         "model_name": model_name,
@@ -994,6 +1200,7 @@ def build_and_save_cache(
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2)
 
+    tmux_log(f"DONE split={split} total_items={items_seen} shards={shard_idx}")
     print(f"[OK] Wrote cache to: {split_out}")
     print(f"[OK] Manifest: {manifest_path}")
     print(f"[OK] Meta: {meta_path}")
@@ -1013,6 +1220,9 @@ def main():
     ap.add_argument("--num_workers", type=int, default=4)
     ap.add_argument("--shard_size", type=int, default=4096)
     ap.add_argument("--max_samples", type=int, default=0, help="0 means all filtered samples")
+    ap.add_argument("--max_images", type=int, default=0,
+                    help="Keep only the first N unique Flickr30k images (0 = all). "
+                         "All hypothesis rows for those images are kept.")
 
     ap.add_argument("--require_image", action="store_true", default=True)
     ap.add_argument("--require_outside_knowledge", action="store_true", default=True)
@@ -1022,7 +1232,11 @@ def main():
     ap.add_argument("--cache_image_embeds", action="store_true",
                     help="Also cache vision 'tokens' (embeddings) via model.model.visual(...)")
     ap.add_argument("--device", type=str, default="cuda:0", help='device_map value, e.g. "cuda:0"')
-    ap.add_argument("--dtype", type=str, default="fp16", choices=["fp16", "bf16"])
+    ap.add_argument("--dtype", type=str, default="fp16", choices=["fp16", "bf16", "fp32"])
+    ap.add_argument("--local_files_only", action="store_true",
+                    help="Load processor/config/model only from local HF cache.")
+    ap.add_argument("--heartbeat_every", type=int, default=10,
+                    help="Print tmux-friendly heartbeat every N batches (default: 10).")
 
     args = ap.parse_args()
 
@@ -1035,6 +1249,7 @@ def main():
         num_workers=args.num_workers,
         shard_size=args.shard_size,
         max_samples=args.max_samples,
+        max_images=args.max_images,
         require_image=args.require_image,
         require_outside_knowledge=args.require_outside_knowledge,
         drop_near_blank=args.drop_near_blank,
@@ -1042,6 +1257,8 @@ def main():
         cache_image_embeds=args.cache_image_embeds,
         device=args.device,
         dtype=args.dtype,
+        heartbeat_every=args.heartbeat_every,
+        local_files_only=args.local_files_only,
     )
 
 

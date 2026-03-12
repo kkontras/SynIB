@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from synib.models.VAVL_git.VAVL.conformer.model import Conformer
+from synib.models.conformer.model import Conformer
 
 # ----------------- Your fusion backbone (unchanged) -----------------
 class TF_Fusion(nn.Module):

@@ -78,7 +78,7 @@ class videoReader(object):
 
 
 class CRAMED_dataset(object):
-    def __init__(self, path_to_dataset="/esat/smcdata/users/kkontras/Image_Dataset/no_backup/CremaD/CREMA-D", frame_interval=1, frame_kept_per_second=1):
+    def __init__(self, path_to_dataset=None, frame_interval=1, frame_kept_per_second=1):
         self.path_to_video = os.path.join(path_to_dataset, 'VideoFlash')
         self.path_to_audio = os.path.join(path_to_dataset, 'AudioWAV')
         self.frame_kept_per_second = frame_kept_per_second

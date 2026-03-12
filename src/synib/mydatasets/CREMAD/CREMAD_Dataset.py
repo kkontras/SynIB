@@ -289,7 +289,7 @@ class CremadDataset(Dataset):
         with open('./mydatasets/CREMAD/normalization_audio.pkl', "r") as json_file:
             self.norm_audio = json.load(json_file)
 
-        with open('./mydatasets/CREMAD/data_splits_VALV.pkl', "r") as json_file:
+        with open('./mydatasets/CREMAD/data_splits_val.pkl', "r") as json_file:
             train_val_test_splits = json.load(json_file)
 
         self.label_from_name = []
@@ -705,7 +705,7 @@ if __name__ == "__main__":
 
     # MUST be AttrDict so both .get() and .sampling_rate work
     config.dataset = AttrDict({
-        "data_roots": "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/CremaD/CREMA-D",   # CHANGE THIS
+        "data_roots": None,   # Set this to your CREMA-D dataset root directory
         "sampling_rate": 22050,
         "num_frame": 3,
         "return_data": {

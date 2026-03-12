@@ -265,7 +265,7 @@ class CremadPlusDataset(Dataset):
         with open("./mydatasets/CREMAD/normalization_audio.pkl", "r") as f:
             self.norm_audio = json.load(f)
 
-        with open("./mydatasets/CREMAD/data_splits_VALV.pkl", "r") as f:
+        with open("./mydatasets/CREMAD/data_splits_val.pkl", "r") as f:
             splits = json.load(f)
 
         for entry in splits[str(fold + 1)][mode]:
@@ -595,7 +595,7 @@ if __name__ == "__main__":
     cfg_json = {
         "dataset": {
             "dataloader_class": "CramedDPlus_Dataloader",
-            "data_roots": "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/CremaD/CREMA-D",
+            "data_roots": None,  # Set this to your CREMA-D dataset root directory
             "norm_wav_path": "wav_norm_22050_fold{}.pkl",
             "norm_face_path": "norm_face_path_fold{}.pkl",
             "return_data": {"video": True, "spectrogram": True, "audio": False, "face": False},

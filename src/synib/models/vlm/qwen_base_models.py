@@ -1,7 +1,7 @@
 import copy
 
 from synib.models.model_utils.fusion_gates import *
-from synib.models.VAVL_git.VAVL.conformer.model import Conformer
+from synib.models.conformer.model import Conformer
 from pytorch_metric_learning.losses import NTXentLoss
 from torch.nn.utils import spectral_norm as SN
 import wandb

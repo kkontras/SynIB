@@ -1,6 +1,6 @@
 
 from synib.models.model_utils.fusion_gates import *
-from synib.models.VAVL_git.VAVL.conformer.model import Conformer
+from synib.models.conformer.model import Conformer
 from synib.models.crema_d.crema_backbone_fusion_models import TF_Fusion
 from pytorch_metric_learning.losses import NTXentLoss
 from torch.nn.utils import spectral_norm as SN
@@ -4936,92 +4936,6 @@ class XOR_Fusion_Synprom_perf(nn.Module):
 
         return output
 
-#
-# class TriModalFusionClassifier(nn.Module):
-#     def __init__(self, args, encs=None):
-#         super(TriModalFusionClassifier, self).__init__()
-#
-#         self.args = args
-#         self.num_classes = args.num_classes
-#         d_model = args.d_model
-#         bias_infusion = args.get("bias_infusion",{})
-#         self.l = bias_infusion.get("l", 0)
-#         self.regby = bias_infusion.get("regby", None)
-#
-#         self.f_a = nn.Sequential(
-#             nn.Linear(16, d_model),
-#             # nn.ReLU(),
-#             # nn.Linear(d_model, d_model)
-#             # nn.LayerNorm(d_model)
-#         )
-#         self.f_b = nn.Sequential(
-#             nn.Linear(16, d_model),
-#             # nn.ReLU(),
-#             # nn.Linear(d_model, d_model)
-#             # nn.LayerNorm(d_model)
-#         )
-#         self.f_c = nn.Sequential(
-#             nn.Linear(16, d_model),
-#             # nn.ReLU(),
-#             # nn.Linear(d_model, d_model)
-#             # nn.LayerNorm(d_model)
-#         )
-#
-#         # Combined + interactions → total 6 * d_model
-#         fusion_in = d_model * 3
-#         self.fc = nn.Sequential(
-#             nn.Linear(fusion_in, d_model),
-#             nn.ReLU(),
-#             # nn.LayerNorm(d_model * 2),
-#             # nn.Linear(d_model * 2, d_model),
-#             # nn.ReLU(),
-#             nn.Linear(d_model, self.num_classes)
-#         )
-#
-#         # Optional unimodal heads (for auxiliary losses)
-#         self.fc_a = nn.Linear(d_model, self.num_classes)
-#         self.fc_b = nn.Linear(d_model, self.num_classes)
-#         self.fc_c = nn.Linear(d_model, self.num_classes)
-#
-#     def forward(self, x, **kwargs):
-#
-#         # corr = torch.corrcoef(torch.stack([x[0][:,-1], kwargs["label"]]))[0, 1]
-#         # print("Corr:", corr)
-#
-#         feat_a = self.f_a(x[0])
-#         feat_b = self.f_b(x[1])
-#         feat_c = self.f_c(x[2])
-#
-#         # Normalize (optional)
-#         # feat_a, feat_b, feat_c = [F.normalize(f, p=2, dim=1) for f in [feat_a, feat_b, feat_c]]
-#
-#
-#         # Fusion
-#         joint_feat = torch.cat([feat_a, feat_b, feat_c], dim=1)
-#         pred = self.fc(joint_feat)
-#
-#         # Unimodal predictions
-#         pred_a = self.fc_a(feat_a)
-#         pred_b = self.fc_b(feat_b)
-#         pred_c = self.fc_c(feat_c)
-#
-#         output = {}
-#         if self.training and "label" in kwargs:
-#             labels = kwargs["label"]
-#
-#             if self.regby == "cond":
-#                 loss_ab = conditional_alignment_loss(feat_a, feat_b, labels)
-#                 loss_bc = conditional_alignment_loss(feat_b, feat_c, labels)
-#                 loss_ca = conditional_alignment_loss(feat_c, feat_a, labels)
-#                 output["losses"] = {"synergy": self.l * (loss_ab + loss_bc + loss_ca) / 3}
-#             elif self.regby == "perf":
-#                 synergy_conf_loss = synergy_confidence_loss(pred, [pred_a, pred_b, pred_c], labels)
-#                 output["losses"] = {"synergy": self.l * synergy_conf_loss}
-#
-#         output["preds"]={"combined": pred, "a": pred_a, "b": pred_b, "c": pred_c}
-#         output["features"]={"combined": joint_feat}
-#         return output
-
 
 class TriModalFusionClassifier(nn.Module):
     def __init__(self, args, encs, **kwargs):
@@ -5085,100 +4999,6 @@ def synergy_confidence_loss(pred_fusion, unimodal_preds, labels, margin=0.0):
     # Penalize only when fusion < unimodal - margin
     loss = torch.mean(F.relu(p_uni_mean - p_fusion + margin))
     return loss
-#
-# class TriModalFusionClassifier(nn.Module):
-#     def __init__(self, args, encs=None):
-#         super(TriModalFusionClassifier, self).__init__()
-#
-#         self.args = args
-#         self.num_classes = args.num_classes
-#         d_model = args.d_model
-#
-#         # Optional synergy regularization
-#         bias_infusion = args.get("bias_infusion", {})
-#         self.l = bias_infusion.get("l", 0)
-#
-#         # Modality-specific encoders
-#         self.f_a = nn.Sequential(
-#             nn.Linear(16, d_model),
-#             nn.ReLU(),
-#             nn.Linear(d_model, d_model),
-#             nn.LayerNorm(d_model)
-#         )
-#         self.f_b = nn.Sequential(
-#             nn.Linear(16, d_model),
-#             nn.ReLU(),
-#             nn.Linear(d_model, d_model),
-#             nn.LayerNorm(d_model)
-#         )
-#         self.f_c = nn.Sequential(
-#             nn.Linear(16, d_model),
-#             nn.ReLU(),
-#             nn.Linear(d_model, d_model),
-#             nn.LayerNorm(d_model)
-#         )
-#
-#         # Fusion network with cross-modal interactions
-#         self.fc = nn.Sequential(
-#             nn.Linear(d_model * 3, d_model * 2),
-#             nn.ReLU(),
-#             nn.LayerNorm(d_model * 2),
-#             nn.Linear(d_model * 2, d_model),
-#             nn.ReLU(),
-#             nn.Linear(d_model, self.num_classes)
-#         )
-#
-#         self.fc_1 = nn.Sequential(
-#             nn.Linear(d_model, d_model * 2),
-#             nn.ReLU(),
-#             nn.LayerNorm(d_model * 2),
-#             nn.Linear(d_model * 2, d_model),
-#             nn.ReLU(),
-#             nn.Linear(d_model, self.num_classes)
-#         )
-#         self.fc_2 = nn.Sequential(
-#             nn.Linear(d_model, d_model * 2),
-#             nn.ReLU(),
-#             nn.LayerNorm(d_model * 2),
-#             nn.Linear(d_model * 2, d_model),
-#             nn.ReLU(),
-#             nn.Linear(d_model, self.num_classes)
-#         )
-#         self.fc_3 = nn.Sequential(
-#             nn.Linear(d_model, d_model * 2),
-#             nn.ReLU(),
-#             nn.LayerNorm(d_model * 2),
-#             nn.Linear(d_model * 2, d_model),
-#             nn.ReLU(),
-#             nn.Linear(d_model, self.num_classes)
-#         )
-#
-#
-#     def forward(self, x, **kwargs):
-#         # Encode each modality
-#         feat_a = self.f_a(x[0])
-#         feat_b = self.f_b(x[1])
-#         feat_c = self.f_c(x[2])
-#
-#         # Optional: normalize features (helps synergy training)
-#         feat_a, feat_b, feat_c = [F.normalize(f, p=2, dim=1) for f in [feat_a, feat_b, feat_c]]
-#         joint_feat = torch.cat([feat_a, feat_b, feat_c], dim=1)
-#         pred = self.fc(joint_feat)
-#
-#         pred_a = self.fc_1(feat_a)
-#         pred_b = self.fc_2(feat_b)
-#         pred_c = self.fc_3(feat_c)
-#
-#
-#
-#         output = {
-#             "preds": {"combined": pred,
-#                      "a": pred_a, "b": pred_b, "c": pred_c},
-#             "features": {"combined": joint_feat}  # optionally return for synergy loss
-#         }
-#
-#         return output
-
 
 class Encoders(nn.Module):
     def __init__(self, d, logit_scale_init):
