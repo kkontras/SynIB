@@ -44,9 +44,32 @@ CREMA-D/
 
 ### e-SNLI-VE
 
-1. Download e-SNLI-VE from the [official repo](https://github.com/maximek3/e-ViL)
-2. Place at your chosen root (e.g., `/data/ESNLI/`)
-3. Build the token cache (see End-to-End Pipeline below)
+1. Create a data root (example: `/data/ESNLI`)
+2. Download Flickr30k images into that root
+3. Build the token cache
+
+Example commands:
+
+```bash
+mkdir -p /data/ESNLI/_downloads
+
+huggingface-cli download nlphuji/flickr30k flickr30k-images.zip \
+  --repo-type dataset \
+  --local-dir /data/ESNLI/_downloads/flickr30k
+
+unzip -q /data/ESNLI/_downloads/flickr30k/flickr30k-images.zip -d /data/ESNLI
+```
+
+Expected layout before cache building:
+
+```text
+/data/ESNLI/
+  flickr30k-images/
+```
+
+Notes:
+- The cache builder will automatically download the e-SNLI-VE split metadata from the `e-ViL` repo into `data_root`.
+- The raw ESNLI dataloader can also auto-download Flickr30k, but the cached ESNLI pipeline documented below assumes `flickr30k-images/` already exists under `data_root`.
 
 ## End-to-End Pipeline
 
@@ -62,31 +85,143 @@ python src/synib/mydatasets/ScienceQA/ScienceQA_Codebook_v2.py \
 
 For e-SNLI-VE:
 ```bash
-python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v2.py \
+python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v3.py \
     --data_root /data/ESNLI \
     --out_dir /data/ESNLI/cache_tokens8B \
-    --model_name Qwen/Qwen3-VL-8B-Instruct
+    --model_name Qwen/Qwen3-VL-2B-Instruct
 ```
 
-### Step 2: Generate Unimodal CEU Predictions
+## ESNLI Pipeline
+
+The ESNLI cached pipeline is:
+
+1. Download Flickr30k images under the ESNLI data root
+2. Build the Qwen cache shards
+3. Train the unimodal cached models
+4. Generate CEU pickles from the trained unimodals
+5. Train the combined / SynIB / ensemble / full-method models
+
+### 1. Download ESNLI data
 
 ```bash
-python -m synib.entrypoints.get_ceu_cli \
-    --dataset crema_d \
-    --config run/configs/CREMA_D/synergy/jan/synprom_RMask.json \
-    --fold 0
+mkdir -p /data/ESNLI/_downloads
+
+huggingface-cli download nlphuji/flickr30k flickr30k-images.zip \
+  --repo-type dataset \
+  --local-dir /data/ESNLI/_downloads/flickr30k
+
+unzip -q /data/ESNLI/_downloads/flickr30k/flickr30k-images.zip -d /data/ESNLI
 ```
 
-### Step 3: Train
+### 2. Build the cached codebook
+
+Run once per split:
 
 ```bash
-./run/crema_d/train.sh rmask-random-l1.0-pmin0.20 --fold 0
+CUDA_VISIBLE_DEVICES=0 python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v3.py \
+  --data_root /data/ESNLI \
+  --out_dir /data/ESNLI/cache_qwen3_vl_2b_nocls_vis \
+  --model_name Qwen/Qwen3-VL-2B-Instruct \
+  --split train
+
+CUDA_VISIBLE_DEVICES=0 python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v3.py \
+  --data_root /data/ESNLI \
+  --out_dir /data/ESNLI/cache_qwen3_vl_2b_nocls_vis \
+  --model_name Qwen/Qwen3-VL-2B-Instruct \
+  --split validation
+
+CUDA_VISIBLE_DEVICES=0 python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v3.py \
+  --data_root /data/ESNLI \
+  --out_dir /data/ESNLI/cache_qwen3_vl_2b_nocls_vis \
+  --model_name Qwen/Qwen3-VL-2B-Instruct \
+  --split test
 ```
 
-### Step 4: Evaluate
+After that, point `dataset.cache_root` in the ESNLI cached configs to the cache directory you created.
+
+### 3. Train the unimodals
+
+Image-only:
 
 ```bash
-./run/crema_d/show.sh rmask-random-l1.0-pmin0.20 --fold 0
+./run/esnli/train.sh run/configs/ESNLI/cache_image_lora.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/cache_image_lora.json --fold 1
+./run/esnli/train.sh run/configs/ESNLI/cache_image_lora.json --fold 2
+```
+
+Text-only:
+
+```bash
+./run/esnli/train.sh run/configs/ESNLI/cache_text_lora.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/cache_text_lora.json --fold 1
+./run/esnli/train.sh run/configs/ESNLI/cache_text_lora.json --fold 2
+```
+
+Optional combined cached baseline:
+
+```bash
+./run/esnli/train.sh run/configs/ESNLI/cache_lora.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/cache_lora.json --fold 1
+./run/esnli/train.sh run/configs/ESNLI/cache_lora.json --fold 2
+```
+
+### 4. Generate CEU pickles
+
+Generate CEU files from the two trained unimodals:
+
+```bash
+PYTHONPATH=src python -m synib.entrypoints.get_ceu_cli \
+  --dataset esnli \
+  --default_config run/configs/ESNLI/default_config_esnli_cache.json \
+  --unimodal_configs run/configs/ESNLI/cache_image_lora.json run/configs/ESNLI/cache_text_lora.json \
+  --folds 0 1 2 \
+  --output_root ./artifacts/ceus
+```
+
+This writes:
+
+```text
+./artifacts/ceus/esnli/esnli_ceu_val.pkl
+./artifacts/ceus/esnli/esnli_ceu_test.pkl
+```
+
+If a downstream config expects CEU files through `model.ceu.val` / `model.ceu.test`, point those fields at the generated pickles.
+
+### 5. Train the downstream methods
+
+Cached SynIB:
+
+```bash
+./run/esnli/train.sh run/configs/ESNLI/cache_synib_lora.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/cache_synib_lora.json --fold 1
+./run/esnli/train.sh run/configs/ESNLI/cache_synib_lora.json --fold 2
+```
+
+Cached ensemble:
+
+```bash
+./run/esnli/train.sh run/configs/ESNLI/cache_ens.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/cache_ens.json --fold 1
+./run/esnli/train.sh run/configs/ESNLI/cache_ens.json --fold 2
+```
+
+Full-method experiments:
+
+```bash
+./run/esnli/train.sh run/configs/ESNLI/full/esnli_full_synib.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/full/esnli_full_mcr.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/full/esnli_full_dnr.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/full/esnli_full_mmpareto.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/full/esnli_full_reconboost.json --fold 0
+```
+
+Evaluation:
+
+```bash
+./run/esnli/show.sh run/configs/ESNLI/cache_image_lora.json --fold 0
+./run/esnli/show.sh run/configs/ESNLI/cache_text_lora.json --fold 0
+./run/esnli/show.sh run/configs/ESNLI/cache_synib_lora.json --fold 0
+./run/esnli/show.sh run/configs/ESNLI/full/esnli_full_synib.json --fold 0
 ```
 
 ## Available Bias-Infusion Methods
@@ -124,11 +259,10 @@ SynIB/
 │   ├── models/
 │   │   ├── vlm/            # Vision-language model components (Qwen-based)
 │   │   ├── crema_d/        # CREMA-D backbone and fusion models
-│   │   ├── xor/            # XOR synthetic dataset models
 │   │   ├── conformer/      # Conformer encoder (Apache 2.0, Soohwan Kim)
 │   │   └── model_utils/    # Shared utilities (backbone, losses, gates)
 │   ├── mydatasets/
-│   │   ├── CREMAD/         # CREMA-D dataloaders
+│   │   ├── Irony_Cremad/   # CREMA-D dataloaders and assets
 │   │   ├── ESNLI/          # e-SNLI-VE dataloaders
 │   │   └── ScienceQA/      # ScienceQA dataloaders
 │   └── trainers/           # Training loops
