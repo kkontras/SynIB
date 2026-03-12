@@ -1,7 +1,10 @@
 import copy
 
 from synib.models.model_utils.fusion_gates import *
-from synib.models.conformer.model import Conformer
+try:
+    from synib.models.conformer.model import Conformer
+except ModuleNotFoundError:
+    Conformer = None
 from pytorch_metric_learning.losses import NTXentLoss
 from torch.nn.utils import spectral_norm as SN
 import wandb
@@ -23,10 +26,16 @@ import numpy as np
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
+
+def _build_conformer(*args, **kwargs):
+    if Conformer is None:
+        raise ImportError("Conformer models are not available in this checkout.")
+    return Conformer(*args, **kwargs)
+
 class TF_Proc(nn.Module):
     def __init__(self, input_dim, dim, layers, output_dim):
         super(TF_Proc, self).__init__()
-        self.common_net = Conformer(
+        self.common_net = _build_conformer(
                             input_dim=input_dim,
                             encoder_dim=dim,
                             num_encoder_layers=layers)

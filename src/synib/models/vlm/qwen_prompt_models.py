@@ -1,10 +1,16 @@
 from synib.models.vlm.qwen_base_models import (
-    _QwenVL_SynergyLegacyImpl,
     _QwenVL_PromptFrozenCLSImpl,
     _QwenVL_PromptFrozenCLSVisualEmbImpl,
     _QwenVL_PromptUnimodalImageImpl,
     _QwenVL_PromptUnimodalTextImpl,
 )
+
+try:
+    from synib.models.vlm.qwen_base_models import _QwenVL_SynergyLegacyImpl
+except ImportError:
+    class _QwenVL_SynergyLegacyImpl:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("QwenVL_Synergy legacy implementation is not available in this checkout.")
 
 
 class QwenVL_Synergy_FrozenCLS(_QwenVL_PromptFrozenCLSImpl):
