@@ -6,9 +6,6 @@ Models are grouped by dataset/task for easier onboarding.
 - `crema_backbone_fusion_models.py`
 - CREMA-D-focused backbones and fusion methods (`MCR_Model`, `AGM_Model`, `MLA_Model`, etc.)
 
-## `src/synib/models/xor/`
-- `synprom_models.py`
-- `synprom_perf_models.py`
 - XOR and SynProm family models (`Fusion_Synprom*`, `TriModalFusionClassifier`, etc.)
 
 ## `src/synib/models/vlm/`
