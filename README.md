@@ -1,16 +1,29 @@
-# SynIB — Synergy-based Information Bottleneck for Multimodal Learning
+# SynIB: Informational Bottleneck for Maximizing Synergy in Multimodal Learning
 
-SynIB is a framework for multimodal bias infusion that leverages the information bottleneck principle to improve synergy between modalities. 
-<!-- ## Citation
+SynIB is a multimodal learning framework that explicitly promotes synergistic cross-modal behavior: task-relevant information that is only available from combining modalities and not from either modality alone.
 
-```bibtex
-@article{synib2025,
-  title   = {TODO: Fill in paper title},
-  author  = {TODO: Fill in authors},
-  journal = {TODO: Fill in venue},
-  year    = {2025}
-}
-``` -->
+## Paper Summary
+
+> A central objective in multimodal learning is to capture synergistic information:
+> task-relevant cues that arise only from the joint use of multiple modalities and
+> are not available from any single modality alone. In practice, however, standard
+> training procedures often emphasize unimodal or redundant signals, allowing
+> models to achieve strong overall performance while falling short on examples
+> that require cross-modal reasoning. We argue that this behavior does not reflect
+> an inherent conflict between unimodal and synergistic learning, but rather an
+> imbalance in learning dynamics: synergistic cues are typically rarer, harder to
+> learn, and more susceptible to overfitting. To address this imbalance, we formalize
+> multimodal synergy via the lens of information theory and derive scalable training
+> objectives that explicitly promote synergetic cross-modal behavior. The key idea is
+> to penalize overconfident predictions when task-relevant information is removed
+> from a counterfactual modality. We first validate our approach through controlled
+> Gaussian-based XOR synthetic experiments that isolate the training dynamics of
+> multimodal synergy. We then introduce a new irony class for emotion recognition,
+> augmenting an existing dataset with a controllable degree of multimodal synergy
+> to serve as a semi-synthetic benchmark. We further evaluate on several affective
+> computing benchmarks from MultiBench. To demonstrate scalability, we fine-tune
+> Qwen3-VL for visual instruction tuning, obtaining consistent improvements on
+> synergy-dependent subsets of E-SNLI-VE, MultiQA, and LongVALE.
 
 ## Installation
 
@@ -20,74 +33,136 @@ pip install -r requirements.txt
 
 > **Note:** A CUDA-capable GPU is required. The code has been tested with PyTorch 2.x and CUDA 11.8/12.1.
 
-## Data Setup
+## Quick Navigation
 
-### CREMA-D
+- `CREMA-D / Irony_Cremad`: [run/crema_d/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/crema_d/README.md)
+- `e-SNLI-VE`: [run/esnli/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/esnli/README.md)
+- `ScienceQA`: [run/scienceqa/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/scienceqa/README.md)
+- generic wrapper usage: [run/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/README.md)
 
-1. Download CREMA-D from [GitHub](https://github.com/CheyneyComputerScience/CREMA-D)
-2. Place the dataset at your chosen root directory (e.g., `/data/CREMA-D/`)
-3. Set `data_roots` in your config to that path
+## Pipeline Concepts
 
-Expected layout:
-```
+### Caches
+
+For ESNLI and ScienceQA, this repo can preprocess the raw dataset into Qwen-ready cache shards. These caches avoid recomputing expensive VLM tokenization and visual embeddings during training.
+
+### CEUs
+
+`CEU` files are pickled validation/test predictions from trained unimodal models. They are generated with [src/synib/entrypoints/get_ceu_cli.py](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/get_ceu_cli.py) and are used by downstream bias-infusion and synergy-aware methods.
+
+In practice:
+- train unimodal models first
+- export their predictions into CEU pickles
+- point downstream configs to those CEU files when the method expects `model.ceu.val` / `model.ceu.test`
+
+## By Dataset
+
+### CREMA-D / Irony_Cremad
+
+Data layout:
+
+```text
 CREMA-D/
   AudioWAV/
   VideoFlash/
   VideoMP4/
 ```
 
+Entry point:
+- [run/crema_d/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/crema_d/README.md)
+
+Typical flow:
+
+```bash
+./run/crema_d/train.sh --scenarios
+./run/crema_d/train.sh default --fold 0
+./run/crema_d/show.sh default --fold 0
+```
+
 ### ScienceQA
 
-1. Download ScienceQA from [HuggingFace](https://huggingface.co/datasets/derek-thomas/ScienceQA) or the [official repo](https://github.com/lupantech/ScienceQA)
-2. Place at your chosen root (e.g., `/data/ScienceQA/`)
-3. Build the token cache (see End-to-End Pipeline below)
+Data root:
+
+```text
+/data/ScienceQA/
+```
+
+Build the cache:
+
+```bash
+python src/synib/mydatasets/ScienceQA/ScienceQA_Codebook_v2.py \
+  --data_root /data/ScienceQA \
+  --out_dir /data/ScienceQA/cache_tokens8B \
+  --model_name Qwen/Qwen3-VL-8B-Instruct
+```
+
+Then use:
+- [run/scienceqa/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/scienceqa/README.md)
 
 ### e-SNLI-VE
 
-1. Download e-SNLI-VE from the [official repo](https://github.com/maximek3/e-ViL)
-2. Place at your chosen root (e.g., `/data/ESNLI/`)
-3. Build the token cache (see End-to-End Pipeline below)
+Expected raw data layout:
 
-## End-to-End Pipeline
-
-### Step 1: Build Caches (ScienceQA / e-SNLI-VE)
-
-For ScienceQA:
-```bash
-python src/synib/mydatasets/ScienceQA/ScienceQA_Codebook_v2.py \
-    --data_root /data/ScienceQA \
-    --out_dir /data/ScienceQA/cache_tokens8B \
-    --model_name Qwen/Qwen3-VL-8B-Instruct
+```text
+/data/ESNLI/
+  flickr30k-images/
 ```
 
-For e-SNLI-VE:
-```bash
-python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v2.py \
-    --data_root /data/ESNLI \
-    --out_dir /data/ESNLI/cache_tokens8B \
-    --model_name Qwen/Qwen3-VL-8B-Instruct
-```
+The split metadata is downloaded automatically by the cache builder. The Flickr30k image archive is not.
 
-### Step 2: Generate Unimodal CEU Predictions
+Download Flickr30k:
 
 ```bash
-python -m synib.entrypoints.get_ceu_cli \
-    --dataset crema_d \
-    --config run/configs/CREMA_D/synergy/jan/synprom_RMask.json \
-    --fold 0
+mkdir -p /data/ESNLI/_downloads
+
+huggingface-cli download nlphuji/flickr30k flickr30k-images.zip \
+  --repo-type dataset \
+  --local-dir /data/ESNLI/_downloads/flickr30k
+
+unzip -q /data/ESNLI/_downloads/flickr30k/flickr30k-images.zip -d /data/ESNLI
 ```
 
-### Step 3: Train
+Build the cache:
 
 ```bash
-./run/crema_d/train.sh rmask-random-l1.0-pmin0.20 --fold 0
+CUDA_VISIBLE_DEVICES=0 python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v3.py \
+  --data_root /data/ESNLI \
+  --out_dir /data/ESNLI/cache_qwen3_vl_2b_nocls_vis \
+  --model_name Qwen/Qwen3-VL-2B-Instruct \
+  --split train
+
+CUDA_VISIBLE_DEVICES=0 python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v3.py \
+  --data_root /data/ESNLI \
+  --out_dir /data/ESNLI/cache_qwen3_vl_2b_nocls_vis \
+  --model_name Qwen/Qwen3-VL-2B-Instruct \
+  --split validation
+
+CUDA_VISIBLE_DEVICES=0 python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v3.py \
+  --data_root /data/ESNLI \
+  --out_dir /data/ESNLI/cache_qwen3_vl_2b_nocls_vis \
+  --model_name Qwen/Qwen3-VL-2B-Instruct \
+  --split test
 ```
 
-### Step 4: Evaluate
+Minimal training flow:
 
 ```bash
-./run/crema_d/show.sh rmask-random-l1.0-pmin0.20 --fold 0
+./run/esnli/train.sh run/configs/ESNLI/cache_image_lora.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/cache_text_lora.json --fold 0
+
+PYTHONPATH=src python -m synib.entrypoints.get_ceu_cli \
+  --dataset esnli \
+  --default_config run/configs/ESNLI/default_config_esnli_cache.json \
+  --unimodal_configs run/configs/ESNLI/cache_image_lora.json run/configs/ESNLI/cache_text_lora.json \
+  --folds 0 1 2 \
+  --output_root ./artifacts/ceus
+
+./run/esnli/train.sh run/configs/ESNLI/cache_synib_lora.json --fold 0
+./run/esnli/show.sh run/configs/ESNLI/cache_synib_lora.json --fold 0
 ```
+
+For the full staged ESNLI walkthrough, use:
+- [run/esnli/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/esnli/README.md)
 
 ## Available Bias-Infusion Methods
 
@@ -124,11 +199,10 @@ SynIB/
 │   ├── models/
 │   │   ├── vlm/            # Vision-language model components (Qwen-based)
 │   │   ├── crema_d/        # CREMA-D backbone and fusion models
-│   │   ├── xor/            # XOR synthetic dataset models
 │   │   ├── conformer/      # Conformer encoder (Apache 2.0, Soohwan Kim)
 │   │   └── model_utils/    # Shared utilities (backbone, losses, gates)
 │   ├── mydatasets/
-│   │   ├── CREMAD/         # CREMA-D dataloaders
+│   │   ├── Irony_Cremad/   # CREMA-D dataloaders and assets
 │   │   ├── ESNLI/          # e-SNLI-VE dataloaders
 │   │   └── ScienceQA/      # ScienceQA dataloaders
 │   └── trainers/           # Training loops

@@ -3,7 +3,10 @@ import wandb
 from synib.models.model_utils.backbone import resnet18
 import einops
 import copy
-from synib.models.conformer.model import Conformer
+try:
+    from synib.models.conformer.model import Conformer
+except ModuleNotFoundError:
+    Conformer = None
 from synib.models.model_utils.fusion_gates import *
 from typing import Dict
 from transformers import VivitModel, VivitConfig, ASTConfig, Wav2Vec2Model, AutoModel
@@ -34,6 +37,12 @@ from transformers import BlipForConditionalGeneration, AutoProcessor
 from torchvision.transforms.functional import to_pil_image
 from transformers import InstructBlipProcessor, InstructBlipForConditionalGeneration
 from diffusers import StableDiffusionPipeline, DiffusionPipeline
+
+
+def _build_conformer(*args, **kwargs):
+    if Conformer is None:
+        raise ImportError("Conformer models are not available in this checkout.")
+    return Conformer(*args, **kwargs)
 
 
 class TimmToHFViT(nn.Module):
@@ -683,7 +692,7 @@ class Audio_Wav2Vec(nn.Module):
         self.conv_1d_a = nn.Conv1d(self.a_dim, self.d_v, kernel_size=1, padding=0, bias=False)
 
 
-        self.audio_net = Conformer(
+        self.audio_net = _build_conformer(
                             input_dim=self.d_v,
                             encoder_dim=self.hidden_2,
                             num_encoder_layers=5)
@@ -741,7 +750,7 @@ class Video_FacesConformer(nn.Module):
         self.conv_1d_v = nn.Conv1d(self.v_dim, self.d_v, kernel_size=1, padding=0, bias=False)
 
 
-        self.faces_net = Conformer(
+        self.faces_net = _build_conformer(
                             input_dim=self.d_v,
                             encoder_dim=self.hidden_2,
                             num_encoder_layers=5)
@@ -4500,7 +4509,7 @@ class Modality_Visual(nn.Module):
 class TF_Fusion(nn.Module):
     def __init__(self, input_dim, dim, layers, output_dim):
         super(TF_Fusion, self).__init__()
-        self.common_net = Conformer(
+        self.common_net = _build_conformer(
                             input_dim=input_dim,
                             encoder_dim=dim,
                             num_encoder_layers=layers)
@@ -4543,5 +4552,4 @@ class TF_Fusion(nn.Module):
             return pred, aggr_feat_mm, feat_mm
         else:
             return pred
-
 
