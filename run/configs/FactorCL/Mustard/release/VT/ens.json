@@ -1,0 +1,63 @@
+{
+  "early_stopping": {
+    "max_epoch": 0
+  },
+  "model": {
+    "model_class": "Base_Ensemble_Model",
+    "args": {
+      "d_model": 40,
+      "num_classes": 2,
+      "fc_inner": 64,
+      "dropout": 0.1,
+      "cls_type": "dec",
+      "norm_decision": false,
+      "clip_grad": false,
+      "bias_infusion": {
+        "method": false
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 1,
+          "c": 1,
+          "g": 1
+        }
+      }
+    },
+    "load_ongoing": false,
+    "ceu": {
+      "val": "./artifacts/ceus/mustard/mustard_ceu_val.pkl",
+      "test": "./artifacts/ceus/mustard/mustard_ceu_test.pkl"
+    },
+    "save_dir": "ens_{}.pth.tar",
+    "encoders": [
+      {
+        "model": "FactorCL_Uni",
+        "args": {
+          "n_features": 371,
+          "hidden_size": 40,
+          "modality": "c",
+          "num_classes": 2,
+          "freeze_encoder": false
+        },
+        "pretrainedEncoder": {
+          "use": true,
+          "dir": "unimodal_video_fold{}_vldaccuracy_lr0.0005_wd0.00001.pth.tar"
+        }
+      },
+      {
+        "model": "FactorCL_Uni",
+        "args": {
+          "n_features": 300,
+          "hidden_size": 40,
+          "modality": "g",
+          "num_classes": 2,
+          "freeze_encoder": false
+        },
+        "pretrainedEncoder": {
+          "use": true,
+          "dir": "unimodal_text_fold{}_vldaccuracy_lr0.0005_wd0.0001.pth.tar"
+        }
+      }
+    ]
+  }
+}

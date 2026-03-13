@@ -1,0 +1,49 @@
+{
+  "model": {
+    "args": {
+      "bias_infusion": {
+        "alpha": 1.0,
+        "ending_epoch": 1500,
+        "method": "OGM_Reg",
+        "plot": false,
+        "starting_epoch": 0,
+        "use": true
+      }
+    },
+    "ceu": {
+      "test": "./artifacts/ceus/mosi/mosi_ceu_test.pkl",
+      "val": "./artifacts/ceus/mosi/mosi_ceu_val.pkl"
+    },
+    "encoders": [
+      {
+        "args": {
+          "freeze_encoder": false,
+          "hidden_size": 40,
+          "modality": "c",
+          "n_features": 20,
+          "num_classes": 2
+        },
+        "model": "FactorCL_Uni",
+        "pretrainedEncoder": {
+          "dir": "unimodal_video_fold{}_vldaccuracy_lr0.0005_wd0.00001.pth.tar",
+          "use": false
+        }
+      },
+      {
+        "args": {
+          "freeze_encoder": false,
+          "hidden_size": 40,
+          "modality": "g",
+          "n_features": 300,
+          "num_classes": 2
+        },
+        "model": "FactorCL_Uni",
+        "pretrainedEncoder": {
+          "dir": "unimodal_text_fold{}_vldaccuracy_lr0.0005_wd0.0001.pth.tar",
+          "use": false
+        }
+      }
+    ],
+    "save_dir": "OGM_{}.pth.tar"
+  }
+}

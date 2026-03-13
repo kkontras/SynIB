@@ -36,6 +36,7 @@ pip install -r requirements.txt
 ## What To Read
 
 - ESNLI pipeline: [run/esnli/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/esnli/README.md)
+- FactorCL affect datasets: [run/factorcl/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/factorcl/README.md)
 - CREMA-D / Irony_Cremad wrappers: [run/crema_d/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/crema_d/README.md)
 - Generic wrappers: [run/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/README.md)
 
@@ -184,10 +185,11 @@ run/configs/ESNLI/
 src/synib/
   entrypoints/   train, show, get_ceu_cli
   models/        multimodal and VLM models
-  mydatasets/    ESNLI and Irony_Cremad data code
+  mydatasets/    ESNLI, FactorCL affect, and Irony_Cremad data code
   training/      training and evaluation pipeline
 run/
   esnli/         ESNLI shell wrappers
+  factorcl/      FactorCL affect shell wrappers
   crema_d/       CREMA-D shell wrappers
   configs/       experiment configs
 ```

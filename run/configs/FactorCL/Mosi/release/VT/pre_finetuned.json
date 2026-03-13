@@ -1,0 +1,59 @@
+{
+  "model": {
+    "args": {
+      "bias_infusion": {
+        "method": false
+      },
+      "clip_grad": false,
+      "cls_type": "linear",
+      "d_model": 40,
+      "dropout": 0.1,
+      "fc_inner": 64,
+      "multi_loss": {
+        "multi_supervised_w": {
+          "c": 0,
+          "combined": 1,
+          "g": 0
+        }
+      },
+      "num_classes": 2
+    },
+    "ceu": {
+      "test": "./artifacts/ceus/mosi/mosi_ceu_test.pkl",
+      "val": "./artifacts/ceus/mosi/mosi_ceu_val.pkl"
+    },
+    "encoders": [
+      {
+        "args": {
+          "freeze_encoder": false,
+          "hidden_size": 40,
+          "modality": "c",
+          "n_features": 20,
+          "num_classes": 2
+        },
+        "model": "FactorCL_Uni",
+        "pretrainedEncoder": {
+          "dir": "unimodal_video_fold{}_vldaccuracy_lr0.0005_wd0.00001.pth.tar",
+          "use": true
+        }
+      },
+      {
+        "args": {
+          "freeze_encoder": false,
+          "hidden_size": 40,
+          "modality": "g",
+          "n_features": 300,
+          "num_classes": 2
+        },
+        "model": "FactorCL_Uni",
+        "pretrainedEncoder": {
+          "dir": "unimodal_text_fold{}_vldaccuracy_lr0.0005_wd0.0001.pth.tar",
+          "use": true
+        }
+      }
+    ],
+    "load_ongoing": false,
+    "model_class": "Base_Model",
+    "save_dir": "pre_finetuned_{}.pth.tar"
+  }
+}

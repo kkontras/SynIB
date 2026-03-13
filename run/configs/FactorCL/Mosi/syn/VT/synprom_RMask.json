@@ -1,0 +1,86 @@
+{
+  "model": {
+    "args": {
+      "bias_infusion": {},
+      "cls_type": "mlp",
+      "d_model": 40,
+      "dropout": 0.1,
+      "fc_inner": 64,
+      "multi_loss": {
+        "multi_supervised_w": {
+          "c": 1,
+          "combined": 1,
+          "g": 1
+        }
+      },
+      "norm_decision": false,
+      "num_classes": 2
+    },
+    "encoders": [
+      {
+        "args": {
+          "freeze_encoder": false,
+          "hidden_size": 40,
+          "modality": "c",
+          "n_features": 20,
+          "num_classes": 2
+        },
+        "model": "FactorCL_Uni",
+        "pretrainedEncoder": {
+          "dir": "unimodal_video_fold{}_vldaccuracy_lr0.0005_wd0.00001.pth.tar",
+          "use": true
+        }
+      },
+      {
+        "args": {
+          "freeze_encoder": false,
+          "hidden_size": 40,
+          "modality": "g",
+          "n_features": 300,
+          "num_classes": 2
+        },
+        "model": "FactorCL_Uni",
+        "pretrainedEncoder": {
+          "dir": "unimodal_text_fold{}_vldaccuracy_lr0.0005_wd0.0001.pth.tar",
+          "use": true
+        }
+      },
+      {
+        "args": {
+          "d_model": 40,
+          "dropout": 0.1,
+          "fc_inner": 64,
+          "freeze_encoder": false
+        },
+        "model": "FusionTrunkLinear",
+        "name": "enc_2_fusion_trunk",
+        "pretrainedEncoder": {
+          "dir": "enc_2_fusion_trunk_fold{}.pth.tar",
+          "use": false
+        },
+        "save_encoder": false
+      },
+      {
+        "args": {
+          "freeze_encoder": false,
+          "in_dim": 64,
+          "num_classes": 2
+        },
+        "model": "LinearHead",
+        "name": "enc_3_fusion_head",
+        "pretrainedEncoder": {
+          "dir": "enc_3_fusion_head_fold{}.pth.tar",
+          "use": false
+        },
+        "save_encoder": false
+      }
+    ],
+    "load_ongoing": false,
+    "model_class": "FusionIBModel_Mask",
+    "save_dir": "SynIB_RMask_fold{}.pth.tar",
+    "ceu": {
+      "val": "./artifacts/ceus/mosi/mosi_ceu_val.pkl",
+      "test": "./artifacts/ceus/mosi/mosi_ceu_test.pkl"
+    }
+  }
+}
