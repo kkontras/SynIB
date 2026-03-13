@@ -1,6 +1,6 @@
 # SynIB: Informational Bottleneck for Maximizing Synergy in Multimodal Learning
 
-SynIB is a multimodal learning framework that explicitly promotes synergistic cross-modal behavior: task-relevant information that is only available from combining modalities and not from either modality alone.
+SynIB is a multimodal learning framework for training models to use synergistic information: task-relevant cues that only emerge when modalities are combined, and are not available from either modality alone.
 
 ## Paper Summary
 
@@ -31,86 +31,44 @@ SynIB is a multimodal learning framework that explicitly promotes synergistic cr
 pip install -r requirements.txt
 ```
 
-> **Note:** A CUDA-capable GPU is required. The code has been tested with PyTorch 2.x and CUDA 11.8/12.1.
+> A CUDA-capable GPU is required. The code has been tested with PyTorch 2.x and CUDA 11.8/12.1.
 
-## Quick Navigation
+## What To Read
 
-- `CREMA-D / Irony_Cremad`: [run/crema_d/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/crema_d/README.md)
-- `e-SNLI-VE`: [run/esnli/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/esnli/README.md)
-- `ScienceQA`: [run/scienceqa/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/scienceqa/README.md)
-- generic wrapper usage: [run/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/README.md)
+- ESNLI pipeline: [run/esnli/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/esnli/README.md)
+- CREMA-D / Irony_Cremad wrappers: [run/crema_d/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/crema_d/README.md)
+- Generic wrappers: [run/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/README.md)
 
-## Pipeline Concepts
+## Core Concepts
 
-### Caches
+### Cached pipeline
 
-For ESNLI and ScienceQA, this repo can preprocess the raw dataset into Qwen-ready cache shards. These caches avoid recomputing expensive VLM tokenization and visual embeddings during training.
+For ESNLI, the raw dataset is first converted into cached Qwen-ready artifacts. This avoids recomputing expensive visual-language preprocessing during every training run.
 
 ### CEUs
 
-`CEU` files are pickled validation/test predictions from trained unimodal models. They are generated with [src/synib/entrypoints/get_ceu_cli.py](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/get_ceu_cli.py) and are used by downstream bias-infusion and synergy-aware methods.
+`CEU` files are pickled validation/test predictions from unimodal models. They are used by downstream multimodal methods that need unimodal counterfactual signals.
 
-In practice:
-- train unimodal models first
-- export their predictions into CEU pickles
-- point downstream configs to those CEU files when the method expects `model.ceu.val` / `model.ceu.test`
+In practice, the ESNLI workflow is:
 
-## By Dataset
+1. download the raw data
+2. build the cache
+3. train the unimodal image/text models
+4. export CEUs from those unimodals
+5. train SynIB or the other downstream methods
 
-### CREMA-D / Irony_Cremad
+## ESNLI Quickstart
 
-Data layout:
+### 1. Download Flickr30k
 
-```text
-CREMA-D/
-  AudioWAV/
-  VideoFlash/
-  VideoMP4/
-```
-
-Entry point:
-- [run/crema_d/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/crema_d/README.md)
-
-Typical flow:
-
-```bash
-./run/crema_d/train.sh --scenarios
-./run/crema_d/train.sh default --fold 0
-./run/crema_d/show.sh default --fold 0
-```
-
-### ScienceQA
-
-Data root:
-
-```text
-/data/ScienceQA/
-```
-
-Build the cache:
-
-```bash
-python src/synib/mydatasets/ScienceQA/ScienceQA_Codebook_v2.py \
-  --data_root /data/ScienceQA \
-  --out_dir /data/ScienceQA/cache_tokens8B \
-  --model_name Qwen/Qwen3-VL-8B-Instruct
-```
-
-Then use:
-- [run/scienceqa/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/scienceqa/README.md)
-
-### e-SNLI-VE
-
-Expected raw data layout:
+Expected layout:
 
 ```text
 /data/ESNLI/
   flickr30k-images/
 ```
 
-The split metadata is downloaded automatically by the cache builder. The Flickr30k image archive is not.
-
-Download Flickr30k:
+Download example:
 
 ```bash
 mkdir -p /data/ESNLI/_downloads
@@ -122,97 +80,118 @@ huggingface-cli download nlphuji/flickr30k flickr30k-images.zip \
 unzip -q /data/ESNLI/_downloads/flickr30k/flickr30k-images.zip -d /data/ESNLI
 ```
 
-Build the cache:
+The ESNLI split metadata is fetched automatically by the codebook builder.
+
+### 2. Build the codebook / cache
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v3.py \
-  --data_root /data/ESNLI \
-  --out_dir /data/ESNLI/cache_qwen3_vl_2b_nocls_vis \
-  --model_name Qwen/Qwen3-VL-2B-Instruct \
-  --split train
+export ESNLI_ROOT=/data/ESNLI
+export ESNLI_CACHE=/data/ESNLI/cache_qwen3_vl_2b_nocls_vis
+export QWEN_MODEL=Qwen/Qwen3-VL-2B-Instruct
 
-CUDA_VISIBLE_DEVICES=0 python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v3.py \
-  --data_root /data/ESNLI \
-  --out_dir /data/ESNLI/cache_qwen3_vl_2b_nocls_vis \
-  --model_name Qwen/Qwen3-VL-2B-Instruct \
-  --split validation
-
-CUDA_VISIBLE_DEVICES=0 python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v3.py \
-  --data_root /data/ESNLI \
-  --out_dir /data/ESNLI/cache_qwen3_vl_2b_nocls_vis \
-  --model_name Qwen/Qwen3-VL-2B-Instruct \
-  --split test
+for SET in train validation test; do
+  CUDA_VISIBLE_DEVICES=0 python src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v3.py \
+    --data_root "$ESNLI_ROOT" \
+    --out_dir "$ESNLI_CACHE" \
+    --model_name "$QWEN_MODEL" \
+    --split "$SET"
+done
 ```
 
-Minimal training flow:
+Make sure the ESNLI cached configs point `dataset.cache_root` to `"$ESNLI_CACHE"`.
+
+### 3. Train the unimodals
+
+Run each config for folds `0`, `1`, and `2`:
 
 ```bash
 ./run/esnli/train.sh run/configs/ESNLI/cache_image_lora.json --fold 0
 ./run/esnli/train.sh run/configs/ESNLI/cache_text_lora.json --fold 0
+```
 
+### 4. Export CEUs
+
+```bash
 PYTHONPATH=src python -m synib.entrypoints.get_ceu_cli \
   --dataset esnli \
   --default_config run/configs/ESNLI/default_config_esnli_cache.json \
   --unimodal_configs run/configs/ESNLI/cache_image_lora.json run/configs/ESNLI/cache_text_lora.json \
   --folds 0 1 2 \
   --output_root ./artifacts/ceus
+```
 
+Expected outputs:
+
+```text
+./artifacts/ceus/esnli/esnli_ceu_val.pkl
+./artifacts/ceus/esnli/esnli_ceu_test.pkl
+```
+
+### 5. Train the downstream methods
+
+Cached baseline:
+
+```bash
+./run/esnli/train.sh run/configs/ESNLI/cache_lora.json --fold 0
+```
+
+Cached SynIB:
+
+```bash
 ./run/esnli/train.sh run/configs/ESNLI/cache_synib_lora.json --fold 0
+```
+
+Other supported ESNLI methods:
+
+```bash
+./run/esnli/train.sh run/configs/ESNLI/cache_ens.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/full/esnli_full_synib.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/full/esnli_full_mcr.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/full/esnli_full_dnr.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/full/esnli_full_mmpareto.json --fold 0
+./run/esnli/train.sh run/configs/ESNLI/full/esnli_full_reconboost.json --fold 0
+```
+
+### 6. Evaluate
+
+```bash
 ./run/esnli/show.sh run/configs/ESNLI/cache_synib_lora.json --fold 0
 ```
 
-For the full staged ESNLI walkthrough, use:
-- [run/esnli/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/esnli/README.md)
+For the longer ESNLI walkthrough and more config examples, see [run/esnli/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/esnli/README.md).
 
-## Available Bias-Infusion Methods
+## Methods
 
-| Method | Key | Description |
-|--------|-----|-------------|
-| Baseline | `main` | No bias infusion |
-| OGM-GE | `ogm` | On-the-fly Gradient Modulation |
-| MLB | `mlb` | Multi-modal Lazy Bias |
-| AGM | `agm` | Adaptive Gradient Modulation |
-| MMPareto | `mmpareto` | Pareto-optimal multimodal learning |
-| DnR | `dnr` | Dominant and Residual learning |
-| ReconBoost | `recon` | Reconstruction-based boosting |
-| MCR | `mcr` | Modality Competition Regularization |
-| SynIB (random mask) | `synib_rand` | SynIB with random masking |
-| SynIB (learned mask) | `synib_star` | SynIB with learned masking |
-| ... | ... | See `run/configs/` for full list |
+Main method families currently exposed in configs:
 
-## Config System
+- Baseline
+- Ensemble
+- SynIB
+- MCR
+- DnR
+- MMPareto
+- ReconBoost
 
-Configs are JSON files in `run/configs/`. Each config inherits from a `default_config` and overrides specific fields. Key fields:
+The config root is:
 
-- `model.model_class`: which model architecture to use
-- `dataset.data_roots`: path to dataset (must be set per installation)
-- `bias_infusion.l`: synergy loss weight (λ)
-- `perturb.p_min`, `perturb.p_max`: masking probability range
-- `training_params.fold`: cross-validation fold index
-
-## Repository Map
-
+```text
+run/configs/ESNLI/
 ```
-SynIB/
-├── src/synib/
-│   ├── entrypoints/        # CLI entry points (train, show, get_ceu)
-│   ├── models/
-│   │   ├── vlm/            # Vision-language model components (Qwen-based)
-│   │   ├── crema_d/        # CREMA-D backbone and fusion models
-│   │   ├── conformer/      # Conformer encoder (Apache 2.0, Soohwan Kim)
-│   │   └── model_utils/    # Shared utilities (backbone, losses, gates)
-│   ├── mydatasets/
-│   │   ├── Irony_Cremad/   # CREMA-D dataloaders and assets
-│   │   ├── ESNLI/          # e-SNLI-VE dataloaders
-│   │   └── ScienceQA/      # ScienceQA dataloaders
-│   └── trainers/           # Training loops
-└── run/
-    ├── configs/            # Experiment configs (JSON)
-    ├── crema_d/            # Shell scripts for CREMA-D
-    ├── esnli/              # Shell scripts for e-SNLI-VE
-    └── scienceqa/          # Shell scripts for ScienceQA
+
+## Repository Layout
+
+```text
+src/synib/
+  entrypoints/   train, show, get_ceu_cli
+  models/        multimodal and VLM models
+  mydatasets/    ESNLI and Irony_Cremad data code
+  training/      training and evaluation pipeline
+run/
+  esnli/         ESNLI shell wrappers
+  crema_d/       CREMA-D shell wrappers
+  configs/       experiment configs
 ```
 
 ## License
 
-This project is released under the MIT License. The Conformer implementation in `src/synib/models/conformer/` is licensed under the Apache License 2.0 (Copyright 2021 Soohwan Kim).
+This project is released under the MIT License.
