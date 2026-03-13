@@ -106,7 +106,13 @@ class Importer():
     def print_progress(self, multi_fold_results, verbose=True, print_entropy=False, latex_version=False, print_post_test=True):
 
         val_with = self.config.training_params.get("validate_with", "accuracy")
-        val_metrics = self.checkpoint["logs"]["best_logs"]["best_v{}".format(val_with)]
+        best_logs = self.checkpoint["logs"]["best_logs"]
+        best_key = "best_v{}".format(val_with)
+        if best_key in best_logs:
+            val_metrics = best_logs[best_key]
+        else:
+            # Older checkpoints store the best validation metrics directly under best_logs.
+            val_metrics = best_logs
 
         multi_fold_results[self.fold] = val_metrics
         if verbose:print("-- Best Validation --")
@@ -314,4 +320,3 @@ class Importer():
 
             encs.append(enc)
         return encs
-
