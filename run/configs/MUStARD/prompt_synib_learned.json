@@ -1,0 +1,39 @@
+{
+  "dataset": {
+    "data_split": { "fold": 0 }
+  },
+  "model": {
+    "model_class": "QwenVL_MUStARD_Prompt_SynIB",
+    "load_ongoing": false,
+    "save_dir": "MUStARD_synib_learned_{}.pth.tar",
+    "args": {
+      "perturb": {
+        "type": "rand",
+        "steps": 5,
+        "lr": 0.1,
+        "tau": 1.0,
+        "lsparse": 1.0,
+        "noise_std": 1.0
+      },
+      "synergy_type": "gaussian",
+      "bias_infusion": {
+        "method": "false",
+        "use": true,
+        "l": 0.1,
+        "starting_epoch": 0,
+        "ending_epoch": 100,
+        "plot": false
+      },
+      "multi_loss": {
+        "multi_supervised_w": { "combined": 0, "c": 0, "g": 0 }
+      }
+    },
+    "encoders": [
+      {
+        "model": "LinearHead_Qwen",
+        "args": { "num_classes": 2, "d_model": 2048 },
+        "pretrainedEncoder": { "use": false, "dir": "MUStARD_combined_lora_{}.pth.tar" }
+      }
+    ]
+  }
+}

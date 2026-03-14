@@ -1,0 +1,27 @@
+## Raw data bootstrap on Tier-1
+./run/mustard/download.sh :: --output-root /dodrio/scratch/projects/2026_029/kkontras/data/mustard
+
+## Unimodals
+./run/tier1/train_mustard.sh :: run/configs/MUStARD/prompt_video_lora.json --fold 0 --lr 0.0005 --wd 0.01 --validate_with accuracy
+./run/tier1/train_mustard.sh :: run/configs/MUStARD/prompt_text_lora.json --fold 0 --lr 0.0005 --wd 0.01 --validate_with accuracy
+
+## Baselines
+./run/tier1/train_mustard.sh :: run/configs/MUStARD/prompt_lora.json --fold 0 --lr 0.0005 --wd 0.01 --validate_with accuracy
+./run/tier1/train_mustard.sh :: run/configs/MUStARD/prompt_ens.json --fold 0 --lr 0.0005 --wd 0.01 --validate_with accuracy
+./run/tier1/show_mustard.sh :: run/configs/MUStARD/prompt_ens.json --fold 0 --lr 0.0005 --wd 0.01 --validate_with accuracy
+
+## MMPareto
+./run/tier1/train_mustard.sh :: run/configs/MUStARD/prompt_mmpareto.json --fold 0 --lr 0.0005 --wd 0.01 --alpha 1.0 --validate_with accuracy
+
+## DnR
+./run/tier1/train_mustard.sh :: run/configs/MUStARD/prompt_dnr.json --fold 0 --lr 0.0005 --wd 0.01 --alpha 1.0 --kmepoch 3 --validate_with accuracy
+
+## MCR
+./run/tier1/train_mustard.sh :: run/configs/MUStARD/prompt_mcr.json --fold 0 --lr 0.0005 --wd 0.01 --l 0.1 --multil 0.1 --validate_with accuracy
+
+## ReconBoost
+./run/tier1/train_mustard.sh :: run/configs/MUStARD/prompt_reconboost.json --fold 0 --lr 0.0005 --wd 0.01 --alpha 1.0 --recon_weight1 5 --recon_weight2 1 --recon_epochstages 4 --recon_ensemblestages 4 --validate_with accuracy
+
+## SynIB
+./run/tier1/train_mustard.sh :: run/configs/MUStARD/prompt_synib_random.json --fold 0 --lr 0.0005 --wd 0.01 --l 0.1 --perturb random --perturb_fill ema --perturb_pmin 0.5 --validate_with accuracy
+./run/tier1/train_mustard.sh :: run/configs/MUStARD/prompt_synib_learned.json --fold 0 --lr 0.0005 --wd 0.01 --l 0.1 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --validate_with accuracy

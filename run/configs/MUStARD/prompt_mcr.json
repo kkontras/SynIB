@@ -1,0 +1,32 @@
+{
+  "dataset": {
+    "data_split": { "fold": 0 }
+  },
+  "model": {
+    "model_class": "QwenVL_MUStARD_Prompt",
+    "load_ongoing": false,
+    "save_dir": "MUStARD_mcr_{}.pth.tar",
+    "args": {
+      "bias_infusion": {
+        "method": "MCR",
+        "use": true,
+        "starting_epoch": 0,
+        "ending_epoch": 100,
+        "l": 0.1,
+        "regby": "greedy",
+        "num_samples": 32,
+        "contr_coeff": false
+      },
+      "multi_loss": {
+        "multi_supervised_w": { "combined": 0, "c": 0, "g": 0 }
+      }
+    },
+    "encoders": [
+      {
+        "model": "LinearHead_Qwen",
+        "args": { "num_classes": 2, "d_model": 2048 },
+        "pretrainedEncoder": { "use": false, "dir": "" }
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#PBS -l walltime=48:00:00
+#PBS -l nodes=1:ppn=12:gpus=1
+#PBS -A 2026_029
+#PBS -o ./condor_logs/logs_vsc/out_${PBS_JOBID}.txt
+#PBS -e ./condor_logs/logs_vsc/err_${PBS_JOBID}.txt
+
+PROJECT_ROOT="${PROJECT_ROOT:-/dodrio/scratch/projects/2026_029/kkontras/projects/SynIB}"
+ENV_PATH="${ENV_PATH:-/dodrio/scratch/projects/2026_029/kkontras/envs/synergy_new}"
+RUN_SCRIPT="${RUN_SCRIPT:-./run/mustard/train.sh}"
+JOB_ARGS="${JOB_ARGS:-}"
+GPU="${GPU:-0}"
+
+cd "${PROJECT_ROOT}"
+mkdir -p ./condor_logs/logs_vsc
+
+source "${VSC_DATA}/anaconda3/etc/profile.d/conda.sh"
+conda activate "${ENV_PATH}"
+
+which python
+python -V
+echo "PWD=${PWD}"
+echo "RUN_SCRIPT=${RUN_SCRIPT}"
+echo "JOB_ARGS=${JOB_ARGS}"
+echo "GPU=${GPU}"
+
+if [[ -n "${JOB_ARGS}" ]]; then
+  # shellcheck disable=SC2206
+  ARGS=( ${JOB_ARGS} )
+else
+  ARGS=()
+fi
+
+CUDA_VISIBLE_DEVICES="${GPU}" bash "${RUN_SCRIPT}" "${ARGS[@]}"

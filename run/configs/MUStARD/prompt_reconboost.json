@@ -1,0 +1,34 @@
+{
+  "dataset": {
+    "data_split": { "fold": 0 }
+  },
+  "model": {
+    "model_class": "QwenVL_MUStARD_Prompt",
+    "load_ongoing": false,
+    "save_dir": "MUStARD_reconboost_{}.pth.tar",
+    "args": {
+      "bias_infusion": {
+        "method": "ReconBoost",
+        "use": true,
+        "starting_epoch": 0,
+        "ending_epoch": 100,
+        "epoch_stages": 1,
+        "ensemble_stages": 4,
+        "weight1": 5.0,
+        "weight2": 0.0,
+        "use_ga": false,
+        "alpha": 0.1
+      },
+      "multi_loss": {
+        "multi_supervised_w": { "combined": 1 }
+      }
+    },
+    "encoders": [
+      {
+        "model": "LinearHead_Qwen",
+        "args": { "num_classes": 2, "d_model": 2048 },
+        "pretrainedEncoder": { "use": false, "dir": "" }
+      }
+    ]
+  }
+}

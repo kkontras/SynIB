@@ -1,0 +1,17 @@
+{
+  "dataset": {
+    "data_split": { "fold": 0 }
+  },
+  "model": {
+    "model_class": "QwenVL_MUStARD_Prompt_VideoOnly",
+    "load_ongoing": false,
+    "save_dir": "MUStARD_video_lora_{}.pth.tar",
+    "encoders": [
+      {
+        "model": "LinearHead_Qwen",
+        "args": { "num_classes": 2, "d_model": 2048 },
+        "pretrainedEncoder": { "use": false, "dir": "" }
+      }
+    ]
+  }
+}

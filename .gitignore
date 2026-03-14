@@ -30,3 +30,9 @@ src/synib/mydatasets/MultimodalQA/dataset
 src/synib/mydatasets/MultimodalQA/final_dataset_images
 
 /checkpoints/
+
+# MUStARD raw data (videos + metadata downloaded by download.sh)
+src/synib/mydatasets/MUStARD/prepared/
+
+# Planning docs
+*.docx

@@ -1,0 +1,29 @@
+{
+  "dataset": {
+    "data_split": { "fold": 0 }
+  },
+  "model": {
+    "model_class": "QwenVL_MUStARD_Prompt",
+    "load_ongoing": false,
+    "save_dir": "MUStARD_mmpareto_{}.pth.tar",
+    "args": {
+      "bias_infusion": {
+        "method": "MMPareto_Qwen",
+        "use": true,
+        "alpha": 0.8,
+        "starting_epoch": 0,
+        "ending_epoch": 100
+      },
+      "multi_loss": {
+        "multi_supervised_w": { "combined": 1 }
+      }
+    },
+    "encoders": [
+      {
+        "model": "LinearHead_Qwen",
+        "args": { "num_classes": 2, "d_model": 2048 },
+        "pretrainedEncoder": { "use": false, "dir": "" }
+      }
+    ]
+  }
+}

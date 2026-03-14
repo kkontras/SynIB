@@ -1,0 +1,75 @@
+{
+  "dataset": {
+    "data_split": { "fold": 0 }
+  },
+  "early_stopping": {
+    "max_epoch": 0
+  },
+  "model": {
+    "model_class": "Base_Ensemble_Model",
+    "load_ongoing": false,
+    "save_dir": "MUStARD_ens_{}.pth.tar",
+    "args": {
+      "num_classes": 2,
+      "multi_loss": { "multi_supervised_w": { "combined": 0, "c": 0, "g": 0 } }
+    },
+    "encoders": [
+      {
+        "model": "QwenVL_MUStARD_Prompt_VideoOnly",
+        "args": {
+          "model_name": "Qwen/Qwen3-VL-2B-Instruct",
+          "num_classes": 2,
+          "bf16": false,
+          "lora_config": {
+            "use_lora": true,
+            "lora_r": 8,
+            "lora_alpha": 16,
+            "lora_dropout": 0.05,
+            "lora_target_modules": ["q_proj", "v_proj"],
+            "lora_bias": "none",
+            "lora_lr": 0.0002
+          },
+          "multi_loss": { "multi_supervised_w": { "combined": 0, "c": 0, "g": 0 } }
+        },
+        "load_ongoing": false,
+        "save_dir": "MUStARD_video_lora_{}.pth.tar",
+        "encoders": [
+          {
+            "model": "LinearHead_Qwen",
+            "args": { "num_classes": 2, "d_model": 2048 },
+            "pretrainedEncoder": { "use": true, "dir": "MUStARD_video_lora_{}.pth.tar" }
+          }
+        ],
+        "pretrainedEncoder": { "use": true, "dir": "MUStARD_video_lora_{}.pth.tar" }
+      },
+      {
+        "model": "QwenVL_MUStARD_Prompt_TextOnly",
+        "args": {
+          "model_name": "Qwen/Qwen3-VL-2B-Instruct",
+          "num_classes": 2,
+          "bf16": false,
+          "lora_config": {
+            "use_lora": true,
+            "lora_r": 8,
+            "lora_alpha": 16,
+            "lora_dropout": 0.05,
+            "lora_target_modules": ["q_proj", "v_proj"],
+            "lora_bias": "none",
+            "lora_lr": 0.0002
+          },
+          "multi_loss": { "multi_supervised_w": { "combined": 0, "c": 0, "g": 0 } }
+        },
+        "load_ongoing": false,
+        "save_dir": "MUStARD_text_lora_{}.pth.tar",
+        "encoders": [
+          {
+            "model": "LinearHead_Qwen",
+            "args": { "num_classes": 2, "d_model": 2048 },
+            "pretrainedEncoder": { "use": true, "dir": "MUStARD_text_lora_{}.pth.tar" }
+          }
+        ],
+        "pretrainedEncoder": { "use": true, "dir": "MUStARD_text_lora_{}.pth.tar" }
+      }
+    ]
+  }
+}
