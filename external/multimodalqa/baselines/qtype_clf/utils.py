@@ -261,7 +261,7 @@ class SingleSentenceClassificationProcessor(DataProcessor):
 
         """
         if max_length is None:
-            max_length = tokenizer.max_len
+            max_length = getattr(tokenizer, "model_max_length", 512)
 
         label_map = {label: i for i, label in enumerate(self.labels)}
 
@@ -271,7 +271,7 @@ class SingleSentenceClassificationProcessor(DataProcessor):
                 logger.info("Tokenizing example %d", ex_index)
 
             input_ids = tokenizer.encode(
-                example.text_a, add_special_tokens=True, max_length=min(max_length, tokenizer.max_len),
+                example.text_a, add_special_tokens=True, max_length=min(max_length, getattr(tokenizer, "model_max_length", 512)), truncation=True,
             )
             all_input_ids.append(input_ids)
 

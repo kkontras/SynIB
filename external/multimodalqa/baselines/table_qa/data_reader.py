@@ -410,8 +410,8 @@ def convert_tableqa_example_to_features(example, max_seq_length, max_query_lengt
     table_cells = example.table_cells
 
     encoded_examples = []
-    truncated_query = tokenizer.encode(example.question_text, add_special_tokens=False, max_length=max_query_length)
-    num_of_special_tokens = tokenizer.max_len - tokenizer.max_len_sentences_pair
+    truncated_query = tokenizer.encode(example.question_text, add_special_tokens=False, max_length=max_query_length, truncation=True)
+    num_of_special_tokens = tokenizer.num_special_tokens_to_add(pair=True)
 
     table_tokens, cell_spans, cell_labels, cell_to_orig_pos_map = [], [], [], []
     row_idx = 0
@@ -439,8 +439,8 @@ def convert_tableqa_example_to_features(example, max_seq_length, max_query_lengt
                 truncated_query,
                 table_tokens,
                 max_length=max_seq_length,
-                pad_to_max_length=True,
-                truncation_strategy="only_second",
+                padding="max_length",
+                truncation="only_second",
                 return_token_type_ids=True,
                 return_special_tokens_mask=True,
                 return_overflowing_tokens=True,

@@ -3,7 +3,7 @@ import torch
 
 import os
 
-from transformers import BertTokenizer
+from transformers import AutoTokenizer
 
 from model import VilbertForMQA
 from image_features import FeatureExtractor
@@ -165,7 +165,17 @@ class InferenceModel:
         assert mode in {'auto_routing', 'implicit_decomp', 'context_only'}
         self.use_distractors = use_distractors
         self.mode = mode
-        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
+        # Prefer project-local tokenizer (baselines/downloads/checkpoints/bert-base-uncased)
+        local_tok_path = os.path.join(os.path.dirname(basedir), 'downloads', 'checkpoints', 'bert-base-uncased', 'models--bert-base-uncased', 'snapshots', '86b5e0934494bd15c9632b12f734a8a67f723594')
+        # Use slow tokenizer to avoid PreTokenizedInputSequence errors at encode_plus time
+        if os.path.isdir(local_tok_path):
+            print("Initializing tokenizer from local path: %s" % local_tok_path)
+            self.tokenizer = AutoTokenizer.from_pretrained(local_tok_path, use_fast=False, local_files_only=True)
+        else:
+            self.tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True, use_fast=False, local_files_only=True)
+        # ensure pad_token_id is set
+        if getattr(self.tokenizer, 'pad_token', None) is None:
+            self.tokenizer.add_special_tokens({'pad_token': '[PAD]'})
         self.tokenizer.pad_token_id = self.tokenizer.convert_tokens_to_ids([self.tokenizer.pad_token])[0]
 
         self.img_docs = read_jsonl(img_info_path)

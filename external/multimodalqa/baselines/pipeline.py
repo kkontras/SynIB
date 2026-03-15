@@ -284,9 +284,11 @@ def main():
                 image_qa_predictor
             )
         except Exception as e:
+            import traceback
             print("==" * 10)
             print("Error message:")
             print(e)
+            traceback.print_exc()
             print(f"Question id: {qid}")
             pred_result = {
                 "pred_answer": "Error in prediction",

@@ -1,4 +1,4 @@
-from transformers import BertModel, BertForQuestionAnswering, RobertaForQuestionAnswering
+from transformers import BertModel, RobertaModel, BertForQuestionAnswering, RobertaForQuestionAnswering
 from transformers.utils import (
     add_start_docstrings,
     add_start_docstrings_to_model_forward as add_start_docstrings_to_callable,
@@ -88,6 +88,8 @@ class BertQaWithYesNoHead(BertForQuestionAnswering):
 class BertQaForTable(BertForQuestionAnswering):
     def __init__(self, config):
         super(BertQaForTable, self).__init__(config)
+        # Re-create with pooling layer (parent disables it in newer transformers)
+        self.bert = BertModel(config, add_pooling_layer=True)
         self.token_outputs = nn.Linear(config.hidden_size, 1)
         self.ans_type_outputs = nn.Linear(config.hidden_size, len(ans_type2id_map))
         self.init_weights()
@@ -169,6 +171,8 @@ class BertQaForTable(BertForQuestionAnswering):
 class RobertaQaForTable(RobertaForQuestionAnswering):
     def __init__(self, config):
         super(RobertaQaForTable, self).__init__(config)
+        # Re-create with pooling layer (parent disables it in newer transformers)
+        self.roberta = RobertaModel(config, add_pooling_layer=True)
         self.token_outputs = nn.Linear(config.hidden_size, 1)
         self.ans_type_outputs = nn.Linear(config.hidden_size, len(ans_type2id_map))
         self.init_weights()

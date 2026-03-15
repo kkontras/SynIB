@@ -128,25 +128,23 @@ def squad_convert_example_to_features(example, max_seq_length, doc_stride, max_q
     if len(example.question_text) == 0:
         example.question_text = "NULL"
     truncated_query = tokenizer.encode(
-        example.question_text, add_special_tokens=False, max_length=max_query_length)
-    sequence_added_tokens = (
-        tokenizer.max_len - tokenizer.max_len_single_sentence + 1
-        if "roberta" in str(type(tokenizer)) or "camembert" in str(type(tokenizer))
-        else tokenizer.max_len - tokenizer.max_len_single_sentence
-    )
-    sequence_pair_added_tokens = tokenizer.max_len - tokenizer.max_len_sentences_pair
+        example.question_text, add_special_tokens=False, max_length=max_query_length, truncation=True)
+    # use model_max_length and num_special_tokens_to_add
+    sequence_added_tokens = tokenizer.num_special_tokens_to_add(pair=False)
+    sequence_pair_added_tokens = tokenizer.num_special_tokens_to_add(pair=True)
 
     span_doc_tokens = all_doc_tokens
+    if not all_doc_tokens:
+        return []
     while len(spans) * doc_stride < len(all_doc_tokens):
         encoded_dict = tokenizer.encode_plus(
             truncated_query if tokenizer.padding_side == "right" else span_doc_tokens,
             span_doc_tokens if tokenizer.padding_side == "right" else truncated_query,
             max_length=max_seq_length,
             return_overflowing_tokens=True,
-            pad_to_max_length=True,
-            stride=max_seq_length - doc_stride -
-            len(truncated_query) - sequence_pair_added_tokens,
-            truncation_strategy="only_second" if tokenizer.padding_side == "right" else "only_first",
+            padding="max_length",
+            stride=max_seq_length - doc_stride - len(truncated_query) - sequence_pair_added_tokens,
+            truncation="only_second" if tokenizer.padding_side == "right" else "only_first",
             return_token_type_ids=True,
         )
 
@@ -190,7 +188,7 @@ def squad_convert_example_to_features(example, max_seq_length, doc_stride, max_q
 
         spans.append(encoded_dict)
 
-        if "overflowing_tokens" not in encoded_dict:
+        if "overflowing_tokens" not in encoded_dict or not encoded_dict["overflowing_tokens"]:
             break
         span_doc_tokens = encoded_dict["overflowing_tokens"]
 
@@ -219,11 +217,11 @@ def squad_convert_example_to_features(example, max_seq_length, doc_stride, max_q
                    (len(truncated_query) + sequence_added_tokens)] = 0
 
         pad_token_indices = np.where(
-            span["input_ids"] == tokenizer.pad_token_id)
-        special_token_indices = np.asarray(
+            np.atleast_1d(np.asarray(span["input_ids"])) == tokenizer.pad_token_id)
+        special_token_indices = np.atleast_1d(np.asarray(
             tokenizer.get_special_tokens_mask(
                 span["input_ids"], already_has_special_tokens=True)
-        ).nonzero()
+        )).nonzero()
 
         p_mask[pad_token_indices] = 1
         p_mask[special_token_indices] = 1

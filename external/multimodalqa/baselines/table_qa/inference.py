@@ -3,6 +3,7 @@ import torch
 import argparse
 
 from run_table_qa import to_list
+import os
 from transformers import AutoConfig, AutoTokenizer
 from models import BertQaForTable as BertForQuestionAnswering
 from models import RobertaQaForTable as RobertaForQuestionAnswering
@@ -13,12 +14,18 @@ from common_utils import process_question_for_implicit_decomp
 
 class TableInferenceModel:
     def __init__(self, model_dir, device=None, mode="base"):
-        self.config = AutoConfig.from_pretrained(model_dir)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
+        # Avoid tokenizer parallelism issues
+        os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
+        # Load config and model locally only
+        self.config = AutoConfig.from_pretrained(model_dir, local_files_only=True)
+
+        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, use_fast=False, local_files_only=True)
+
         if self.config.model_type == "bert":
-            self.model = BertForQuestionAnswering.from_pretrained(model_dir)
+            self.model = BertForQuestionAnswering.from_pretrained(model_dir, local_files_only=True)
         elif self.config.model_type == "roberta":
-            self.model = RobertaForQuestionAnswering.from_pretrained(model_dir)
+            self.model = RobertaForQuestionAnswering.from_pretrained(model_dir, local_files_only=True)
         else:
             raise ValueError(f"Unsupported model type: {self.config.model_type}")
         if device is not None:

@@ -1,4 +1,5 @@
 from common_utils import TEXT_SINGLE_HOP_QUESTION_TYPES, TEXT_AS_FIRST_HOP_QUESTION_TYPES, TEXT_AS_SECOND_HOP_QUESTION_TYPES, process_question_for_implicit_decomp
+import os
 import torch
 from torch.optim import AdamW
 
@@ -51,18 +52,22 @@ class TextInferenceModel:
                  model_dir,
                  do_lower_case,
                  device, mode):
-        self.config = AutoConfig.from_pretrained(model_dir)
+        os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
+        # load config and model locally only
+        self.config = AutoConfig.from_pretrained(model_dir, local_files_only=True)
         if self.config.model_type == "bert":
             self.model = BertForQuestionAnsweringYesNo.from_pretrained(
-                model_dir)
+                model_dir, local_files_only=True)
         elif self.config.model_type == "roberta":
             self.model = RobertaForQuestionAnsweringYesNo.from_pretrained(
-                model_dir)
+                model_dir, local_files_only=True)
         else:
             raise ValueError(
                 f"Unsupported model type: {self.config.model_type}")
+
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_dir, do_lower_case=do_lower_case)
+            model_dir, do_lower_case=do_lower_case, use_fast=False, local_files_only=True)
         self.device = device
         self.mode = mode
 

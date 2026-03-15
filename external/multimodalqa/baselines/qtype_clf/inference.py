@@ -6,6 +6,7 @@ import numpy as np
 import argparse
 from tqdm import tqdm
 
+import os
 from transformers import AutoModelForQuestionAnswering, AutoConfig, AutoTokenizer, AutoModelForSequenceClassification
 from utils import InputExample
 from preprocess import glue_convert_examples_to_features
@@ -16,10 +17,15 @@ from common_utils import ALL_QUESTION_TYPES
 
 class QuestionClassificationInferenceModel:
     def __init__(self, model_dir, device):
-        self.config = AutoConfig.from_pretrained(model_dir)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
-        self.model = AutoModelForSequenceClassification.from_pretrained(
-            model_dir)
+        # Avoid tokenizers parallelism warnings/deadlocks in forked processes
+        os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
+        # load config/model/tokenizer from local directory only
+        self.config = AutoConfig.from_pretrained(model_dir, local_files_only=True)
+
+        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, use_fast=False, local_files_only=True)
+
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_dir, local_files_only=True)
         self.device = device
         self.model.to(device)
         self.model.eval()
