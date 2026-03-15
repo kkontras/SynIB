@@ -212,7 +212,7 @@ class _QwenVL_PromptFrozenCLSImpl(nn.Module):
 
         lm = self.backbone.model.language_model
 
-        if self.args.cls_finetune:
+        if getattr(self.args, "cls_finetune", False):
             if getattr(self.args, "train_cls_row", True) and lm is not None and hasattr(lm, "embed_tokens"):
                 emb = lm.embed_tokens
                 # ensure grads flow to emb.weight (we'll mask them)
@@ -686,7 +686,7 @@ class _QwenVL_PromptFrozenCLSVisualEmbImpl(nn.Module):
 
         lm = self.backbone.model.language_model
 
-        if self.args.cls_finetune:
+        if getattr(self.args, "cls_finetune", False):
             if getattr(self.args, "train_cls_row", True) and lm is not None and hasattr(lm, "embed_tokens"):
                 emb = lm.embed_tokens
                 # ensure grads flow to emb.weight (we'll mask them)
@@ -1563,7 +1563,7 @@ class _QwenVL_PromptESNLIUnimodalImageImpl(nn.Module):
 
         lm = self.backbone.model.language_model
 
-        if self.args.cls_finetune:
+        if getattr(self.args, "cls_finetune", False):
             if getattr(self.args, "train_cls_row", True) and lm is not None and hasattr(lm, "embed_tokens"):
                 emb = lm.embed_tokens
                 # ensure grads flow to emb.weight (we'll mask them)
@@ -1940,7 +1940,7 @@ class _QwenVL_PromptUnimodalImageImpl(nn.Module):
 
         lm = self.backbone.model.language_model
 
-        if self.args.cls_finetune:
+        if getattr(self.args, "cls_finetune", False):
             if getattr(self.args, "train_cls_row", True) and lm is not None and hasattr(lm, "embed_tokens"):
                 emb = lm.embed_tokens
                 # ensure grads flow to emb.weight (we'll mask them)
@@ -2282,7 +2282,7 @@ class _QwenVL_PromptUnimodalTextImpl(nn.Module):
 
         lm = self.backbone.model.language_model
 
-        if self.args.cls_finetune:
+        if getattr(self.args, "cls_finetune", False):
             if getattr(self.args, "train_cls_row", True) and lm is not None and hasattr(lm, "embed_tokens"):
                 emb = lm.embed_tokens
                 # ensure grads flow to emb.weight (we'll mask them)
@@ -3084,7 +3084,7 @@ class _QwenVL_PromptESNLIFrozenCLSImpl(nn.Module):
 
         lm = self.backbone.model.language_model
 
-        if self.args.cls_finetune:
+        if getattr(self.args, "cls_finetune", False):
             if getattr(self.args, "train_cls_row", True) and lm is not None and hasattr(lm, "embed_tokens"):
                 emb = lm.embed_tokens
                 # ensure grads flow to emb.weight (we'll mask them)
@@ -3593,7 +3593,7 @@ class _QwenVL_PromptESNLIFrozenCLSVisualEmbImpl(nn.Module):
 
         lm = self.backbone.model.language_model
 
-        if self.args.cls_finetune:
+        if getattr(self.args, "cls_finetune", False):
             if getattr(self.args, "train_cls_row", True) and lm is not None and hasattr(lm, "embed_tokens"):
                 emb = lm.embed_tokens
                 # ensure grads flow to emb.weight (we'll mask them)

@@ -235,7 +235,7 @@ class General_Evaluator:
 
         this_fold = self.config.dataset.get("fold", 0)
         if not hasattr(self, "multi_fold_results_test"):
-            logging.info("Model doesnt have CEU for split: ".format(self.set))
+            logging.debug("Model doesnt have CEU for split: ".format(self.set))
             return None
 
         audio_preds = np.array(self.multi_fold_results_test[this_fold]["preds_combined"])

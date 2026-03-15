@@ -38,6 +38,7 @@ pip install -r requirements.txt
 - ESNLI pipeline: [run/esnli/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/esnli/README.md)
 - FactorCL affect datasets: [run/factorcl/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/factorcl/README.md)
 - CREMA-D / Irony_Cremad wrappers: [run/crema_d/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/crema_d/README.md)
+- MUStARD raw-data wrapper: [run/mustard/download.sh](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/mustard/download.sh)
 - Generic wrappers: [run/README.md](/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/README.md)
 
 ## Core Concepts
@@ -57,6 +58,33 @@ In practice, the ESNLI workflow is:
 3. train the unimodal image/text models
 4. export CEUs from those unimodals
 5. train SynIB or the other downstream methods
+
+## MUStARD Raw Data
+
+Download MUStARD with the repo wrapper:
+
+```bash
+./run/mustard/download.sh
+```
+
+Useful variants:
+
+```bash
+./run/mustard/download.sh --video-zip /path/to/mmsd_raw_data.zip
+./run/mustard/download.sh --local-repo /path/to/MUStARD --video-zip /path/to/mmsd_raw_data.zip
+./run/mustard/download.sh --local-repo /path/to/MUStARD --symlink --output-root /data/mustard
+```
+
+Expected contents:
+
+- MUStARD metadata from the original repo
+- the raw `utterances_final/` video clips
+
+For all options, run:
+
+```bash
+./run/mustard/download.sh --help
+```
 
 ## ESNLI Quickstart
 

@@ -3,13 +3,11 @@
   "agent": "Agent",
   "training_params": {
     "cuda": true,
-    "gpu_device": [
-      0
-    ],
+    "gpu_device": [0],
     "seed": 109,
     "batch_size": 4,
     "test_batch_size": 4,
-    "data_loader_workers": 0,
+    "data_loader_workers": 8,
     "pin_memory": true,
     "async_loading": true,
     "validation": true,
@@ -21,7 +19,7 @@
       "use": false,
       "adv_epsilon": 0.01
     },
-    "tdqm_disable": true,
+    "tdqm_disable": false,
     "wandb_disable": false,
     "res": true
   },
@@ -58,7 +56,7 @@
     "test_split_rate": 0.15
   },
   "model": {
-    "save_base_dir": "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/data/2025_data/synergy/MUSTARD",
+    "save_base_dir": "/dodrio/scratch/projects/2026_029/kkontras/checkpoints/synergy/MUSTARD",
     "args": {
       "model_name": "Qwen/Qwen3-VL-2B-Instruct",
       "num_classes": 2,
@@ -73,10 +71,7 @@
         "lora_r": 8,
         "lora_alpha": 16,
         "lora_dropout": 0.05,
-        "lora_target_modules": [
-          "q_proj",
-          "v_proj"
-        ],
+        "lora_target_modules": ["q_proj", "v_proj"],
         "lora_bias": "none",
         "lora_lr": 0.0002
       },
@@ -87,7 +82,7 @@
       },
       "multi_loss": {
         "multi_supervised_w": {
-          "combined": 1
+          "combined": 0
         }
       }
     }

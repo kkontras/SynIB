@@ -267,8 +267,8 @@ class MUStARD_Raw_Dataloader:
             random.seed(worker_seed)
 
         total_cpus = multiprocessing.cpu_count()
-        workers = max(1, min(24, total_cpus - 1))
-        workers = 0  # video I/O is done inline; 0 workers avoids file-handle limits
+        num_gpus = max(1, len(getattr(config.training_params, "gpu_device", [0])))
+        workers = max(1, min(24, total_cpus // num_gpus))
 
         log.info("MUStARD_Raw_Dataloader | CPUs: %d | workers: %d", total_cpus, workers)
 

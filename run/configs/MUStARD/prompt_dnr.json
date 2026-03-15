@@ -1,6 +1,8 @@
 {
   "dataset": {
-    "data_split": { "fold": 0 }
+    "data_split": {
+      "fold": 0
+    }
   },
   "model": {
     "model_class": "QwenVL_MUStARD_Prompt",
@@ -18,14 +20,22 @@
         "ending_epoch": 100
       },
       "multi_loss": {
-        "multi_supervised_w": { "combined": 1 }
+        "multi_supervised_w": {
+          "combined": 0
+        }
       }
     },
     "encoders": [
       {
         "model": "LinearHead_Qwen",
-        "args": { "num_classes": 2, "d_model": 2048 },
-        "pretrainedEncoder": { "use": false, "dir": "" }
+        "args": {
+          "num_classes": 2,
+          "d_model": 2048
+        },
+        "pretrainedEncoder": {
+          "use": false,
+          "dir": ""
+        }
       }
     ]
   }
