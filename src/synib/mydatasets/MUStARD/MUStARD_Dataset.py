@@ -20,7 +20,7 @@ import logging
 import multiprocessing
 import os
 import random
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import cv2
 import numpy as np
@@ -143,7 +143,7 @@ class MUStARD_RawDataset(Dataset):
         # Sequential read — capture only the needed frames
         frame_map: Dict[int, torch.Tensor] = {}
         frame_idx = 0
-        last_tensor: torch.Tensor | None = None
+        last_tensor: Optional[torch.Tensor] = None
 
         while frame_idx <= stop_at:
             ret, frame = cap.read()

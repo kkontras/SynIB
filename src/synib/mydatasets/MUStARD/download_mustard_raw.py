@@ -34,6 +34,7 @@ import tempfile
 import urllib.request
 import zipfile
 from pathlib import Path
+from typing import Optional
 
 log = logging.getLogger(__name__)
 
@@ -74,7 +75,7 @@ def _find_sarcasm_data(repo_root: Path) -> Path:
     )
 
 
-def _find_utterances_dir(search_roots: list[Path]) -> Path | None:
+def _find_utterances_dir(search_roots: list[Path]) -> Optional[Path]:
     """Locate utterances_final/ directory, searching multiple roots."""
     candidates = []
     for root in search_roots:
@@ -102,7 +103,7 @@ def _download_video_zip(dest_path: Path) -> None:
     log.info("Download complete: %s", dest_path)
 
 
-def _extract_utterances_from_zip(zip_path: Path, extract_to: Path) -> Path | None:
+def _extract_utterances_from_zip(zip_path: Path, extract_to: Path) -> Optional[Path]:
     """Extract utterances_final/ from the video zip. Returns the extracted dir or None."""
     log.info("Inspecting zip %s …", zip_path)
     with zipfile.ZipFile(zip_path) as zf:
