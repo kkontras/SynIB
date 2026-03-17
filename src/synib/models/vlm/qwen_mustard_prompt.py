@@ -43,9 +43,9 @@ def _encode_optional_vision(backbone, input_ids, attention_mask, pixel_values, i
         return_dict=True,
     )
     if pixel_values is not None:
-        kwargs["pixel_values"] = pixel_values
+        kwargs["pixel_values"] = pixel_values.contiguous()
     if image_grid_thw is not None:
-        kwargs["image_grid_thw"] = image_grid_thw
+        kwargs["image_grid_thw"] = image_grid_thw.to(dtype=torch.long).contiguous()
     out = backbone(**kwargs)
     return out.hidden_states[-1]  # (B, T, d)
 
@@ -103,18 +103,20 @@ class _QwenVL_MUStARD_PromptImpl(_QwenVL_PromptFrozenCLSImpl):
 
     def _frames_to_pil(self, video_frames, num_frames_per_sample):
         """
-        Flatten (B, F, 3, H, W) → list of B*real_frames PIL images.
+        Convert (B, F, 3, H, W) → per-sample lists of PIL images.
 
-        Only real frames (not padding) are included; the order matches
-        the interleaved <image> tokens in the prompt.
+        Only real frames (not padding) are included. The nesting matches the
+        prompt batch structure expected by the processor for multi-image inputs.
         """
         B = video_frames.shape[0]
         pil_images = []
         for b in range(B):
             n = int(num_frames_per_sample[b])
+            sample_images = []
             for f in range(n):
                 frame = video_frames[b, f].detach().cpu().clamp(0.0, 1.0)
-                pil_images.append(to_pil_image(frame))
+                sample_images.append(to_pil_image(frame))
+            pil_images.append(sample_images)
         return pil_images
 
     # ------------------------------------------------------------------ #
@@ -170,6 +172,10 @@ class _QwenVL_MUStARD_PromptImpl(_QwenVL_PromptFrozenCLSImpl):
         attention_mask = proc["attention_mask"]
         pixel_values = proc.get("pixel_values", None)
         image_grid_thw = proc.get("image_grid_thw", None)
+        if pixel_values is not None:
+            pixel_values = pixel_values.to(model_device, non_blocking=True)
+        if image_grid_thw is not None:
+            image_grid_thw = image_grid_thw.to(model_device, dtype=torch.long, non_blocking=True)
 
         hidden = _encode_optional_vision(
             self.backbone, input_ids, attention_mask, pixel_values, image_grid_thw
