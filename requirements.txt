@@ -60,7 +60,7 @@ humanize==4.14.0
 Hypercorn==0.18.0
 hyperframe==6.1.0
 idna==3.11
-ImageIO==2.37.2
+ImageIO
 imageio-ffmpeg==0.6.0
 importlib_metadata==8.7.0
 inflate64==1.0.3
@@ -82,10 +82,10 @@ llvmlite==0.45.1
 logistro==2.0.1
 lxml==6.0.2
 MarkupSafe==2.1.5
-matplotlib==3.10.7
+matplotlib
 mongoengine==0.29.1
 motor==3.6.1
-moviepy==2.2.1
+moviepy
 mpmath==1.3.0
 msgpack==1.1.2
 multidict==6.7.0
@@ -119,7 +119,7 @@ packaging==25.0
 pandas==2.3.3
 paramiko==3.5.1
 peft==0.18.0
-pillow==12.0.0
+pillow
 pip-chill==1.0.3
 platformdirs==4.5.0
 plotly==6.5.0
