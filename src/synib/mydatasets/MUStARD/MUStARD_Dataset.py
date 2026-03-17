@@ -268,7 +268,7 @@ class MUStARD_Raw_Dataloader:
 
         total_cpus = multiprocessing.cpu_count()
         num_gpus = max(1, len(getattr(config.training_params, "gpu_device", [0])))
-        workers = max(1, min(24, total_cpus // num_gpus))
+        workers = max(1, min(12, total_cpus // num_gpus))
 
         log.info("MUStARD_Raw_Dataloader | CPUs: %d | workers: %d", total_cpus, workers)
 
