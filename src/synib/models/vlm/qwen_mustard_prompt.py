@@ -485,10 +485,13 @@ class QwenVL_MUStARD_Prompt_SynIB(_QwenVL_MUStARD_PromptImpl):
 
         # ── visual features ───────────────────────────────────────────────────
         if pixel_values is not None:
-            image_embeds, deepstack_image_embeds = self.backbone.get_image_features(
+            image_embeds_split, deepstack_image_embeds = self.backbone.get_image_features(
                 pixel_values.contiguous(),
                 image_grid_thw.to(dtype=torch.long).contiguous(),
             )
+            # get_image_features returns a tuple of per-image tensors (from torch.split);
+            # concatenate into a single flat tensor for masked scatter
+            image_embeds = torch.cat(image_embeds_split, dim=0)
             n_dsv = len(deepstack_image_embeds)
             deep_stack_viz = [deepstack_image_embeds[i] for i in range(n_dsv)]
         else:

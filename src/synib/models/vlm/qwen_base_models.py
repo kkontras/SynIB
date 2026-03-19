@@ -1444,7 +1444,7 @@ class FeatureStatsMasker(nn.Module):
         z1: (..., F) where ... can be (B,) or (B,T) or (B,T,...) etc.
         Keeps EMA per feature over all leading dims.
         """
-        x = z.detach()
+        x = z.detach().to(self.ex.dtype)  # cast to buffer dtype (e.g. float16)
         if x.numel() == 0:
             return
 
@@ -1479,8 +1479,8 @@ class FeatureStatsMasker(nn.Module):
         mu, var = self.feature_stats()
         # broadcast to z1 shape
         shape = [1] * (z.dim() - 1) + [-1]
-        mu = mu.view(*shape)
-        std = (var.sqrt() * float(noise_scale)).view(*shape)
+        mu = mu.view(*shape).to(z.dtype)
+        std = (var.sqrt() * float(noise_scale)).view(*shape).to(z.dtype)
         return mu + torch.randn_like(z) * std
 
 class _QwenVL_PromptESNLIUnimodalImageImpl(nn.Module):
