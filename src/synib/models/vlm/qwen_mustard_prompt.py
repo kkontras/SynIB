@@ -143,13 +143,13 @@ class _QwenVL_MUStARD_PromptImpl(_QwenVL_PromptFrozenCLSImpl):
         attn_mask_video = x.get("attention_mask_video", None)  # (B, F) or None
 
         model_device = self.backbone.device
-        B, F = video_frames.shape[:2]
+        B, n_frames = video_frames.shape[:2]
 
         # Determine actual frame count per sample
         if attn_mask_video is not None:
             num_frames = attn_mask_video.sum(dim=1).long().tolist()
         else:
-            num_frames = [F] * B
+            num_frames = [n_frames] * B
 
         # PIL images (only real frames, in order)
         pil_images = self._frames_to_pil(video_frames, num_frames)
@@ -316,12 +316,12 @@ class _QwenVL_MUStARD_VideoOnlyImpl(_QwenVL_MUStARD_PromptImpl):
         attn_mask_video = x.get("attention_mask_video", None)
 
         model_device = self.backbone.device
-        B, F = video_frames.shape[:2]
+        B, n_frames = video_frames.shape[:2]
 
         if attn_mask_video is not None:
             num_frames = attn_mask_video.sum(dim=1).long().tolist()
         else:
-            num_frames = [F] * B
+            num_frames = [n_frames] * B
 
         pil_images = self._frames_to_pil(video_frames, num_frames)
 
@@ -454,12 +454,12 @@ class QwenVL_MUStARD_Prompt_SynIB(_QwenVL_MUStARD_PromptImpl):
         attn_mask_video = x.get("attention_mask_video", None)
 
         model_device = self.backbone.device
-        B, F = video_frames.shape[:2]
+        B, n_frames = video_frames.shape[:2]
 
         if attn_mask_video is not None:
             num_frames = attn_mask_video.sum(dim=1).long().tolist()
         else:
-            num_frames = [F] * B
+            num_frames = [n_frames] * B
 
         # ── processor ────────────────────────────────────────────────────────
         pil_images     = self._frames_to_pil(video_frames, num_frames)
