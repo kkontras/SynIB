@@ -277,21 +277,27 @@ def _stack_deep_levels_per_sample(deep_stack_viz_list: Any, B: int) -> List["tor
     for lvl in levels:
         t = lvl.detach().cpu()
 
-        if t.dim() == 2 and int(t.shape[1]) == 2048 and int(t.shape[0]) == 64 * B:
-            tb = t.view(B, 64, 2048)
-            for i in range(B):
-                per_sample_levels[i].append(tb[i])
+        # Case 1: 2D (total_tokens, 2048)
+        if t.dim() == 2 and int(t.shape[1]) == 2048:
+            total = int(t.shape[0])
+            if B == 1:
+                # All tokens belong to the single sample (any N, e.g. 64, 256, ...)
+                per_sample_levels[0].append(t)
+            elif total % B == 0:
+                n_per = total // B
+                tb = t.view(B, n_per, 2048)
+                for i in range(B):
+                    per_sample_levels[i].append(tb[i])
+            else:
+                raise RuntimeError(
+                    f"deep level shape {tuple(t.shape)} total tokens {total} not divisible by B={B}"
+                )
             continue
 
-        if t.dim() == 3 and int(t.shape[0]) == B and tuple(t.shape[1:]) == (64, 2048):
+        # Case 2: 3D (B, N, 2048) for any N
+        if t.dim() == 3 and int(t.shape[0]) == B and int(t.shape[2]) == 2048:
             for i in range(B):
                 per_sample_levels[i].append(t[i])
-            continue
-
-        if t.dim() == 2 and tuple(t.shape) == (64, 2048):
-            if B != 1:
-                raise RuntimeError("deep_stack_viz level is (64,2048) but B>1.")
-            per_sample_levels[0].append(t)
             continue
 
         raise RuntimeError(
