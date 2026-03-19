@@ -2562,8 +2562,12 @@ class SynIB_QwenFaster(nn.Module):
         elif self.synergy_type == "dirichlet":
             self.evidence_head = nn.Linear(fc_inner, num_classes)
             self.dirichlet_prior_conc = args.get("dirichlet_prior_conc", 1.0)
+        elif self.synergy_type == "unimodal_anchor":
+            self.dirichlet_prior_conc = None
         else:
             raise ValueError(f"Unknown synergy_type: {self.synergy_type}")
+
+        self.anchor_to_unimodal = (self.synergy_type == "unimodal_anchor") or args.get("anchor_unimodal", False)
 
         self.z1_stats = FeatureStatsMasker(d1=2048, device="cuda:0", dtype=torch.float16)
         self.z2_stats = FeatureStatsMasker(d1=2048, device="cuda:0",dtype=torch.float16)
@@ -2869,6 +2873,20 @@ class SynIB_QwenFaster(nn.Module):
             for p, r in zip(self.main.parameters(), req):
                 p.requires_grad_(r)
 
+    def _kl_unimodal_anchor(self, preds):
+        """KL from masked-modality predictions toward the complementary unimodal predictions."""
+        import torch.nn.functional as F
+        # mask0 (vision masked, text only) → target = unimodal_vision (vision only, detached)
+        p_mask0 = F.log_softmax(preds["mask0"], dim=-1)
+        p_uni_v = F.softmax(preds["unimodal_vision"].detach(), dim=-1)
+        kl1 = F.kl_div(p_mask0, p_uni_v, reduction="batchmean")
+
+        # mask1 (text masked, vision only) → target = unimodal_text (text only, detached)
+        p_mask1 = F.log_softmax(preds["mask1"], dim=-1)
+        p_uni_t = F.softmax(preds["unimodal_text"].detach(), dim=-1)
+        kl2 = F.kl_div(p_mask1, p_uni_t, reduction="batchmean")
+        return kl1, kl2
+
     def _kl_pass(self, base_output, px1, px2, **kwargs):
         if px1:
             feat = base_output["features"]["mask0"]
@@ -2888,8 +2906,11 @@ class SynIB_QwenFaster(nn.Module):
 
 
     def compute_training_losses(self, base_output, **kwargs):
-        kl1 = self._kl_pass(base_output, px1=True,  px2=False, **kwargs)
-        kl2 = self._kl_pass(base_output, px1=False, px2=True,  **kwargs)
+        if self.anchor_to_unimodal:
+            kl1, kl2 = self._kl_unimodal_anchor(base_output["preds"])
+        else:
+            kl1 = self._kl_pass(base_output, px1=True,  px2=False, **kwargs)
+            kl2 = self._kl_pass(base_output, px1=False, px2=True,  **kwargs)
         kl_diff_mse = torch.mean((kl1 - kl2) ** 2)
 
         if self.training:

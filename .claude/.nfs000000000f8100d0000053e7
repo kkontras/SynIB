@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo \"=== ESNLI ANALYSIS ===\"\necho \"Checking for duplicate class definitions across ESNLI files:\"\ngrep -h \"^class \" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ESNLI/*.py | sort | uniq -c | grep -v \"^ *1 \")",
+      "Bash(echo \"=== ScienceQA ANALYSIS ===\"\necho \"Checking for duplicate class definitions across ScienceQA files:\"\ngrep -h \"^class \" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ScienceQA/*.py | sort | uniq -c | grep -v \"^ *1 \")",
+      "Bash(echo \"=== ESNLI dataset.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ESNLI/dataset.py)",
+      "Bash(echo \"=== ESNLI ESNLIDataset.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ESNLI/ESNLIDataset.py)",
+      "Bash(echo \"=== ESNLI codebook.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ESNLI/codebook.py)",
+      "Bash(echo \"=== ESNLI memmap.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ESNLI/memmap.py)",
+      "Bash(echo \"=== ESNLI ESNLI_CB_old.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ESNLI/ESNLI_CB_old.py)",
+      "Bash(echo \"=== ESNLI ESNLI_CB.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ESNLI/ESNLI_CB.py)",
+      "Bash(echo \"=== ESNLI ESNLI_CB_MEM.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ESNLI/ESNLI_CB_MEM.py)",
+      "Bash(echo \"=== ESNLI ESNLI_CodeBook.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ESNLI/ESNLI_CodeBook.py)",
+      "Bash(echo \"=== ESNLI ESNLI_CodeBook_v2.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ESNLI/ESNLI_CodeBook_v2.py)",
+      "Bash(echo \"=== ScienceQA ScienceQA.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ScienceQA/ScienceQA.py)",
+      "Bash(echo \"=== ScienceQA ScienceQA_CB.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ScienceQA/ScienceQA_CB.py)",
+      "Bash(echo \"=== ScienceQA ScienceQA_CB_mem.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ScienceQA/ScienceQA_CB_mem.py)",
+      "Bash(echo \"=== ScienceQA ScienceQA_CB_old.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ScienceQA/ScienceQA_CB_old.py)",
+      "Bash(echo \"=== ScienceQA ScienceQA_Codebook.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ScienceQA/ScienceQA_Codebook.py)",
+      "Bash(echo \"=== ScienceQA ScienceQA_Codebook_v2.py - Classes and Functions ===\"\ngrep -E \"^\\(class |def \\)\" /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/ScienceQA/ScienceQA_Codebook_v2.py)"
+    ]
+  }
+}

@@ -2670,23 +2670,63 @@ class QwenVL_Cached_SynIB(_QwenVL_CachedSynIBImpl):
                 dsv_i = dsv_i * m2forw_keep + (1 - m2forw_keep) * self.synib.z2_deepstack_stats[di].noise_like(dsv_i, 1.0).to(dsv_i.dtype)
                 deep_stack_viz_pass0.append(dsv_i)
 
-        masks = torch.cat([attention_mask, attention_mask, attention_mask], dim=0)
-        position_ids_expanded = position_ids.repeat(1, 3, 1)
-        input_embeds_expanded = torch.cat([this_embed_0, this_embed_1, this_embed_2], dim=0)
-        filter_deep_stack = torch.cat([image_mask, image_mask, image_mask], dim=0)
-        deep_stack_viz_extended = [torch.cat([deep_stack_viz_pass0[di], deep_stack_viz_pass1[di], deep_stack_viz_pass2[di]], dim=0) for di in range(len(deep_stack_viz))]
-        hidden_all = self._encode_from_inputs_embeds(position_ids_expanded, input_embeds_expanded, filter_deep_stack, deep_stack_viz_extended, masks)
-        ids_all = input_ids.repeat(3, 1)
-        h_cls_all = self._get_cls_token_repr(hidden_all, ids_all)
-        logits_all = self.enc_0(h_cls_all)
-        head_logits, head_logits_0, head_logits_1 = torch.chunk(logits_all, chunks=3, dim=0)
-        h_cls, featcls_0, featcls_1 = torch.chunk(h_cls_all, chunks=3, dim=0)
-        losses = {}
-        if "label" in kwargs and kwargs["label"] is not None:
-            losses["ce_loss_combined"] = self._mc_ce_loss(head_logits, kwargs["label"])
-        preds = {"combined": head_logits, "mask0": head_logits_0, "mask1": head_logits_1}
-        features = {"combined": h_cls, "mask0": featcls_0, "mask1": featcls_1}
+        if getattr(self.synib, "anchor_to_unimodal", False):
+            # unimodal_text: m2 (vision) fully noised, m1 (text) fully kept
+            this_embed_uni_t = input_embeds.clone()
+            this_embed_uni_t[m2] = self.synib.z2_stats.noise_like(input_embeds[m2], 1.0).to(this_embed_uni_t.dtype)
+            deep_stack_viz_uni_t = [self.synib.z2_deepstack_stats[di].noise_like(deep_stack_viz[di], 1.0).to(deep_stack_viz[di].dtype) for di in range(len(deep_stack_viz))]
+            # unimodal_vision: m1 (text) fully noised, m2 (vision) fully kept, deep_stack_viz intact
+            this_embed_uni_v = input_embeds.clone()
+            this_embed_uni_v[m1] = self.synib.z1_stats.noise_like(input_embeds[m1], 1.0).to(this_embed_uni_v.dtype)
+            deep_stack_viz_uni_v = [deep_stack_viz[di] for di in range(len(deep_stack_viz))]
+
+            k = 5
+            masks = torch.cat([attention_mask] * k, dim=0)
+            position_ids_expanded = position_ids.repeat(1, k, 1)
+            input_embeds_expanded = torch.cat([this_embed_0, this_embed_1, this_embed_2, this_embed_uni_t, this_embed_uni_v], dim=0)
+            filter_deep_stack = torch.cat([image_mask] * k, dim=0)
+            deep_stack_viz_extended = [torch.cat([deep_stack_viz_pass0[di], deep_stack_viz_pass1[di], deep_stack_viz_pass2[di], deep_stack_viz_uni_t[di], deep_stack_viz_uni_v[di]], dim=0) for di in range(len(deep_stack_viz))]
+            hidden_all = self._encode_from_inputs_embeds(position_ids_expanded, input_embeds_expanded, filter_deep_stack, deep_stack_viz_extended, masks)
+            ids_all = input_ids.repeat(k, 1)
+            h_cls_all = self._get_cls_token_repr(hidden_all, ids_all)
+            logits_all = self.enc_0(h_cls_all)
+            head_logits, head_logits_0, head_logits_1, head_logits_uni_t, head_logits_uni_v = torch.chunk(logits_all, chunks=k, dim=0)
+            h_cls, featcls_0, featcls_1, featcls_uni_t, featcls_uni_v = torch.chunk(h_cls_all, chunks=k, dim=0)
+            losses = {}
+            if "label" in kwargs and kwargs["label"] is not None:
+                losses["ce_loss_combined"] = self._mc_ce_loss(head_logits, kwargs["label"])
+            preds = {"combined": head_logits, "mask0": head_logits_0, "mask1": head_logits_1,
+                     "unimodal_text": head_logits_uni_t, "unimodal_vision": head_logits_uni_v}
+            features = {"combined": h_cls, "mask0": featcls_0, "mask1": featcls_1,
+                        "unimodal_text": featcls_uni_t, "unimodal_vision": featcls_uni_v}
+        else:
+            masks = torch.cat([attention_mask, attention_mask, attention_mask], dim=0)
+            position_ids_expanded = position_ids.repeat(1, 3, 1)
+            input_embeds_expanded = torch.cat([this_embed_0, this_embed_1, this_embed_2], dim=0)
+            filter_deep_stack = torch.cat([image_mask, image_mask, image_mask], dim=0)
+            deep_stack_viz_extended = [torch.cat([deep_stack_viz_pass0[di], deep_stack_viz_pass1[di], deep_stack_viz_pass2[di]], dim=0) for di in range(len(deep_stack_viz))]
+            hidden_all = self._encode_from_inputs_embeds(position_ids_expanded, input_embeds_expanded, filter_deep_stack, deep_stack_viz_extended, masks)
+            ids_all = input_ids.repeat(3, 1)
+            h_cls_all = self._get_cls_token_repr(hidden_all, ids_all)
+            logits_all = self.enc_0(h_cls_all)
+            head_logits, head_logits_0, head_logits_1 = torch.chunk(logits_all, chunks=3, dim=0)
+            h_cls, featcls_0, featcls_1 = torch.chunk(h_cls_all, chunks=3, dim=0)
+            losses = {}
+            if "label" in kwargs and kwargs["label"] is not None:
+                losses["ce_loss_combined"] = self._mc_ce_loss(head_logits, kwargs["label"])
+            preds = {"combined": head_logits, "mask0": head_logits_0, "mask1": head_logits_1}
+            features = {"combined": h_cls, "mask0": featcls_0, "mask1": featcls_1}
         return {"preds": preds, "features": features, "losses": losses}
+
+
+class QwenVL_Cached_SynIBU(QwenVL_Cached_SynIB):
+    """SynIB Unimodal-anchored (SynIBU): KL toward unimodal baselines instead of random prior.
+
+    Drives each masked-modality prediction toward the unimodal prediction of the
+    complementary unmasked modality, measuring true synergy above unimodal baselines.
+    Use config key synergy_type=\"unimodal_anchor\" in model args.
+    """
+    pass
 
 
 class QwenVL_SynIBFaster(QwenVL_Cached_SynIB):
