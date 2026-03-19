@@ -60,7 +60,7 @@
     "args": {
       "model_name": "Qwen/Qwen3-VL-2B-Instruct",
       "num_classes": 2,
-      "bf16": false,
+      "bf16": true,
       "max_new_tokens": 32,
       "generate_reasoning": false,
       "max_context_turns": 3,

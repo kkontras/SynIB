@@ -159,9 +159,10 @@ class _QwenVL_MUStARD_PromptImpl(_QwenVL_PromptFrozenCLSImpl):
             for m in messages_batch
         ]
 
+        flat_images = [img for sample in pil_images for img in sample]
         proc = self.processor(
             text=prompts,
-            images=pil_images if pil_images else None,
+            images=flat_images if flat_images else None,
             padding=True,
             truncation=True,
             return_tensors="pt",
@@ -172,10 +173,6 @@ class _QwenVL_MUStARD_PromptImpl(_QwenVL_PromptFrozenCLSImpl):
         attention_mask = proc["attention_mask"]
         pixel_values = proc.get("pixel_values", None)
         image_grid_thw = proc.get("image_grid_thw", None)
-        if pixel_values is not None:
-            pixel_values = pixel_values.to(model_device, non_blocking=True)
-        if image_grid_thw is not None:
-            image_grid_thw = image_grid_thw.to(model_device, dtype=torch.long, non_blocking=True)
 
         hidden = _encode_optional_vision(
             self.backbone, input_ids, attention_mask, pixel_values, image_grid_thw
@@ -339,9 +336,10 @@ class _QwenVL_MUStARD_VideoOnlyImpl(_QwenVL_MUStARD_PromptImpl):
             for m in messages_batch
         ]
 
+        flat_images = [img for sample in pil_images for img in sample]
         proc = self.processor(
             text=prompts,
-            images=pil_images if pil_images else None,
+            images=flat_images if flat_images else None,
             padding=True,
             truncation=True,
             return_tensors="pt",
