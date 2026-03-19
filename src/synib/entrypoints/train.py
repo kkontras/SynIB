@@ -184,6 +184,35 @@ def main(config_path, default_config_path, args):
     if "start_over" in args and args.start_over is not None:
         config.model.start_over = args.start_over
 
+    # ── IHA config injection ──
+    if getattr(args, "pseudo_heads_q", None) is not None:
+        if not hasattr(config.model.args, "iha_config"):
+            config.model.args.iha_config = {}
+        config.model.args.iha_config["num_pseudo_q"] = int(args.pseudo_heads_q)
+        m += "_phq{}".format(args.pseudo_heads_q)
+    if getattr(args, "pseudo_heads_kv", None) is not None:
+        if not hasattr(config.model.args, "iha_config"):
+            config.model.args.iha_config = {}
+        config.model.args.iha_config["num_pseudo_kv"] = int(args.pseudo_heads_kv)
+        m += "_phkv{}".format(args.pseudo_heads_kv)
+    if getattr(args, "iha_init", None) is not None:
+        if not hasattr(config.model.args, "iha_config"):
+            config.model.args.iha_config = {}
+        config.model.args.iha_config["init"] = args.iha_init
+        m += "_ihainit{}".format(args.iha_init)
+    if getattr(args, "iha_lr", None) is not None:
+        if not hasattr(config.model.args, "iha_config"):
+            config.model.args.iha_config = {}
+        config.model.args.iha_config["iha_lr"] = float(args.iha_lr)
+        m += "_ihalr{}".format(args.iha_lr)
+    if getattr(args, "iha_layers", None) is not None:
+        if not hasattr(config.model.args, "iha_config"):
+            config.model.args.iha_config = {}
+        if args.iha_layers == "all":
+            config.model.args.iha_config["layers"] = "all"
+        else:
+            config.model.args.iha_config["layers"] = [int(x) for x in args.iha_layers.split(",")]
+        m += "_ihaL{}".format(args.iha_layers.replace(",", "-"))
 
     config.model.save_dir = config.model.save_dir.format(m)
 
@@ -241,6 +270,16 @@ parser.add_argument('--pre', action='store_true')
 parser.add_argument('--frozen', action='store_true')
 parser.add_argument('--tdqm_disable', action='store_true')
 parser.add_argument('--start_over', action='store_true')
+parser.add_argument('--pseudo_heads_q', required=False, type=int, default=None,
+                    help="IHA pseudo-heads for Q (default: num_q_heads=16)")
+parser.add_argument('--pseudo_heads_kv', required=False, type=int, default=None,
+                    help="IHA pseudo-heads for KV (default: num_kv_heads=8)")
+parser.add_argument('--iha_init', required=False, default=None,
+                    help="IHA init: identity, identity_noise, orthogonal")
+parser.add_argument('--iha_lr', required=False, type=float, default=None,
+                    help="Separate learning rate for IHA mixing params")
+parser.add_argument('--iha_layers', required=False, default=None,
+                    help="IHA layers: 'all' or comma-sep e.g. '20,21,22,23,24,25,26,27'")
 
 parser.set_defaults(pre=False)
 parser.set_defaults(start_over=False)
