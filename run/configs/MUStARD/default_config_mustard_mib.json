@@ -1,0 +1,95 @@
+{
+  "exp_name": "MUStARD Experiment",
+  "agent": "Agent",
+  "training_params": {
+    "cuda": true,
+    "gpu_device": [
+      0
+    ],
+    "seed": 109,
+    "batch_size": 4,
+    "test_batch_size": 4,
+    "data_loader_workers": 8,
+    "pin_memory": true,
+    "async_loading": true,
+    "validation": true,
+    "rec_test": true,
+    "test_on_bottoms": false,
+    "use_test_set": true,
+    "verbose": true,
+    "adversarial_training": {
+      "use": false,
+      "adv_epsilon": 0.01
+    },
+    "tdqm_disable": false,
+    "wandb_disable": false,
+    "res": true
+  },
+  "scheduler": {
+    "type": "cosanneal",
+    "max_lr": 0.03,
+    "warm_up_steps": 300
+  },
+  "optimizer": {
+    "type": "Adam",
+    "learning_rate": 0.0001,
+    "momentum": 0.9,
+    "weight_decay": 0.0001,
+    "beta1": 0.9,
+    "beta2": 0.999
+  },
+  "early_stopping": {
+    "max_epoch": 100,
+    "end_of_epoch_check": true,
+    "log_interval": 10,
+    "save_every_step": 3000,
+    "validate_every": 50,
+    "save_every_valstep": 10,
+    "validate_after": 0,
+    "n_steps_stop": 20,
+    "n_steps_stop_after": 0,
+    "validate_with": "accuracy"
+  },
+  "dataset": {
+    "dataloader_class": "MUStARD_Raw_Dataloader",
+    "data_roots": "/scratch/kkontras/SynIB/src/synib/mydatasets/MUStARD/prepared/mustard_raw",
+    "fps": 1,
+    "val_split_rate": 0.15,
+    "test_split_rate": 0.15
+  },
+  "model": {
+    "save_base_dir": "/scratch/kkontras/checkpoints/synergy/MUSTARD",
+    "args": {
+      "model_name": "Qwen/Qwen3-VL-2B-Instruct",
+      "num_classes": 2,
+      "bf16": false,
+      "max_new_tokens": 32,
+      "generate_reasoning": false,
+      "max_context_turns": 3,
+      "clip_grad": true,
+      "clip_value": 1.0,
+      "lora_config": {
+        "use_lora": true,
+        "lora_r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.05,
+        "lora_target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "lora_bias": "none",
+        "lora_lr": 0.0002
+      },
+      "bias_infusion": {
+        "method": "false",
+        "use": false,
+        "plot": false
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 0
+        }
+      }
+    }
+  }
+}
