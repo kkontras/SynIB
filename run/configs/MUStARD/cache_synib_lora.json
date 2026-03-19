@@ -55,6 +55,10 @@
         "args": {
           "d_model": 2048,
           "num_classes": 2
+        },
+        "pretrainedEncoder": {
+          "use": false,
+          "dir": "{}"
         }
       }
     ]
