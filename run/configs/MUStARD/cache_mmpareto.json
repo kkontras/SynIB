@@ -1,0 +1,56 @@
+{
+  "dataset": {
+    "data_split": {
+      "fold": 0
+    }
+  },
+  "model": {
+    "model_class": "QwenVL_Cached_MMPareto",
+    "load_ongoing": false,
+    "save_dir": "MUStARD_Cache_MMPareto_{}.pth.tar",
+    "args": {
+      "d_model": 512,
+      "num_classes": 2,
+      "fc_inner": 64,
+      "dropout": 0.1,
+      "cls_finetune": false,
+      "cls_type": "linear",
+      "clip_grad": true,
+      "clip_value": 1.0,
+      "bias_infusion": {
+        "method": "MMPareto_Qwen",
+        "use": true,
+        "alpha": 0.8,
+        "starting_epoch": 0,
+        "ending_epoch": 500
+      },
+      "lora_config": {
+        "use_lora": true,
+        "lora_r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.05,
+        "lora_target_modules": ["q_proj", "v_proj"],
+        "lora_bias": "none",
+        "lora_lr": 0.0002
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 1
+        }
+      }
+    },
+    "encoders": [
+      {
+        "model": "LinearHead_Qwen",
+        "args": {
+          "d_model": 2048,
+          "num_classes": 2
+        },
+        "pretrainedEncoder": {
+          "use": false,
+          "dir": ""
+        }
+      }
+    ]
+  }
+}
