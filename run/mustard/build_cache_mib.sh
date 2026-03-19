@@ -14,7 +14,7 @@ if [[ ! -x "${PYTHON_BIN}" ]]; then
   PYTHON_BIN="python"
 fi
 
-DATA_ROOTS="${DATA_ROOTS:-/scratch/kkontras/SynIB/src/synib/mydatasets/MUStARD/prepared/mustard_raw}"
+DATA_ROOTS="${DATA_ROOTS:-${ROOT_DIR}/src/synib/mydatasets/MUStARD/prepared/mustard_raw}"
 OUT_DIR="${OUT_DIR:-/scratch/kkontras/data/mustard/cache_qwen3_vl_2b}"
 GPU="${1:-1}"
 

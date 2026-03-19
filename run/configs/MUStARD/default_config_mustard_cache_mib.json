@@ -50,9 +50,9 @@
   },
   "dataset": {
     "dataloader_class": "MUStARD_MemmapDataloader",
-    "cache_root": "/scratch/kkontras/data/mustard/cache_qwen3_vl_2b"
+    "cache_root": "/dodrio/scratch/projects/2026_029/kkontras/data/mustard/cache_qwen3_vl_2b"
   },
   "model": {
-    "save_base_dir": "/scratch/kkontras/checkpoints/synergy/MUSTARD"
+    "save_base_dir": "/dodrio/scratch/projects/2026_029/kkontras/checkpoints/synergy/MUSTARD"
   }
 }
