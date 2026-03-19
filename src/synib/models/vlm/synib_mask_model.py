@@ -592,8 +592,12 @@ class SynIB(nn.Module):
         elif self.synergy_type == "dirichlet":
             self.evidence_head = nn.Linear(fc_inner, num_classes)
             self.dirichlet_prior_conc = float(_cfg(args, "dirichlet_prior_conc", 1.0))
+        elif self.synergy_type == "unimodal_anchor":
+            self.dirichlet_prior_conc = None  # no logvar/evidence heads needed
         else:
             raise ValueError(f"Unknown synergy_type: {self.synergy_type}")
+
+        self.anchor_to_unimodal = (self.synergy_type == "unimodal_anchor") or bool(_cfg(args, "anchor_unimodal", False))
 
         self.cls_type = _cfg(args, "cls_type")
 
@@ -1021,6 +1025,13 @@ class SynIB(nn.Module):
     def _kl_pass(self, feat, mu, name, **kwargs):
         return {name: self._kl_loss(mu, feat)}
 
+    def _kl_unimodal_anchor(self, pred_masked, pred_unimodal_target, name):
+        """KL from a masked-modality prediction toward the complementary unimodal prediction."""
+        p_masked = F.log_softmax(pred_masked, dim=-1)
+        p_target = F.softmax(pred_unimodal_target.detach(), dim=-1)
+        kl = F.kl_div(p_masked, p_target, reduction="batchmean") * self.synergy_weight
+        return {name: kl}
+
     def ce_losses(self, base_output, **kwargs):
         loss = {}
         for k, pred in base_output["preds"].items():
@@ -1205,8 +1216,12 @@ class FusionIBModel_Mask(nn.Module):
         ce_losses = self.synib.ce_losses({"preds": preds, "features": features}, **kwargs)
         losses.update({"ce_mask0": ce_losses["randmask0"]})
         losses.update({"ce_mask1": ce_losses["randmask1"]})
-        losses.update(self.synib._kl_pass(feat_mask0, pred_mask0, name="kl_synergy_1", **kwargs))
-        losses.update(self.synib._kl_pass(feat_mask1, pred_mask1, name="kl_synergy_2", **kwargs))
+        if self.synib.anchor_to_unimodal:
+            losses.update(self.synib._kl_unimodal_anchor(pred_mask0, uni_pred_2, name="kl_synergy_1"))
+            losses.update(self.synib._kl_unimodal_anchor(pred_mask1, uni_pred_1, name="kl_synergy_2"))
+        else:
+            losses.update(self.synib._kl_pass(feat_mask0, pred_mask0, name="kl_synergy_1", **kwargs))
+            losses.update(self.synib._kl_pass(feat_mask1, pred_mask1, name="kl_synergy_2", **kwargs))
 
 
         return {
@@ -1227,3 +1242,9 @@ class FusionIBModel_Mask(nn.Module):
         return output
 
 
+class FusionIBModel_Mask_U(FusionIBModel_Mask):
+    """SynIB Unimodal-anchored (SynIBU) for multibench.
+    KL drives masked-modality predictions toward the complementary unimodal baseline.
+    Set synergy_type='unimodal_anchor' and bias_infusion.l > 0 in model args.
+    """
+    pass

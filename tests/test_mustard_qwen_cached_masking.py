@@ -56,14 +56,18 @@ class _FakeConfig:
 
 
 class _FakeLM(nn.Module):
-    """Small real nn.Module so embed_tokens works; also records last forward kwargs."""
+    """Small real nn.Module so embed_tokens works; also records last forward kwargs.
+
+    When deepstack_visual_embeds is passed (CachedImage), its mean is blended into
+    every token hidden state so that changes to deepstack affect the final output.
+    """
 
     def __init__(self):
         super().__init__()
         self.embed_tokens = nn.Embedding(VOCAB_SIZE, D_MODEL)
-        # Fixed linear so outputs vary with inputs (needed for invariance tests)
+        # Identity projection so outputs vary with inputs (for invariance / varies tests)
         self.proj = nn.Linear(D_MODEL, D_MODEL, bias=False)
-        nn.init.eye_(self.proj.weight)   # identity initialisation
+        nn.init.eye_(self.proj.weight)
         self.last_call_kwargs = {}
 
     def forward(self, **kwargs):
@@ -73,8 +77,15 @@ class _FakeLM(nn.Module):
         }
         ie = kwargs["inputs_embeds"]
         B_, T = ie.shape[:2]
-        # Project each token so output depends on input (for invariance tests)
         projected = self.proj(ie)   # (B, T, D_MODEL)
+
+        # If deepstack is present (CachedImage path), blend its mean into every token
+        dsv = kwargs.get("deepstack_visual_embeds", None)
+        if dsv is not None:
+            # dsv is a list of tensors (shape (B*N_IMG, D_MODEL) each)
+            dsv_mean = torch.stack([d.float().mean(0) for d in dsv], dim=0).mean(0)  # (D_MODEL,)
+            projected = projected + dsv_mean.unsqueeze(0).unsqueeze(0).to(projected.dtype)
+
         return SimpleNamespace(hidden_states=(projected,))
 
 
@@ -115,6 +126,9 @@ class _FakeTokenizer:
     pad_token = "<pad>"
     pad_token_id = 0
     eos_token_id = 1
+
+    def __len__(self):
+        return VOCAB_SIZE
 
     def add_special_tokens(self, d):
         return 1
@@ -260,7 +274,12 @@ def _load_cached_module():
     module.__package__ = "synib.models.vlm"
     sys.modules["synib.models.vlm.qwen_cached"] = module
 
-    # Patch from_pretrained *before* exec so __init__ sees the fake objects
+    assert spec.loader is not None
+    # exec_module runs `from transformers import AutoProcessor, Qwen3VLForConditionalGeneration`
+    # which sets module-level names; we patch AFTER so __init__ sees our fakes.
+    spec.loader.exec_module(module)
+
+    # Patch the module-level names that __init__ will call .from_pretrained() on
     fake_backbone_cls = type(
         "Qwen3VLForConditionalGeneration",
         (),
@@ -271,14 +290,12 @@ def _load_cached_module():
         (),
         {"from_pretrained": staticmethod(lambda *a, **kw: _FakeProcessor())},
     )
-    module.__dict__["Qwen3VLForConditionalGeneration"] = fake_backbone_cls
-    module.__dict__["AutoProcessor"] = fake_processor_cls
-    # Provide peft symbols the module-level code uses
-    module.__dict__["LoraConfig"] = None
-    module.__dict__["get_peft_model"] = lambda model, cfg: model
+    module.Qwen3VLForConditionalGeneration = fake_backbone_cls
+    module.AutoProcessor = fake_processor_cls
+    # Ensure peft symbols are identity / no-op
+    module.LoraConfig = None
+    module.get_peft_model = lambda model, cfg: model
 
-    assert spec.loader is not None
-    spec.loader.exec_module(module)
     return module
 
 
@@ -641,29 +658,40 @@ class TestCachedModalityComparison(unittest.TestCase):
         )
 
     def test_text_model_output_varies_with_text_embeds(self):
-        """CachedText output MUST change when a non-image position embedding changes."""
+        """CachedText output MUST change when the CLS-position embedding changes.
+
+        CLS is at T-1 (a text / non-image position); it is directly extracted as h_cls.
+        We flip its sign so layer_norm(h) → -layer_norm(h) → linear gives different logits.
+        """
         batch1 = _make_cached_batch()
         batch3 = copy.deepcopy(batch1)
-        batch3["input_embeds"][:, 0, :] += 10.0   # position 0 is a text position
+        # Flip CLS embedding direction — layer_norm(-h) = -layer_norm(h) → logits differ
+        batch3["input_embeds"][:, T_SEQ - 1, :] *= -1.0
 
         out1 = self.text_model.forward(batch1)
         out3 = self.text_model.forward(batch3)
         self.assertFalse(
             torch.allclose(out1["preds"]["combined"], out3["preds"]["combined"]),
-            "CachedText output should vary with text-position embeddings",
+            "CachedText output should vary when CLS-position embedding direction changes",
         )
 
     def test_image_model_output_varies_with_image_embeds(self):
-        """CachedImage output MUST change when an image-position embedding changes."""
+        """CachedImage output MUST change when deepstack_visual_embeds changes.
+
+        CachedImage forwards deepstack to the LM (unlike CachedText).  _FakeLM adds
+        dsv_mean into every hidden position; flipping deepstack flips that contribution
+        and thus changes the direction of h_cls → different logits.
+        """
         batch1 = _make_cached_batch()
         batch4 = copy.deepcopy(batch1)
-        batch4["input_embeds"][:, 1, :] += 10.0   # position 1 is an image position
+        # Flip deepstack sign — changes dsv_mean direction → h_cls direction changes
+        batch4["deepstack_visual_embeds"] = -batch4["deepstack_visual_embeds"]
 
         out1 = self.image_model.forward(batch1)
         out4 = self.image_model.forward(batch4)
         self.assertFalse(
             torch.allclose(out1["preds"]["combined"], out4["preds"]["combined"]),
-            "CachedImage output should vary with image-position embeddings",
+            "CachedImage output should vary when deepstack_visual_embeds direction changes",
         )
 
 
