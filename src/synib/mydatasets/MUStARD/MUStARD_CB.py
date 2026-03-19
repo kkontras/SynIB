@@ -276,11 +276,22 @@ def memmap_collate(
 
     if "deepstack_visual_embeds" in batch[0]:
         deep_list = [b.get("deepstack_visual_embeds", torch.empty((0, 0, 2048), dtype=torch.float16)) for b in batch]
-        deep_dim = int(deep_list[0].shape[-1]) if (torch.is_tensor(deep_list[0]) and deep_list[0].numel() > 0) else 2048
-        deep_pad, deep_mask = _pad_deep_3d(deep_list, deep_dim=deep_dim, pad_val=0.0)
-        deep_pad = einops.rearrange(deep_pad, "a b c d -> b (a c) d")
-        data["deepstack_visual_embeds"] = deep_pad
-        data["deep_mask"] = deep_mask
+        # Each deep_list[b] has shape (K, N_b, D) where N_b = actual visual tokens for sample b.
+        # MUStARD clips have variable frame counts → variable N_b.
+        # We must concatenate actual tokens (NOT pad) so that deep_stack[k].shape[0]
+        # equals visual_pos_masks.sum() (total actual visual positions across the batch).
+        valid = [d for d in deep_list if torch.is_tensor(d) and d.numel() > 0 and d.dim() == 3]
+        if valid:
+            K = max(int(d.shape[0]) for d in valid)
+            D = int(valid[0].shape[-1])
+            levels = []
+            for k in range(K):
+                parts = [d[k] for d in deep_list
+                         if torch.is_tensor(d) and d.dim() == 3 and int(d.shape[0]) > k]
+                levels.append(torch.cat(parts, dim=0) if parts else torch.empty((0, D), dtype=torch.float16))
+            data["deepstack_visual_embeds"] = torch.stack(levels, dim=0)  # (K, sum_N, D)
+        else:
+            data["deepstack_visual_embeds"] = torch.empty((0, 0, 2048), dtype=torch.float16)
 
     return {"ids": ids, "prompts": prompts, "label": labels, "data": data}
 
