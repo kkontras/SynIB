@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${ROOT_DIR}"
 
-CONDA_ENV_PATH="${CONDA_ENV_PATH:-/dodrio/scratch/projects/2026_029/kkontras/envs/synergy_new}"
+CONDA_ENV_PATH="${CONDA_ENV_PATH:-/scratch/kkontras/miniconda3/envs/synergy_new}"
 if command -v conda >/dev/null 2>&1; then
   eval "$(conda shell.bash hook)" || true
   conda activate "${CONDA_ENV_PATH}" || true
@@ -14,8 +14,8 @@ if [[ ! -x "${PYTHON_BIN}" ]]; then
   PYTHON_BIN="python"
 fi
 
-DATA_ROOTS="${DATA_ROOTS:-/dodrio/scratch/projects/2026_029/kkontras/data/mustard/mustard_raw}"
-OUT_DIR="${OUT_DIR:-/dodrio/scratch/projects/2026_029/kkontras/data/mustard/cache_qwen3_vl_2b}"
+DATA_ROOTS="${DATA_ROOTS:-/scratch/kkontras/SynIB/src/synib/mydatasets/MUStARD/prepared/mustard_raw}"
+OUT_DIR="${OUT_DIR:-/scratch/kkontras/data/mustard/cache_qwen3_vl_2b}"
 GPU="${1:-0}"
 
 echo "[build_cache_mib] DATA_ROOTS=${DATA_ROOTS}"

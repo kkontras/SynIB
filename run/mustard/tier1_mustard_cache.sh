@@ -29,7 +29,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${ROOT_DIR}"
 
-CONDA_ENV_PATH="${CONDA_ENV_PATH:-/dodrio/scratch/projects/2026_029/kkontras/envs/synergy_new}"
+CONDA_ENV_PATH="${CONDA_ENV_PATH:-/scratch/kkontras/miniconda3/envs/synergy_new}"
 if command -v conda >/dev/null 2>&1; then
   eval "$(conda shell.bash hook)" || true
   conda activate "${CONDA_ENV_PATH}" || true
