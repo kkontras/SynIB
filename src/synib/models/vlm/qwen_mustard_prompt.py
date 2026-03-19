@@ -420,12 +420,13 @@ class QwenVL_MUStARD_Prompt_SynIB(_QwenVL_MUStARD_PromptImpl):
     # Internal helper: run the LM from pre-built inputs_embeds
     # ------------------------------------------------------------------
 
-    def _encode_from_inputs_embeds(self, inputs_embeds, attention_mask, deep_stack_viz=None):
+    def _encode_from_inputs_embeds(self, inputs_embeds, attention_mask, deep_stack_viz=None, visual_pos_masks=None):
         out = self.backbone.model.language_model(
             input_ids=None,
             inputs_embeds=inputs_embeds,
             attention_mask=attention_mask,
             deepstack_visual_embeds=deep_stack_viz,
+            visual_pos_masks=visual_pos_masks,
             output_hidden_states=True,
             use_cache=False,
             return_dict=True,
@@ -544,7 +545,7 @@ class QwenVL_MUStARD_Prompt_SynIB(_QwenVL_MUStARD_PromptImpl):
                 p.requires_grad_(False)
             try:
                 def _run_logits(ie, dsv):
-                    h   = self._encode_from_inputs_embeds(ie, attention_mask, dsv if dsv else None)
+                    h   = self._encode_from_inputs_embeds(ie, attention_mask, dsv if dsv else None, visual_pos_masks=image_mask if dsv else None)
                     hc  = self._get_cls_token_repr(h, input_ids).to(self.enc_0.linear.weight.dtype)
                     return self.enc_0(hc)
 
@@ -626,7 +627,8 @@ class QwenVL_MUStARD_Prompt_SynIB(_QwenVL_MUStARD_PromptImpl):
             if dsv0 else None
         )
 
-        hidden3  = self._encode_from_inputs_embeds(emb3, attn3, dsv3)
+        mask3    = image_mask.repeat(3, 1) if dsv3 is not None else None
+        hidden3  = self._encode_from_inputs_embeds(emb3, attn3, dsv3, visual_pos_masks=mask3)
         ids3     = input_ids.repeat(3, 1)
         h3       = self._get_cls_token_repr(hidden3, ids3).to(self.enc_0.linear.weight.dtype)
         logits3  = self.enc_0(h3)
