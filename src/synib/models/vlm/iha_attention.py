@@ -188,10 +188,10 @@ def apply_iha_to_model(
     else:
         target_indices = [int(i) for i in layers]
 
-    # Read head counts from first target layer's self_attn
+    # Read head counts from config of first target layer's self_attn
     first_attn = transformer_layers[target_indices[0]].self_attn
-    num_q_heads  = int(first_attn.num_heads)
-    num_kv_heads = int(first_attn.num_key_value_heads)
+    num_q_heads  = int(first_attn.config.num_attention_heads)
+    num_kv_heads = int(first_attn.config.num_key_value_heads)
 
     mixing_layers = []
     for idx in target_indices:
