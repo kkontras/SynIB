@@ -1,5 +1,7 @@
 
 CUDA_VISIBLE_DEVICES=1 PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --lr 0.0005 --wd 0.01 --validate_with accuracy --batch_size 8
+CUDA_VISIBLE_DEVICES=1 PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --lr 0.0005 --wd 0.001 --validate_with accuracy --batch_size 8
+CUDA_VISIBLE_DEVICES=1 PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --lr 0.0005 --wd 0.0001 --validate_with accuracy --batch_size 8
 CUDA_VISIBLE_DEVICES=1 PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_text_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --lr 0.0005 --wd 0.01 --validate_with accuracy --batch_size 8
 CUDA_VISIBLE_DEVICES=1 PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_video_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --lr 0.0005 --wd 0.01 --validate_with accuracy --batch_size 8
 
