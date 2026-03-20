@@ -2502,6 +2502,36 @@ class QwenVL_Cached(_QwenVL_CachedCombinedImpl):
     pass
 
 
+class QwenVL_Cached_FullFT(_QwenVL_CachedCombinedImpl):
+    """Supervised fine-tuning with some or all LLM layers unfrozen (no LoRA, no IHA).
+
+    Config key ``finetune_layers`` (in model.args):
+        "all"          → unfreeze the entire language model
+        [20,21,22,27]  → unfreeze only those transformer block indices
+    """
+
+    def _setup_trainables(self):
+        # Start frozen
+        for p in self.backbone.parameters():
+            p.requires_grad = False
+
+        ft = getattr(self.args, "finetune_layers", "all")
+        lm = self.backbone.model.language_model
+
+        if ft == "all":
+            for p in lm.parameters():
+                p.requires_grad = True
+        else:
+            layers = lm.layers
+            for idx in ft:
+                for p in layers[int(idx)].parameters():
+                    p.requires_grad = True
+
+        # classifier head always trainable
+        for p in self.enc_0.parameters():
+            p.requires_grad = True
+
+
 class QwenVL_Cached_Text(_QwenVL_CachedTextImpl):
     pass
 

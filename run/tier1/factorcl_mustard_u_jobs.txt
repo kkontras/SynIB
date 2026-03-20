@@ -1,0 +1,52 @@
+
+## SynIBU MUStARD -- Random masking sweep (l x p_min = 4 x 5 = 20 runs)
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.1 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.1 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.1 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.1 --l 1.0 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 1.0 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 1.0 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.7 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.7 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.7 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.7 --l 1.0 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.9 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.9 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.9 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb random --perturb_fill ema --perturb_pmin 0.9 --l 1.0 --validate_with accuracy
+
+## SynIBU MUStARD -- Learned masking sweep (l x l_sparsity = 4 x 7 = 28 runs)
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.001 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.001 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.001 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.001 --l 1.0 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.01 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.01 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.01 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.01 --l 1.0 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 1.0 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 1 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 1 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 1 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 1 --l 1.0 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 3 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 3 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 3 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 3 --l 1.0 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 5 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 5 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 5 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 5 --l 1.0 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 10 --l 0.001 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 10 --l 0.01 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 10 --l 0.1 --validate_with accuracy
+./run/factorcl/train.sh :: mustard-vt run/configs/FactorCL/Mustard/release/VT/synprom_RMask_U.json --fold 0 --perturb learned --perturb_fill ema --perturb_lsparse 10 --l 1.0 --validate_with accuracy

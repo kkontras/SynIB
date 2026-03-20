@@ -98,6 +98,10 @@ def print_search(config_path, default_config_path, args):
     if "pre" in args and args.pre:
         m += "_pre"
 
+    # ── FullFT suffix ──
+    if getattr(args, "finetune_layers", None) is not None:
+        m += "_ftL{}".format(args.finetune_layers.replace(",", "-"))
+
     # ── IHA suffix (must match train.py injection order) ──
     if getattr(args, "pseudo_heads_q", None) is not None:
         m += "_phq{}".format(args.pseudo_heads_q)
@@ -344,6 +348,8 @@ if __name__ == "__main__":
     parser.add_argument('--frozen', action='store_true')
     parser.add_argument('--tdqm_disable', action='store_true')
     parser.add_argument('--start_over', action='store_false')
+    parser.add_argument('--finetune_layers', required=False, default=None,
+                        help="FullFT layers: 'all' or comma-sep e.g. '20,21,22,23,24,25,26,27'")
     parser.add_argument('--pseudo_heads_q', required=False, type=int, default=None,
                         help="IHA pseudo-heads for Q")
     parser.add_argument('--pseudo_heads_kv', required=False, type=int, default=None,
