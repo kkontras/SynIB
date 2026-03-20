@@ -98,6 +98,18 @@ def print_search(config_path, default_config_path, args):
     if "pre" in args and args.pre:
         m += "_pre"
 
+    # ── IHA suffix (must match train.py injection order) ──
+    if getattr(args, "pseudo_heads_q", None) is not None:
+        m += "_phq{}".format(args.pseudo_heads_q)
+    if getattr(args, "pseudo_heads_kv", None) is not None:
+        m += "_phkv{}".format(args.pseudo_heads_kv)
+    if getattr(args, "iha_init", None) is not None:
+        m += "_ihainit{}".format(args.iha_init)
+    if getattr(args, "iha_lr", None) is not None:
+        m += "_ihalr{}".format(args.iha_lr)
+    if getattr(args, "iha_layers", None) is not None:
+        m += "_ihaL{}".format(args.iha_layers.replace(",", "-"))
+
     importer.config.model.save_dir = importer.config.model.save_dir.format(m)
 
     #Just to transfer the models
@@ -332,6 +344,16 @@ if __name__ == "__main__":
     parser.add_argument('--frozen', action='store_true')
     parser.add_argument('--tdqm_disable', action='store_true')
     parser.add_argument('--start_over', action='store_false')
+    parser.add_argument('--pseudo_heads_q', required=False, type=int, default=None,
+                        help="IHA pseudo-heads for Q")
+    parser.add_argument('--pseudo_heads_kv', required=False, type=int, default=None,
+                        help="IHA pseudo-heads for KV")
+    parser.add_argument('--iha_init', required=False, default=None,
+                        help="IHA init: identity, identity_noise, orthogonal")
+    parser.add_argument('--iha_lr', required=False, type=float, default=None,
+                        help="IHA mixing param learning rate")
+    parser.add_argument('--iha_layers', required=False, default=None,
+                        help="IHA layers: 'all' or comma-sep e.g. '20,21,22,23,24,25,26,27'")
     parser.set_defaults(pre=False)
     parser.set_defaults(start_over=False)
     parser.set_defaults(frozen=False)
