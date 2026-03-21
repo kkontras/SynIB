@@ -3,7 +3,9 @@
   "agent": "Agent",
   "training_params": {
     "cuda": true,
-    "gpu_device": [0],
+    "gpu_device": [
+      0
+    ],
     "seed": 109,
     "batch_size": 32,
     "test_batch_size": 32,
@@ -50,7 +52,7 @@
   },
   "dataset": {
     "dataloader_class": "MUStARD_MemmapDataloader",
-    "cache_root": "/home/kkontras/orcd/scratch/data/mustard/cache_qwen3_vl_2b"
+    "cache_root": "/orcd/scratch/orcd/009/kkontras/data/mustard/mustard_raw/mustard_raw/cache_qwen3_vl_2b"
   },
   "model": {
     "save_base_dir": "/home/kkontras/orcd/scratch/checkpoints/Synergy/MUSTARD"
