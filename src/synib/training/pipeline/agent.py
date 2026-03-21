@@ -164,3 +164,5 @@ class Agent():
                 self.monitor_n_saver.save(model_save=False, verbose=True, post_test_results=best_test_metrics)
             else:
                 self.monitor_n_saver.save(model_save=False, verbose=True, post_test_results=best_val_metrics)
+
+        wandb.finish()
