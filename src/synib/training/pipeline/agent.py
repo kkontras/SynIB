@@ -125,6 +125,8 @@ class Agent():
             try:
                 if not self.config.model.get("start_over", False):
                     self.mem_loader.load()
+            except RuntimeError:
+                raise
             except Exception as e:
                 if "save_base_dir" in self.config.model:
                     file_name = os.path.join(self.config.model.save_base_dir, self.config.model.save_dir)

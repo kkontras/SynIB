@@ -183,6 +183,8 @@ def main(config_path, default_config_path, args):
         config.training_params.tdqm_disable = True
     if "start_over" in args and args.start_over is not None:
         config.model.start_over = args.start_over
+    if "no_model_save" in args and args.no_model_save:
+        config.model.no_model_save = True
 
     # ── FullFT layer injection ──
     if getattr(args, "finetune_layers", None) is not None:
@@ -278,6 +280,7 @@ parser.add_argument('--pre', action='store_true')
 parser.add_argument('--frozen', action='store_true')
 parser.add_argument('--tdqm_disable', action='store_true')
 parser.add_argument('--start_over', action='store_true')
+parser.add_argument('--no_model_save', action='store_true')
 parser.add_argument('--finetune_layers', required=False, default=None,
                     help="FullFT layers: 'all' or comma-sep e.g. '20,21,22,23,24,25,26,27'")
 parser.add_argument('--pseudo_heads_q', required=False, type=int, default=None,
@@ -293,6 +296,7 @@ parser.add_argument('--iha_layers', required=False, default=None,
 
 parser.set_defaults(pre=False)
 parser.set_defaults(start_over=False)
+parser.set_defaults(no_model_save=False)
 parser.set_defaults(frozen=False)
 parser.set_defaults(tdqm_disable=False)
 args = parser.parse_args()

@@ -272,6 +272,14 @@ class Loader():
         if self.agent.accelerator.is_main_process:
             self.agent.logger.info("Loading checkpoint: {}".format(file_name))
 
+        if "model_state_dict" not in checkpoint:
+            if not self.agent.config.model.get("start_over", False):
+                raise RuntimeError(
+                    "Checkpoint at '{}' exists but contains no model weights (was saved with --no_model_save). "
+                    "Pass --start_over to train from scratch.".format(file_name)
+                )
+            else:
+                return
         self.agent.model.load_state_dict(checkpoint["model_state_dict"])
         self.agent.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         if "scheduler_state_dict" in checkpoint:

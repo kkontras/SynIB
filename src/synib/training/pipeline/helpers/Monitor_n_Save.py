@@ -18,9 +18,11 @@ class Monitor_n_Save():
             self,
             verbose: bool = False,
             is_best_dict: Dict[str, bool] = None,
-            model_save: bool = True,
+            model_save: bool = None,
             post_test_results: Optional[Dict[str, Any]] = None
     ) -> None:
+        if model_save is None:
+            model_save = not self.agent.config.model.get("no_model_save", False)
         file_name = self._get_checkpoint_path()
         os.makedirs(os.path.dirname(file_name), exist_ok=True)
 
