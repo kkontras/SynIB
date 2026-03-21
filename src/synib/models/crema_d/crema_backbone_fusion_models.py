@@ -853,6 +853,63 @@ class FactorCL_Uni(nn.Module):
         return {"preds": {"combined": pred}, "features": {"combined": feat}, "nonaggr_features": {"combined": feat_nonaggr}}
 
 
+class JointTF_Model(nn.Module):
+    def __init__(self, args, encs=None):
+        super().__init__()
+        self.args = args
+        dim = args.get("hidden_size", 100)
+        n0 = args.get("n_features_0", 100)
+        n1 = args.get("n_features_1", 100)
+        nhead = args.get("nhead", 5)
+        num_layers = args.get("num_layers", 5)
+        dropout = args.get("dropout", 0.1)
+
+        # Per-modality Conv1d projections: (B, T, n_feat) -> (B, T, dim)
+        self.proj_0 = nn.Conv1d(n0, dim, kernel_size=1, bias=False)
+        self.proj_1 = nn.Conv1d(n1, dim, kernel_size=1, bias=False)
+
+        # Learnable modality embeddings (broadcast over sequence length)
+        self.mod_emb_0 = nn.Parameter(torch.randn(1, 1, dim))
+        self.mod_emb_1 = nn.Parameter(torch.randn(1, 1, dim))
+
+        # Learnable CLS token
+        self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
+
+        # Shared Transformer encoder
+        layer = nn.TransformerEncoderLayer(d_model=dim, nhead=nhead,
+                                           dropout=dropout, batch_first=True)
+        self.transformer = nn.TransformerEncoder(layer, num_layers=num_layers)
+
+        # Classification head
+        self.pred_fc = nn.Linear(dim, args.num_classes)
+
+    def forward(self, x, **kwargs):
+        x0 = x[self.args.modality_0]   # (B, T0, n0)
+        x1 = x[self.args.modality_1]   # (B, T1, n1)
+
+        # Project via Conv1d (expects (B, n_feat, T))
+        h0 = self.proj_0(x0.permute(0, 2, 1)).permute(0, 2, 1)  # (B, T0, dim)
+        h1 = self.proj_1(x1.permute(0, 2, 1)).permute(0, 2, 1)  # (B, T1, dim)
+
+        # Add per-modality embeddings
+        h0 = h0 + self.mod_emb_0
+        h1 = h1 + self.mod_emb_1
+
+        # Prepend CLS token
+        cls = self.cls_token.expand(x0.size(0), -1, -1)      # (B, 1, dim)
+        seq = torch.cat([cls, h0, h1], dim=1)                 # (B, 1+T0+T1, dim)
+
+        # Shared Transformer
+        out = self.transformer(seq)                            # (B, 1+T0+T1, dim)
+        feat = out[:, 0]                                       # CLS output (B, dim)
+
+        pred = self.pred_fc(feat)
+        return {
+            "preds": {"combined": pred},
+            "features": {"combined": feat},
+        }
+
+
 #Base models for 2 modalities
 class MCR_Model(nn.Module):
     def __init__(self, args, encs):
