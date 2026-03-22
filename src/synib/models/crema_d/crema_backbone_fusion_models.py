@@ -14,6 +14,10 @@ try:
     from synib.mydatasets.Factor_CL_Datasets.MultiBench.unimodals.common_models import Transformer
 except Exception:
     Transformer = None
+try:
+    from synib.models.vlm.iha_attention import IHAMixingLayer
+except Exception:
+    IHAMixingLayer = None
 from transformers import ViTModel, ViTConfig, DistilBertModel, DistilBertConfig
 import os
 from transformers import BlipForConditionalGeneration, BlipConfig
@@ -903,6 +907,120 @@ class JointTF_Model(nn.Module):
         out = self.transformer(seq)                            # (B, 1+T0+T1, dim)
         feat = out[:, 0]                                       # CLS output (B, dim)
 
+        pred = self.pred_fc(feat)
+        return {
+            "preds": {"combined": pred},
+            "features": {"combined": feat},
+        }
+
+
+class _JointTFIHAEncoderLayer(nn.Module):
+    """TransformerEncoderLayer with IHA head-mixing injected after QKV projections."""
+
+    def __init__(self, d_model, nhead, dropout, num_pseudo_q=None, num_pseudo_kv=None,
+                 init="identity", noise_std=0.01):
+        super().__init__()
+        assert d_model % nhead == 0, "d_model must be divisible by nhead"
+        self.nhead = nhead
+        self.head_dim = d_model // nhead
+
+        self.q_proj = nn.Linear(d_model, d_model)
+        self.k_proj = nn.Linear(d_model, d_model)
+        self.v_proj = nn.Linear(d_model, d_model)
+        self.out_proj = nn.Linear(d_model, d_model)
+
+        self.iha = IHAMixingLayer(
+            num_q_heads=nhead, num_kv_heads=nhead,
+            num_pseudo_q=num_pseudo_q, num_pseudo_kv=num_pseudo_kv,
+            init=init, noise_std=noise_std,
+        )
+
+        self.linear1 = nn.Linear(d_model, d_model * 4)
+        self.linear2 = nn.Linear(d_model * 4, d_model)
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.dropout_p = dropout
+        self.drop = nn.Dropout(dropout)
+        self.act = nn.ReLU()
+
+    def forward(self, src, src_mask=None, src_key_padding_mask=None, is_causal=False):
+        B, T, D = src.shape
+        H, dh = self.nhead, self.head_dim
+
+        # QKV projections -> (B, H, T, dh)
+        q = self.q_proj(src).view(B, T, H, dh).permute(0, 2, 1, 3)
+        k = self.k_proj(src).view(B, T, H, dh).permute(0, 2, 1, 3)
+        v = self.v_proj(src).view(B, T, H, dh).permute(0, 2, 1, 3)
+
+        # IHA mixing: blends heads via learned M_Q, M_K, M_V
+        q, k, v = self.iha(q, k, v)
+
+        # Scaled dot-product attention (B, H, T, dh)
+        dp = self.dropout_p if self.training else 0.0
+        attn_out = F.scaled_dot_product_attention(q, k, v, attn_mask=src_mask, dropout_p=dp)
+
+        # Merge heads -> (B, T, D)
+        attn_out = attn_out.permute(0, 2, 1, 3).contiguous().view(B, T, D)
+        attn_out = self.out_proj(attn_out)
+
+        # Post-LN residual blocks
+        src = self.norm1(src + self.drop(attn_out))
+        ff = self.linear2(self.drop(self.act(self.linear1(src))))
+        src = self.norm2(src + self.drop(ff))
+        return src
+
+
+class JointTF_IHA_Model(nn.Module):
+    def __init__(self, args, encs=None):
+        super().__init__()
+        self.args = args
+        dim        = args.get("hidden_size", 100)
+        n0         = args.get("n_features_0", 100)
+        n1         = args.get("n_features_1", 100)
+        nhead      = args.get("nhead", 5)
+        num_layers = args.get("num_layers", 5)
+        dropout    = args.get("dropout", 0.1)
+
+        iha_cfg       = args.get("iha_config", {})
+        num_pseudo_q  = iha_cfg.get("num_pseudo_q", None)
+        num_pseudo_kv = iha_cfg.get("num_pseudo_kv", None)
+        iha_init      = iha_cfg.get("init", "identity")
+        iha_noise     = iha_cfg.get("noise_std", 0.01)
+
+        # Same projections / embeddings / CLS as JointTF_Model
+        self.proj_0    = nn.Conv1d(n0, dim, kernel_size=1, bias=False)
+        self.proj_1    = nn.Conv1d(n1, dim, kernel_size=1, bias=False)
+        self.mod_emb_0 = nn.Parameter(torch.randn(1, 1, dim))
+        self.mod_emb_1 = nn.Parameter(torch.randn(1, 1, dim))
+        self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
+
+        # IHA-aware Transformer encoder
+        self.transformer = nn.ModuleList([
+            _JointTFIHAEncoderLayer(dim, nhead, dropout,
+                                    num_pseudo_q, num_pseudo_kv,
+                                    iha_init, iha_noise)
+            for _ in range(num_layers)
+        ])
+
+        self.pred_fc = nn.Linear(dim, args.num_classes)
+
+    def forward(self, x, **kwargs):
+        x0 = x[self.args.modality_0]
+        x1 = x[self.args.modality_1]
+
+        h0 = self.proj_0(x0.permute(0, 2, 1)).permute(0, 2, 1)
+        h1 = self.proj_1(x1.permute(0, 2, 1)).permute(0, 2, 1)
+
+        h0 = h0 + self.mod_emb_0
+        h1 = h1 + self.mod_emb_1
+
+        cls = self.cls_token.expand(x0.size(0), -1, -1)
+        seq = torch.cat([cls, h0, h1], dim=1)
+
+        for layer in self.transformer:
+            seq = layer(seq)
+
+        feat = seq[:, 0]
         pred = self.pred_fc(feat)
         return {
             "preds": {"combined": pred},

@@ -1,0 +1,29 @@
+{
+  "model": {
+    "model_class": "JointTF_IHA_Model",
+    "load_ongoing": false,
+    "save_dir": "JointTF_IHA_{}.pth.tar",
+    "args": {
+      "n_features_0": 371,
+      "n_features_1": 300,
+      "hidden_size": 128,
+      "nhead": 4,
+      "num_layers": 4,
+      "dropout": 0.1,
+      "num_classes": 2,
+      "modality_0": "c",
+      "modality_1": "g",
+      "iha_config": {
+        "use_iha": true,
+        "layers": "all",
+        "init": "identity",
+        "noise_std": 0.01
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 1
+        }
+      }
+    }
+  }
+}
