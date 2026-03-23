@@ -1,0 +1,34 @@
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new/lib/python3.10/site-packages/torch/cuda/__init__.py:283: UserWarning: 
+    Found GPU0 NVIDIA GeForce GTX 1080 Ti which is of cuda capability 6.1.
+    Minimum and Maximum cuda capability supported by this version of PyTorch is
+    (7.0) - (12.0)
+    
+  warnings.warn(
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new/lib/python3.10/site-packages/torch/cuda/__init__.py:304: UserWarning: 
+    Please install PyTorch with a following CUDA
+    configurations:  12.6 following instructions at
+    https://pytorch.org/get-started/locally/
+    
+  warnings.warn(matched_cuda_warn.format(matched_arches))
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new/lib/python3.10/site-packages/torch/cuda/__init__.py:326: UserWarning: 
+NVIDIA GeForce GTX 1080 Ti with CUDA capability sm_61 is not compatible with the current PyTorch installation.
+The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.
+If you want to use the NVIDIA GeForce GTX 1080 Ti GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/
+
+  warnings.warn(
+Traceback (most recent call last):
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/train.py", line 323, in <module>
+    main(config_path=args.config, default_config_path=args.default_config, args=args)
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/train.py", line 236, in main
+    agent = agent_class(config)
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/training/pipeline/agent.py", line 61, in __init__
+    self.data_loader = dataloader(config=config)
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/Factor_CL_Datasets/FactorCL_Datasets_MustardFiltered.py", line 199, in __init__
+    processed_dataset = _load_affect_with_optional_mustard_filter(self.config)
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/mydatasets/Factor_CL_Datasets/FactorCL_Datasets_MustardFiltered.py", line 156, in _load_affect_with_optional_mustard_filter
+    with open(filepath, "rb") as f:
+FileNotFoundError: [Errno 2] No such file or directory: './src/synib/mydatasets/Factor_CL_Datasets/prepared/mustard/mustard_data.pkl'

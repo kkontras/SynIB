@@ -1,0 +1,82 @@
+Starting SynIB training job
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new/bin/python
+Python 3.10.19
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB
+GPU 0: NVIDIA L40S (UUID: GPU-1e452605-e0ba-2ab6-3ef7-9ad178fdb564)
+Executing: PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/FactorCL/Mosei/syn/VT/joint_tf_iha.json --default_config run/configs/FactorCL/Mosei/default_config_mosei_VT_syn.json --fold 0 --validate_with accuracy --batch_size 32 --no_model_save --lr 0.001 --wd 0.01 --pseudo_heads_q 4 --pseudo_heads_kv 4 --iha_init identity --iha_layers all
+Namespace(config='run/configs/FactorCL/Mosei/syn/VT/joint_tf_iha.json', default_config='run/configs/FactorCL/Mosei/default_config_mosei_VT_syn.json', fold='0', alpha=None, tanh_mode_beta=None, regby=None, batch_size='32', l=None, multil=None, lib=None, kmepoch=None, num_samples=None, contrcoeff=None, contr_type=None, shuffle_type=None, validate_with='accuracy', num_classes=None, optim_method=None, ending_epoch=None, load_ongoing=None, recon_weight1=None, recon_weight2=None, recon_epochstages=None, recon_ensemblestages=None, lr='0.001', wd='0.01', cls=None, ironic_rate=None, perturb=None, perturb_fill=None, perturb_pmax=None, perturb_pmin=None, perturb_lsparse=None, rmask=None, pmin=None, pmax=None, lsparse=None, pre=False, frozen=False, tdqm_disable=False, start_over=False, no_model_save=True, finetune_layers=None, pseudo_heads_q=4, pseudo_heads_kv=4, iha_init='identity', iha_lr=None, iha_layers='all')
+2026-03-23 05:02:20,611 - Config - INFO - run/configs/FactorCL/Mosei/syn/VT/joint_tf_iha.json
+2026-03-23 05:02:20,613 - Config - INFO -  THE Configuration of your experiment ..
+{'agent': 'Agent',
+ 'dataset': {'data_roots': './src/synib/mydatasets/Factor_CL_Datasets/prepared/mosei/mosei_data.pkl',
+             'data_type': 'mosei',
+             'dataloader_class': 'FactorCL_Dataloader'},
+ 'early_stopping': {'end_of_epoch_check': True,
+                    'log_interval': 10,
+                    'max_epoch': 200,
+                    'n_steps_stop': 30,
+                    'n_steps_stop_after': 0,
+                    'save_every_step': 3000,
+                    'save_every_valstep': 50,
+                    'validate_after': 0,
+                    'validate_every': 185},
+ 'exp_name': 'Mosei Experiment',
+ 'model': {'args': {'dropout': 0.1,
+                    'hidden_size': 128,
+                    'iha_config': {'init': 'identity',
+                                   'layers': 'all',
+                                   'noise_std': 0.01,
+                                   'use_iha': True},
+                    'modality_0': 'c',
+                    'modality_1': 'g',
+                    'multi_loss': {'multi_supervised_w': {'combined': 1}},
+                    'n_features_0': 35,
+                    'n_features_1': 300,
+                    'nhead': 4,
+                    'num_classes': 2,
+                    'num_layers': 4},
+           'load_ongoing': False,
+           'model_class': 'JointTF_IHA_Model',
+           'save_base_dir': './artifacts/models/factorcl/mosei/vt',
+           'save_dir': 'JointTF_IHA_{}.pth.tar'},
+ 'optimizer': {'beta1': 0.9,
+               'beta2': 0.999,
+               'learning_rate': 0.0001,
+               'momentum': 0.9,
+               'type': 'Adam',
+               'weight_decay': 0.0001},
+ 'scheduler': {'max_lr': 0.03, 'type': 'cosanneal', 'warm_up_steps': 780},
+ 'task': 'classification',
+ 'training_params': {'adversarial_training': {'adv_epsilon': 0.01,
+                                              'use': False},
+                     'async_loading': True,
+                     'batch_size': 32,
+                     'cuda': True,
+                     'data_loader_workers': 8,
+                     'gpu_device': [0],
+                     'pin_memory': True,
+                     'rec_test': True,
+                     'res': True,
+                     'seed': 109,
+                     'tdqm_disable': True,
+                     'test_batch_size': 32,
+                     'test_on_bottoms': False,
+                     'use_test_set': True,
+                     'validation': True,
+                     'verbose': True,
+                     'wandb_disable': True}}
+2026-03-23 05:02:20,614 - Config - INFO -  *************************************** 
+2026-03-23 05:02:20,614 - Config - INFO - The experiment name is Mosei Experiment
+2026-03-23 05:02:20,614 - Config - INFO -  *************************************** 
+2026-03-23 05:02:20,614 - root - INFO - save_dir: JointTF_IHA_fold0_vldaccuracy_lr0.001_wd0.01_bs32_phq4_phkv4_ihainitidentity_ihaLall.pth.tar
+2026-03-23 05:02:20,658 - Cuda Statistics - INFO - __Python VERSION:  3.10.19 (main, Oct 21 2025, 16:43:05) [GCC 11.2.0]
+2026-03-23 05:02:20,658 - Cuda Statistics - INFO - __pyTorch VERSION:  2.9.1+cu128
+2026-03-23 05:02:20,658 - Cuda Statistics - INFO - __CUDA VERSION
+2026-03-23 05:02:20,659 - Cuda Statistics - INFO - __CUDNN VERSION:  91002
+2026-03-23 05:02:20,680 - Cuda Statistics - INFO - __Number CUDA Devices:  1
+2026-03-23 05:02:20,680 - Cuda Statistics - INFO - __Devices
+2026-03-23 05:02:20,680 - Cuda Statistics - INFO - index, name, driver_version, memory.total [MiB], memory.used [MiB], memory.free [MiB]
+2026-03-23 05:02:20,680 - Cuda Statistics - INFO - 0, NVIDIA L40S, 580.126.18, 46068 MiB, 3 MiB, 45455 MiB
+2026-03-23 05:02:20,682 - Cuda Statistics - INFO - Active CUDA Device: GPU 0
+2026-03-23 05:02:20,682 - Cuda Statistics - INFO - Available devices  1
+2026-03-23 05:02:20,682 - Cuda Statistics - INFO - Current cuda device  0
