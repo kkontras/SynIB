@@ -21,7 +21,7 @@
 # PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_orcd.json --fold 0 --validate_with accuracy --batch_size 6 --l 1 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --no_model_save --lr 0.00005 --wd 0.0001
 # PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_orcd.json --fold 0 --validate_with accuracy --batch_size 6 --l 1 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --no_model_save --lr 0.00005 --wd 0.0
 
-
+ 
 # cache_synib_lora -- l x lsparse grid, fixed: --lr 0.0005 --wd 0.0001
 # (l: 0.01 0.1 1 10 | lsparse: 0.1 1 10)
 PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_orcd.json --fold 0 --validate_with accuracy --batch_size 6 --perturb learned --perturb_fill ema --no_model_save --lr 0.0005 --wd 0.0001 --l 0.01  --perturb_lsparse 0.1

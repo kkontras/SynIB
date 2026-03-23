@@ -24,6 +24,7 @@
           "combined": 1
         }
       }
-    }
+    },
+    "encoders": []
   }
 }

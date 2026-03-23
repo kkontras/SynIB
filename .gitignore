@@ -15,6 +15,7 @@ wandb/
 artifacts/
 lightning_logs/
 condor_logs/
+run/condor/logs/
 lm_call_dump/
 debug_viz/
 .DS_Store

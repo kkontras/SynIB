@@ -9,5 +9,5 @@ RequestMemory = 32G
 RequestWalltime = 100000
 Request_GPUs = 1
 NiceUser     = True
-Requirements = (GPUs_GlobalMemoryMb > 6000) && (machine != "spinel.esat.kuleuven.be") && (machine != "raidho.esat.kuleuven.be") && (machine != "thurisaz.esat.kuleuven.be") && (machine != "spchcl18.esat.kuleuven.be") && (machine != "psi-test2.esat.kuleuven.be") && (machine != "wulfenite.esat.kuleuven.be")
+Requirements = (GPUs_GlobalMemoryMb > 6000) && (CUDACapability >= 7.0) && (machine != "spinel.esat.kuleuven.be") && (machine != "raidho.esat.kuleuven.be") && (machine != "thurisaz.esat.kuleuven.be") && (machine != "spchcl18.esat.kuleuven.be") && (machine != "psi-test2.esat.kuleuven.be") && (machine != "wulfenite.esat.kuleuven.be")
 Queue Arguments from /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/condor/mosi_joint_tf_iha.args
