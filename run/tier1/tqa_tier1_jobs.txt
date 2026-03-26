@@ -1,32 +1,32 @@
 ## TQA Tier1 -- Image unimodal LR/WD sweep
-./run/tqa/train_tier1.sh image --fold 0 --validate_with accuracy --lr 0.001 --wd 0.001
-./run/tqa/train_tier1.sh image --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0001
-./run/tqa/train_tier1.sh image --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0
-./run/tqa/train_tier1.sh image --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.001
-./run/tqa/train_tier1.sh image --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0001
-./run/tqa/train_tier1.sh image --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0
-./run/tqa/train_tier1.sh image --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.001
-./run/tqa/train_tier1.sh image --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0001
-./run/tqa/train_tier1.sh image --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0
+./run/tqa/train_tier1.sh :: image --fold 0 --validate_with accuracy --lr 0.001 --wd 0.001
+./run/tqa/train_tier1.sh :: image --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0001
+./run/tqa/train_tier1.sh :: image --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0
+./run/tqa/train_tier1.sh :: image --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.001
+./run/tqa/train_tier1.sh :: image --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0001
+./run/tqa/train_tier1.sh :: image --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0
+./run/tqa/train_tier1.sh :: image --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.001
+./run/tqa/train_tier1.sh :: image --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0001
+./run/tqa/train_tier1.sh :: image --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0
 
 ## TQA Tier1 -- Text unimodal LR/WD sweep
-./run/tqa/train_tier1.sh text --fold 0 --validate_with accuracy --lr 0.001 --wd 0.001
-./run/tqa/train_tier1.sh text --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0001
-./run/tqa/train_tier1.sh text --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0
-./run/tqa/train_tier1.sh text --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.001
-./run/tqa/train_tier1.sh text --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0001
-./run/tqa/train_tier1.sh text --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0
-./run/tqa/train_tier1.sh text --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.001
-./run/tqa/train_tier1.sh text --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0001
-./run/tqa/train_tier1.sh text --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0
+./run/tqa/train_tier1.sh :: text --fold 0 --validate_with accuracy --lr 0.001 --wd 0.001
+./run/tqa/train_tier1.sh :: text --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0001
+./run/tqa/train_tier1.sh :: text --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0
+./run/tqa/train_tier1.sh :: text --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.001
+./run/tqa/train_tier1.sh :: text --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0001
+./run/tqa/train_tier1.sh :: text --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0
+./run/tqa/train_tier1.sh :: text --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.001
+./run/tqa/train_tier1.sh :: text --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0001
+./run/tqa/train_tier1.sh :: text --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0
 
 ## TQA Tier1 -- Joint LR/WD sweep
-./run/tqa/train_tier1.sh joint --fold 0 --validate_with accuracy --lr 0.001 --wd 0.001
-./run/tqa/train_tier1.sh joint --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0001
-./run/tqa/train_tier1.sh joint --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0
-./run/tqa/train_tier1.sh joint --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.001
-./run/tqa/train_tier1.sh joint --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0001
-./run/tqa/train_tier1.sh joint --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0
-./run/tqa/train_tier1.sh joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.001
-./run/tqa/train_tier1.sh joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0001
-./run/tqa/train_tier1.sh joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.001 --wd 0.001
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0001
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.001
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0001
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.001
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0001
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0
