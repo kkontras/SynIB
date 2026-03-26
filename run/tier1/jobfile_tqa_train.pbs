@@ -3,7 +3,7 @@ set -euo pipefail
 
 #PBS -l walltime=48:00:00
 #PBS -l nodes=1:ppn=12:gpus=1
-#PBS -l mem=128gb
+#PBS -l mem=192gb
 #PBS -A 2026_029
 #PBS -o ./condor_logs/logs_vsc/out_${PBS_JOBID}.txt
 #PBS -e ./condor_logs/logs_vsc/err_${PBS_JOBID}.txt
