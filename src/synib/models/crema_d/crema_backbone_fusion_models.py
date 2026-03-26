@@ -848,6 +848,11 @@ class FactorCL_Uni(nn.Module):
         self.enc = Transformer(n_features, hidden_size)
         self.pred_fc = nn.Linear(hidden_size, args.num_classes)
 
+    def forward_uni(self, x, na_x=None, **kwargs):
+        detach_it = kwargs.get("detach_pred", False)
+        this_input = x.detach() if detach_it else x
+        return self.pred_fc(this_input)
+
     def forward(self, x, **kwargs):
 
         x1 = x[self.args.modality]

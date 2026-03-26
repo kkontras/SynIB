@@ -611,12 +611,13 @@ class SynIB(nn.Module):
         self.p_max = float(self.perturb.get("p_max", 0.9))
         self.cosine_s = 0.008
 
+        _feat_dim = int(_cfg(args, "d_model", 512))
         if self.cls_type == "mlp":
-            self.stats_z1 = FeatureStatsMasker(d1=512, ema_beta=0.99)
-            self.stats_z2 = FeatureStatsMasker(d1=512, ema_beta=0.99)
+            self.stats_z1 = FeatureStatsMasker(d1=_feat_dim, ema_beta=0.99)
+            self.stats_z2 = FeatureStatsMasker(d1=_feat_dim, ema_beta=0.99)
         elif self.cls_type == "tf":
-            self.stats_na_z1 = FeatureStatsMasker(d1=512, ema_beta=0.99)
-            self.stats_na_z2 = FeatureStatsMasker(d1=512, ema_beta=0.99)
+            self.stats_na_z1 = FeatureStatsMasker(d1=_feat_dim, ema_beta=0.99)
+            self.stats_na_z2 = FeatureStatsMasker(d1=_feat_dim, ema_beta=0.99)
 
 
     @staticmethod
@@ -721,7 +722,7 @@ class SynIB(nn.Module):
                 return zK, None, token_mask
             keep = make_keep(zK, self.p)
             tzK = fill_func(zK, keep, ema)
-            return zK, tzK
+            return zK, tzK, None
 
         def make_tilde_diff(z, ema):
 

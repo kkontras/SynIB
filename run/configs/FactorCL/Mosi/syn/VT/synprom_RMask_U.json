@@ -3,7 +3,7 @@
     "args": {
       "bias_infusion": { "l": 0.1 },
       "cls_type": "mlp",
-      "d_model": 40, "dropout": 0.1, "fc_inner": 64,
+      "d_model": 40, "dropout": 0.1, "fc_inner": 64, "in_dim": 64, "hidden_dim": 64,
       "multi_loss": { "multi_supervised_w": { "c": 1, "combined": 1, "g": 1 } },
       "norm_decision": false, "num_classes": 2,
       "synergy_type": "unimodal_anchor"

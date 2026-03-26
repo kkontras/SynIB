@@ -5,6 +5,8 @@
       "d_model": 40,
       "num_classes": 2,
       "fc_inner": 64,
+      "in_dim": 64,
+      "hidden_dim": 64,
       "dropout": 0.1,
       "cls_type": "mlp",
       "norm_decision": false,

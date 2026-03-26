@@ -309,7 +309,7 @@ for var_name in vars(args):
 if args.rmask is not None:
     args.perturb = args.rmask
     if args.perturb_fill is None:
-        args.perturb_fill = args.rmask
+        args.perturb_fill = "ema"
 if args.pmin is not None:
     args.perturb_pmin = args.pmin
 if args.pmax is not None:

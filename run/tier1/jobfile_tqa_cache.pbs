@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#PBS -l walltime=12:00:00
+#PBS -l nodes=1:ppn=12:gpus=1
+#PBS -A 2026_029
+#PBS -o ./condor_logs/logs_vsc/out_${PBS_JOBID}.txt
+#PBS -e ./condor_logs/logs_vsc/err_${PBS_JOBID}.txt
+
+PROJECT_ROOT="${PROJECT_ROOT:-/dodrio/scratch/projects/2026_029/kkontras/projects/SynIB}"
+ENV_PATH="${ENV_PATH:-/dodrio/scratch/projects/2026_029/kkontras/envs/synergy_new}"
+DATA_ROOTS="${DATA_ROOTS:-/dodrio/scratch/projects/2026_029/kkontras/data/TQA}"
+OUT_DIR="${OUT_DIR:-/dodrio/scratch/projects/2026_029/kkontras/data/TQA/cache_qwen3_vl_2b}"
+GPU="${GPU:-0}"
+
+cd "${PROJECT_ROOT}"
+mkdir -p ./condor_logs/logs_vsc
+
+source "${VSC_DATA}/anaconda3/etc/profile.d/conda.sh"
+conda activate "${ENV_PATH}"
+
+which python
+python -V
+echo "PWD=${PWD}"
+echo "DATA_ROOTS=${DATA_ROOTS}"
+echo "OUT_DIR=${OUT_DIR}"
+echo "GPU=${GPU}"
+
+DATA_ROOTS="${DATA_ROOTS}" OUT_DIR="${OUT_DIR}"   CONDA_ENV_PATH="${ENV_PATH}" PYTHON_BIN="${ENV_PATH}/bin/python"   CUDA_VISIBLE_DEVICES="${GPU}"   bash run/tqa/build_cache_tier1.sh "${GPU}"
