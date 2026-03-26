@@ -19,7 +19,7 @@ for SPLIT in train val test; do
     --data_root "${DATA_ROOTS}" \
     --out_dir "${OUT_DIR}" \
     --split "${SPLIT}" \
-    --batch_size 4 \
+    --batch_size 2 \
     --cache_image_embeds \
     --device "cuda:${GPU}"
   echo "[build_cache_tier1] Done split=${SPLIT}."
