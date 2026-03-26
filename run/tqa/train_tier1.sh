@@ -11,9 +11,9 @@ usage() {
 Usage: $0 <target> [method-config.json] [extra train args]
 
 Targets:
-  image  -> run/configs/TQA/cache_image_lora.json
-  text   -> run/configs/TQA/cache_text_lora.json
-  joint  -> run/configs/TQA/cache_lora.json
+  image  -> run/configs/TQA/cache_image_lora_tier1.json
+  text   -> run/configs/TQA/cache_text_lora_tier1.json
+  joint  -> run/configs/TQA/cache_lora_tier1.json
 
 Examples:
   $0 image --fold 0 --lr 0.0001 --wd 0.0001 --validate_with accuracy
@@ -30,13 +30,13 @@ shift
 
 case "$TARGET" in
   image)
-    CONFIG="run/configs/TQA/cache_image_lora.json"
+    CONFIG="run/configs/TQA/cache_image_lora_tier1.json"
     ;;
   text)
-    CONFIG="run/configs/TQA/cache_text_lora.json"
+    CONFIG="run/configs/TQA/cache_text_lora_tier1.json"
     ;;
   joint)
-    CONFIG="run/configs/TQA/cache_lora.json"
+    CONFIG="run/configs/TQA/cache_lora_tier1.json"
     ;;
   -h|--help)
     usage
