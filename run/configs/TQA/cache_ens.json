@@ -115,7 +115,7 @@
           }
         ],
         "pretrainedEncoder": {
-          "use": true,
+          "use": false,
           "dir": "Uni_Text_LoRa_fold{}_lr0.0001_wd0.01_bs8.pth.tar"
         }
       }

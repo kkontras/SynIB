@@ -78,7 +78,7 @@
           "num_classes": 4
         },
         "pretrainedEncoder": {
-          "use": true,
+          "use": false,
           "dir": "Qwen3VL_LHead_fold{}.pth.tar"
         }
       }

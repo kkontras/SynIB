@@ -39,4 +39,30 @@ CUDA_VISIBLE_DEVICES=2 PYTHONPATH=src python -m synib.entrypoints.train --config
 
 
 
- 
+
+CUDA_VISIBLE_DEVICES=1 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 0.01  --perturb_lsparse 0.1
+CUDA_VISIBLE_DEVICES=1 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 0.01  --perturb_lsparse 1
+CUDA_VISIBLE_DEVICES=1 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 0.01  --perturb_lsparse 10
+CUDA_VISIBLE_DEVICES=4 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 0.1   --perturb_lsparse 0.1
+CUDA_VISIBLE_DEVICES=4 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 0.1   --perturb_lsparse 1
+CUDA_VISIBLE_DEVICES=4 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 0.1   --perturb_lsparse 10
+CUDA_VISIBLE_DEVICES=2 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 1     --perturb_lsparse 0.1
+CUDA_VISIBLE_DEVICES=2 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 1     --perturb_lsparse 1
+CUDA_VISIBLE_DEVICES=2 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 1     --perturb_lsparse 10
+CUDA_VISIBLE_DEVICES=2 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 10    --perturb_lsparse 0.1
+CUDA_VISIBLE_DEVICES=2 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 10    --perturb_lsparse 1
+CUDA_VISIBLE_DEVICES=2 PYTHONPATH=src python -m synib.entrypoints.show --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 10    --perturb_lsparse 10
+
+
+CUDA_VISIBLE_DEVICES=0 PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema --no_model_save --lr 0.0005 --wd 0.0001 --l 0.01  --perturb_lsparse 1
+CUDA_VISIBLE_DEVICES=0 PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema --no_model_save --lr 0.0005 --wd 0.0001 --l 0.1   --perturb_lsparse 0.1
+CUDA_VISIBLE_DEVICES=0 PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema --no_model_save --lr 0.0005 --wd 0.0001 --l 0.1   --perturb_lsparse 10
+
+
+
+CUDA_VISIBLE_DEVICES=0 PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --perturb learned --perturb_fill ema  --lr 0.0005 --wd 0.0001 --l 0.1   --perturb_lsparse 1 --start_over
+
+CUDA_VISIBLE_DEVICES=0 PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/MUStARD/cache_synib_lora.json --default_config run/configs/MUStARD/default_config_mustard_cache_mib.json --fold 0 --validate_with accuracy --batch_size 4 --no_model_save --lr 0.0005 --wd 0.0001 --l 0 
+
+
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/TQA/cache_qwen3_vl_2b vsc35057@tier1.hpc.ugent.be:/dodrio/scratch/projects/2026_029/kkontras/data/TQA -i ~/.ssh/vsc_ssh
