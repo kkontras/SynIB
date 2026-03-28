@@ -83,6 +83,11 @@ def _load_metadata(raw_root: Path) -> List[Dict[str, Any]]:
         for row in rows:
             item = dict(row)
             item.setdefault("text", item.get("utterance", ""))
+            if "label" not in item:
+                if "sarcasm" in item:
+                    item["label"] = int(bool(item["sarcasm"]))
+                elif "sentiment" in item:
+                    item["label"] = int(item["sentiment"])
             if "video_path" not in item:
                 item["video_path"] = f"videos/{item['id']}.mp4"
             norm.append(item)

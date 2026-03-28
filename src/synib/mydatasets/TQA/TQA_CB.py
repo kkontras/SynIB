@@ -124,13 +124,37 @@ class TQA_MemmapDataset(Dataset):
             self.cum_counts.append(running)
         self.total_items = running
 
-        self.has_vision = "unknown"
-        self.has_deep = "unknown"
+        self.has_vision, self.has_deep = self._detect_cached_modalities()
 
         print(
             f"[TQA Dataset] split={split} N={self.total_items} "
             f"dir={self.split_dir} vision={self.has_vision} deep={self.has_deep}"
         )
+
+    def _detect_cached_modalities(self) -> Tuple[bool, bool]:
+        for shard_idx, shard_path in enumerate(self.shard_paths):
+            if int(self.shard_counts[shard_idx]) <= 0:
+                continue
+            items = torch.load(shard_path, map_location="cpu", weights_only=False)
+            if not isinstance(items, (list, tuple)) or len(items) == 0:
+                continue
+            ex = items[0]
+            if not isinstance(ex, dict):
+                continue
+
+            has_vision = (
+                "visual_pos_masks" in ex and
+                torch.is_tensor(ex["visual_pos_masks"]) and
+                ex["visual_pos_masks"].numel() > 0
+            )
+            has_deep = (
+                "deepstack_visual_embeds" in ex and
+                torch.is_tensor(ex["deepstack_visual_embeds"]) and
+                ex["deepstack_visual_embeds"].numel() > 0
+            )
+            return bool(has_vision), bool(has_deep)
+
+        return False, False
 
     def __len__(self) -> int:
         return self.total_items
