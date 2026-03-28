@@ -103,6 +103,8 @@ def materialize_canonical_raw_root(
 ) -> Path:
     raw_root = canonical_dataset_root(output_root, dataset_name)
     raw_root.mkdir(parents=True, exist_ok=True)
+    local_root_resolved = local_root.expanduser().resolve() if local_root is not None else None
+    same_local_root = local_root_resolved == raw_root.resolve() if local_root_resolved is not None else False
 
     existing_meta = raw_root / "metadata.jsonl"
     legacy_meta = raw_root / "metadata.json"
@@ -115,7 +117,7 @@ def materialize_canonical_raw_root(
             f"--metadata-jsonl, or --source-url."
         )
 
-    if force and raw_root.exists():
+    if force and raw_root.exists() and not same_local_root:
         for child in list(raw_root.iterdir()):
             if child.is_dir() and not child.is_symlink():
                 shutil.rmtree(child)
@@ -130,9 +132,13 @@ def materialize_canonical_raw_root(
     }
 
     if local_root is not None:
-        _copy_or_symlink_tree(local_root, raw_root, symlink=symlink)
-        source_payload["mode"] = "local_root"
-        source_payload["local_root"] = str(local_root.expanduser().resolve())
+        if same_local_root:
+            source_payload["mode"] = "local_root_in_place"
+            source_payload["local_root"] = str(local_root_resolved)
+        else:
+            _copy_or_symlink_tree(local_root, raw_root, symlink=symlink)
+            source_payload["mode"] = "local_root"
+            source_payload["local_root"] = str(local_root_resolved)
     elif local_archive is not None or source_url:
         archive_path = local_archive
         if archive_path is None:
