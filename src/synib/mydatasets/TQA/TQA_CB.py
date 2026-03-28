@@ -32,6 +32,32 @@ from synib.mydatasets.ScienceQA.ScienceQA_CB import (
 # Dataset
 # =========================
 
+def _validate_cached_example_schema(ex: Dict[str, Any], *, shard_path: str, local_idx: int) -> None:
+    if not isinstance(ex, dict):
+        raise TypeError(f"Cached shard item must be a dict, got {type(ex)} in {shard_path} item {local_idx}")
+
+    required = (
+        "input_ids",
+        "attention_mask",
+        "position_ids",
+        "input_embeds",
+        "visual_pos_masks",
+        "deepstack_visual_embeds",
+    )
+    missing = [k for k in required if k not in ex]
+    if missing:
+        present = ", ".join(sorted(ex.keys()))
+        needed = ", ".join(required)
+        missing_s = ", ".join(missing)
+        raise RuntimeError(
+            "Incompatible TQA cache shard format. "
+            f"Shard {shard_path} item {local_idx} is missing [{missing_s}]. "
+            f"Present keys: [{present}]. "
+            f"TQA cached training expects the same rich per-sample schema used by MUStARD/ESNLI "
+            f"with keys [{needed}]. Regenerate the TQA cache with a compatible codebook."
+        )
+
+
 class TQA_MemmapDataset(Dataset):
     """
     Reads TQA shard cache (built by TQA_Codebook.py).
@@ -119,6 +145,8 @@ class TQA_MemmapDataset(Dataset):
             shard_limit = int(self.shard_counts[shard_idx])
             if len(items) > shard_limit:
                 items = items[:shard_limit]
+            if items:
+                _validate_cached_example_schema(items[0], shard_path=shard_key, local_idx=0)
             self._loaded_shard_key = shard_key
             self._loaded_items = items
         return self._loaded_items

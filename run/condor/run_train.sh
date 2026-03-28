@@ -5,7 +5,7 @@ echo "Starting SynIB training job"
 
 if [ -z "${CONDA_PREFIX:-}" ]; then
     source ~/anaconda3/etc/profile.d/conda.sh
-    conda activate /esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new
+    conda activate /esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy
 fi
 
 PYTHON_BIN="${PYTHON:-$(command -v python)}"

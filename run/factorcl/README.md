@@ -9,24 +9,31 @@ Supported targets:
 - `urfunny-vt`
 - `mustard-vt`
 
-## Download prepared data
+## Download Raw Data And Build Cache
 
-Prepared pickles are downloaded into `src/synib/mydatasets/Factor_CL_Datasets/prepared/` by default.
+Raw roots are materialized under `src/synib/mydatasets/Factor_CL_Datasets/raw/` by default and caches under `artifacts/cache/factorcl/`.
 
 ```bash
-./run/factorcl/download.sh all
+./run/factorcl/download_and_build_cache.sh all
 ```
 
 Per dataset:
 
 ```bash
-./run/factorcl/download.sh mosi
-./run/factorcl/download.sh mosei
-./run/factorcl/download.sh urfunny
-./run/factorcl/download.sh mustard
+./run/factorcl/download_and_build_cache.sh mosi
+./run/factorcl/download_and_build_cache.sh mosei
+./run/factorcl/download_and_build_cache.sh urfunny
+./run/factorcl/download_and_build_cache.sh mustard
 ```
 
-You can override the root with `SYNIB_FACTORCL_DATA_ROOT=/path/to/data`.
+Useful options:
+
+```bash
+./run/factorcl/download_and_build_cache.sh all --gpu 0 --cache-root /data/factorcl_cache
+./run/factorcl/download_and_build_cache.sh mosi --skip-download
+```
+
+The combined script expects canonical raw metadata for `MOSI`, `MOSEI`, and `URFunny`. For local sources, set the corresponding environment variables listed in the script help.
 
 ## Train
 

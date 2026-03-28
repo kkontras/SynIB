@@ -15,6 +15,11 @@ case "$TARGET" in
 Usage:
   ./run/factorcl/download.sh [all|mosi|mosei|urfunny|mustard] [extra downloader args]
 
+Legacy:
+  This wrapper downloads the old prepared FactorCL pickles.
+  For the raw-data + cache workflow use:
+    ./run/factorcl/download_and_build_cache.sh [target]
+
 Examples:
   ./run/factorcl/download.sh all
   ./run/factorcl/download.sh mosi --local-file /path/to/mosi_data.pkl --symlink
@@ -44,4 +49,3 @@ EOF
 esac
 
 PYTHONPATH="${ROOT_DIR}/src" python -m "$MODULE" "$@"
-

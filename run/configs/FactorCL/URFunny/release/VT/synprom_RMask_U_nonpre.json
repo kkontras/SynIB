@@ -1,0 +1,59 @@
+{
+  "model": {
+    "model_class": "FusionIBModel_Mask_U",
+    "args": {
+      "d_model": 40, "num_classes": 2, "fc_inner": 64, "in_dim": 64, "hidden_dim": 64,
+      "dropout": 0.1, "cls_type": "mlp", "norm_decision": false,
+      "synergy_type": "unimodal_anchor",
+      "bias_infusion": { "l": 0.1 },
+      "multi_loss": { "multi_supervised_w": { "combined": 1, "c": 1, "g": 1 } }
+    },
+    "load_ongoing": false,
+    "ceu": {
+      "val": "./artifacts/ceus/ur_funny/ur_funny_ceu_val.pkl",
+      "test": "./artifacts/ceus/ur_funny/ur_funny_ceu_test.pkl"
+    },
+    "save_dir": "SynIB_RMask_U_nonpre_{}.pth.tar",
+    "encoders": [
+      {
+        "model": "FactorCL_Uni",
+        "args": { "n_features": 371, "hidden_size": 40, "modality": "c", "num_classes": 2, "freeze_encoder": false },
+        "pretrainedEncoder": { "use": false, "dir": "unimodal_video_{}.pth.tar" }
+      },
+      {
+        "model": "FactorCL_Uni",
+        "args": { "n_features": 300, "hidden_size": 40, "modality": "g", "num_classes": 2, "freeze_encoder": false },
+        "pretrainedEncoder": { "use": false, "dir": "unimodal_text_{}.pth.tar" }
+      },
+      {
+        "name": "enc_2_fusion_trunk",
+        "model": "FusionTrunkLinear",
+        "args": {
+          "d_model": 40,
+          "fc_inner": 64,
+          "dropout": 0.1,
+          "freeze_encoder": false
+        },
+        "pretrainedEncoder": {
+          "use": false,
+          "dir": "enc_2_fusion_trunk_{}.pth.tar"
+        },
+        "save_encoder": false
+      },
+      {
+        "name": "enc_3_fusion_head",
+        "model": "LinearHead",
+        "args": {
+          "in_dim": 64,
+          "num_classes": 2,
+          "freeze_encoder": false
+        },
+        "pretrainedEncoder": {
+          "use": false,
+          "dir": "enc_3_fusion_head_{}.pth.tar"
+        },
+        "save_encoder": false
+      }
+    ]
+  }
+}

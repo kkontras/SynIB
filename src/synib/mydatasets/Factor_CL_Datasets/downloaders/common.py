@@ -3,10 +3,13 @@ import os
 import pickle
 import re
 import shutil
+import tarfile
+import zipfile
 from html import unescape
 from pathlib import Path
 from typing import Optional
 from urllib.parse import urljoin
+from urllib.request import urlretrieve
 
 def ensure_parent_dir(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -138,6 +141,55 @@ def default_output_root() -> Path:
     if env_root:
         return Path(env_root).expanduser().resolve()
     return Path("src/synib/mydatasets/Factor_CL_Datasets/prepared").resolve()
+
+
+def default_raw_output_root() -> Path:
+    env_root = os.getenv("SYNIB_FACTORCL_RAW_ROOT", "").strip()
+    if not env_root:
+        env_root = os.getenv("SYNIB_FACTORCL_DATA_ROOT", "").strip()
+    if not env_root:
+        env_root = os.getenv("SYNERGY_FACTORCL_DATA_ROOT", "").strip()
+    if env_root:
+        return Path(env_root).expanduser().resolve()
+    return Path("src/synib/mydatasets/Factor_CL_Datasets/raw").resolve()
+
+
+def download_url_file(
+    url: str,
+    output_path: Path,
+    overwrite: bool = False,
+) -> Path:
+    output_path = output_path.expanduser().resolve()
+    ensure_parent_dir(output_path)
+    if output_path.exists() and not overwrite:
+        return output_path
+    urlretrieve(url, str(output_path))
+    return output_path
+
+
+def extract_archive(
+    archive_path: Path,
+    output_dir: Path,
+    overwrite: bool = False,
+) -> Path:
+    archive_path = archive_path.expanduser().resolve()
+    output_dir = output_dir.expanduser().resolve()
+    if output_dir.exists() and any(output_dir.iterdir()) and not overwrite:
+        return output_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    suffixes = [s.lower() for s in archive_path.suffixes]
+    if archive_path.suffix.lower() == ".zip":
+        with zipfile.ZipFile(archive_path, "r") as zf:
+            zf.extractall(output_dir)
+        return output_dir
+
+    if suffixes[-2:] == [".tar", ".gz"] or suffixes[-2:] == [".tar", ".bz2"] or archive_path.suffix.lower() in {".tar", ".tgz"}:
+        with tarfile.open(archive_path, "r:*") as tf:
+            tf.extractall(output_dir)
+        return output_dir
+
+    raise ValueError(f"Unsupported archive format: {archive_path}")
 
 
 def materialize_local_file(

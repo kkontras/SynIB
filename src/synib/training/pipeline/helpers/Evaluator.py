@@ -15,6 +15,7 @@ from synib.utils.metrics.corr_metrics import (
     tsne_plot
 )
 import json
+import os
 
 def multiclass_acc(preds, truths):
     return np.sum(np.round(preds) == np.round(truths)) / float(len(truths))
@@ -56,8 +57,9 @@ class General_Evaluator:
         self.best_loss = 0.0
 
         ceu = self.config.model.get("ceu",{})
-        if set in ceu and ceu[set] is not None:
-            with open(ceu[set], 'rb') as f:
+        ceu_path = ceu.get(set, None) if isinstance(ceu, dict) else None
+        if ceu_path is not None and os.path.isfile(ceu_path):
+            with open(ceu_path, 'rb') as f:
                 self.multi_fold_results_test = pickle.load(f)["folds"]
         else:
             logging.info("There is no CEU for {}".format(set))

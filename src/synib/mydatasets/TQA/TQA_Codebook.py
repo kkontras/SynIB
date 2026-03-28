@@ -51,10 +51,11 @@ Outputs:
 
 Each shard item dict keys:
   id, label,
-  input_ids, attention_mask,
+  input_ids, attention_mask, position_ids,
+  input_embeds, visual_pos_masks, deepstack_visual_embeds,
   token_type_ids, masks (dict of bool tensors),
   pixel_values, image_grid_thw (if present),
-  image_embeds (optional)
+  image_embeds (optional legacy extra)
 
 Example:
   python TQA_Codebook.py \\
@@ -67,7 +68,6 @@ Example:
 
 import os
 import json
-import glob
 import argparse
 from typing import List, Dict, Any, Optional
 
@@ -487,6 +487,136 @@ def _to_cpu_serializable(obj: Any) -> Any:
     return obj
 
 
+def _normalize_pos_to_B_3_1_T(position_ids: torch.Tensor, B: int) -> torch.Tensor:
+    pos = position_ids
+
+    if pos.dim() == 3 and tuple(pos.shape[:2]) == (3, 1):
+        if B != 1:
+            raise RuntimeError(f"Got position_ids (3,1,T) but B={B}. Expected batched position_ids.")
+        return pos.unsqueeze(0)
+
+    if pos.dim() == 4 and int(pos.shape[0]) == B and tuple(pos.shape[1:3]) == (3, 1):
+        return pos
+
+    if pos.dim() == 3 and int(pos.shape[0]) == B and int(pos.shape[1]) == 3:
+        return pos.unsqueeze(2)
+
+    if pos.dim() == 3 and int(pos.shape[0]) == 3 and int(pos.shape[1]) == B:
+        return pos.permute(1, 0, 2).unsqueeze(2)
+
+    if pos.dim() == 4 and int(pos.shape[0]) == 3 and int(pos.shape[1]) == B:
+        return pos.permute(1, 0, 2, 3)
+
+    raise RuntimeError(f"Unrecognized position_ids shape={tuple(pos.shape)} for B={B}")
+
+
+def _stack_deep_levels_per_sample(
+    deep_stack_viz_list: Any,
+    B: int,
+    visual_token_counts: Optional[List[int]] = None,
+) -> List[torch.Tensor]:
+    if not isinstance(deep_stack_viz_list, (list, tuple)):
+        return [torch.empty((0, 0, 2048), dtype=torch.float16) for _ in range(B)]
+
+    levels = [t for t in deep_stack_viz_list if torch.is_tensor(t)]
+    if len(levels) == 0:
+        return [torch.empty((0, 0, 2048), dtype=torch.float16) for _ in range(B)]
+
+    per_sample_levels: List[List[torch.Tensor]] = [[] for _ in range(B)]
+    expected_total_visual = sum(int(x) for x in visual_token_counts) if visual_token_counts is not None else None
+
+    for lvl in levels:
+        t = lvl.detach().cpu()
+
+        if (
+            t.dim() == 2
+            and int(t.shape[1]) == 2048
+            and visual_token_counts is not None
+            and int(t.shape[0]) == expected_total_visual
+        ):
+            start = 0
+            for i, n_tok in enumerate(visual_token_counts):
+                stop = start + int(n_tok)
+                per_sample_levels[i].append(t[start:stop])
+                start = stop
+            continue
+
+        if t.dim() == 2 and int(t.shape[1]) == 2048 and int(t.shape[0]) == 64 * B:
+            tb = t.view(B, 64, 2048)
+            for i in range(B):
+                per_sample_levels[i].append(tb[i])
+            continue
+
+        if t.dim() == 3 and int(t.shape[0]) == B and tuple(t.shape[1:]) == (64, 2048):
+            for i in range(B):
+                per_sample_levels[i].append(t[i])
+            continue
+
+        if t.dim() == 2 and tuple(t.shape) == (64, 2048):
+            if B != 1:
+                raise RuntimeError("deep_stack_viz level is (64,2048) but B>1; expected batched deep features.")
+            per_sample_levels[0].append(t)
+            continue
+
+        if t.dim() == 2 and int(t.shape[1]) == 2048 and B == 1:
+            per_sample_levels[0].append(t)
+            continue
+
+        raise RuntimeError(
+            f"Unexpected deep level shape {tuple(t.shape)}. "
+            "Expected packed visual rows matching per-sample visual_token_counts, "
+            f"(64*B,2048), (B,64,2048), or a single-sample 2D tensor. B={B}"
+        )
+
+    out: List[torch.Tensor] = []
+    for i in range(B):
+        if len(per_sample_levels[i]) == 0:
+            out.append(torch.empty((0, 0, 2048), dtype=torch.float16))
+        else:
+            out.append(torch.cat([x.unsqueeze(0) for x in per_sample_levels[i]], dim=0))
+    return out
+
+
+def _unpack_image_feature_outputs(feat_out: Any) -> tuple[List[torch.Tensor], Any]:
+    if isinstance(feat_out, tuple):
+        if len(feat_out) == 0:
+            raise RuntimeError("get_image_features returned an empty tuple.")
+        image_part = feat_out[0]
+        deep_part = feat_out[1] if len(feat_out) > 1 else []
+    else:
+        image_part = feat_out
+        deep_part = []
+        if hasattr(feat_out, "pooler_output") or hasattr(feat_out, "last_hidden_state"):
+            pooler = getattr(feat_out, "pooler_output", None)
+            hidden = getattr(feat_out, "last_hidden_state", None)
+            deep = getattr(feat_out, "deepstack_features", None)
+            image_part = pooler if pooler is not None else hidden
+            deep_part = deep if deep is not None else []
+        elif isinstance(feat_out, dict):
+            pooler = feat_out.get("pooler_output", None)
+            hidden = feat_out.get("last_hidden_state", None)
+            deep = feat_out.get("deepstack_features", None)
+            image_part = pooler if pooler is not None else (hidden if hidden is not None else feat_out)
+            deep_part = deep if deep is not None else []
+
+    if torch.is_tensor(image_part):
+        image_embeds_list = [image_part]
+    elif isinstance(image_part, (list, tuple)):
+        image_embeds_list = [t for t in image_part if torch.is_tensor(t)]
+    else:
+        raise RuntimeError(f"Unexpected image feature type: {type(image_part)}")
+
+    if len(image_embeds_list) == 0:
+        raise RuntimeError("No tensor image embeddings produced by get_image_features.")
+
+    return image_embeds_list, deep_part
+
+
+def _is_cuda_invalid_argument_error(err: BaseException) -> bool:
+    msg = str(err).lower()
+    return ("cuda" in msg) and ("invalid argument" in msg)
+
+
 @torch.no_grad()
 def compute_qwen3vl_visual_outputs(
     model,
@@ -561,24 +691,23 @@ def build_and_save_cache(
     image_token_id = int(getattr(cfg, "image_token_id"))
     image_token_str = tok.convert_ids_to_tokens(image_token_id)
 
-    model = None
-    if cache_image_embeds:
-        torch_dtype = torch.float16 if dtype == "fp16" else torch.bfloat16
-        if HAVE_QWEN3VL_CLASS:
-            model = Qwen3VLForConditionalGeneration.from_pretrained(
-                model_name,
-                torch_dtype=torch_dtype,
-                device_map=device,
-                cache_dir=data_root,
-            )
-        else:
-            model = AutoModelForCausalLM.from_pretrained(
-                model_name,
-                torch_dtype=torch_dtype,
-                device_map=device,
-                cache_dir=data_root,
-                trust_remote_code=True,
-            )
+    torch_dtype = torch.float16 if dtype == "fp16" else torch.bfloat16
+    if HAVE_QWEN3VL_CLASS:
+        model = Qwen3VLForConditionalGeneration.from_pretrained(
+            model_name,
+            torch_dtype=torch_dtype,
+            device_map=device,
+            cache_dir=data_root,
+        )
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch_dtype,
+            device_map=device,
+            cache_dir=data_root,
+            trust_remote_code=True,
+        )
+    model.eval()
 
     ds = TQA_Raw(
         data_root=data_root,
@@ -651,29 +780,101 @@ def build_and_save_cache(
             return_tensors="pt",
         )
 
-        input_ids = proc["input_ids"]
-        attention_mask = proc["attention_mask"]
-        pixel_values = proc["pixel_values"]
-        image_grid_thw = proc.get("image_grid_thw", None)
+        input_ids = proc["input_ids"].to(device)
+        attention_mask = proc["attention_mask"].to(device)
+        pixel_values = proc["pixel_values"].to(device)
+        image_grid_thw_cpu = proc.get("image_grid_thw", None)
+        if image_grid_thw_cpu is None:
+            raise RuntimeError("Processor did not return image_grid_thw; cannot build cached TQA token schema.")
+        image_grid_thw_dev = image_grid_thw_cpu.to(device)
 
         visual_out = None
         if cache_image_embeds:
-            assert model is not None
-            pv = pixel_values.to(model.device, non_blocking=True)
-            thw = image_grid_thw.to(model.device, non_blocking=True) if image_grid_thw is not None else None
-            visual_out = compute_qwen3vl_visual_outputs(model, pv, thw)
+            visual_out = compute_qwen3vl_visual_outputs(model, pixel_values, image_grid_thw_dev)
             visual_out = _to_cpu_serializable(visual_out)
+
+        with torch.no_grad():
+            token_embeds = model.model.get_input_embeddings()(input_ids)
+
+            image_grid_thw_for_ops = image_grid_thw_dev
+            try:
+                image_feat_out = model.get_image_features(pixel_values, image_grid_thw_for_ops)
+            except RuntimeError as e:
+                if _is_cuda_invalid_argument_error(e):
+                    image_grid_thw_for_ops = image_grid_thw_cpu
+                    image_feat_out = model.get_image_features(pixel_values, image_grid_thw_for_ops)
+                else:
+                    raise
+
+            image_embeds_list, deep_stack_viz_list = _unpack_image_feature_outputs(image_feat_out)
+            image_embeds_cat = torch.cat(image_embeds_list, dim=0).to(token_embeds.device, token_embeds.dtype)
+
+            placeholder_mask, _ = model.model.get_placeholder_mask(
+                input_ids,
+                inputs_embeds=token_embeds,
+                image_features=image_embeds_cat,
+            )
+            placeholder_mask_2d = placeholder_mask[..., 0] if placeholder_mask.dim() == 3 else placeholder_mask
+            token_embeds = token_embeds.masked_scatter(placeholder_mask, image_embeds_cat)
+
+            attention_mask_tensor = (
+                attention_mask if not isinstance(attention_mask, dict) else attention_mask["full_attention"]
+            )
+            if attention_mask_tensor is not None and attention_mask_tensor.ndim == 4:
+                attention_mask_tensor = torch.diagonal(attention_mask_tensor[:, 0], dim1=1, dim2=2)
+                if attention_mask_tensor.dtype.is_floating_point:
+                    attention_mask_tensor = attention_mask_tensor / torch.finfo(attention_mask_tensor.dtype).min
+                    attention_mask_tensor = (1.0 - attention_mask_tensor).int()
+
+            try:
+                position_ids, _ = model.model.get_rope_index(
+                    input_ids,
+                    image_grid_thw_for_ops,
+                    None,
+                    attention_mask=attention_mask_tensor,
+                )
+            except RuntimeError as e:
+                if _is_cuda_invalid_argument_error(e) and image_grid_thw_for_ops is image_grid_thw_dev:
+                    image_grid_thw_for_ops = image_grid_thw_cpu
+                    position_ids, _ = model.model.get_rope_index(
+                        input_ids,
+                        image_grid_thw_for_ops,
+                        None,
+                        attention_mask=attention_mask_tensor,
+                    )
+                else:
+                    raise
+
+        input_ids_cpu = input_ids.detach().cpu()
+        attention_cpu = attention_mask.detach().cpu()
+        placeholder_mask_2d_cpu = placeholder_mask_2d.detach().cpu()
+        token_embeds_cpu = token_embeds.detach().cpu().to(torch.float16)
+        position_ids_cpu = position_ids.detach().cpu()
+        pos_b = _normalize_pos_to_B_3_1_T(position_ids_cpu, len(labels))
+        visual_token_counts = [int(placeholder_mask_2d_cpu[i].sum().item()) for i in range(len(labels))]
+        deep_per_sample = _stack_deep_levels_per_sample(
+            deep_stack_viz_list,
+            len(labels),
+            visual_token_counts=visual_token_counts,
+        )
 
         B = input_ids.size(0)
         for b in range(B):
-            true_len = int(attention_mask[b].sum().item())
-            ids_1d = input_ids[b, -true_len:].contiguous()
-            attn_1d = attention_mask[b, -true_len:].contiguous()
+            keep = attention_cpu[b].bool()
+            if keep.sum().item() <= 0:
+                raise RuntimeError(f"attention_mask had no True tokens for sample {ids[b]}")
+
+            input_ids_keep = input_ids_cpu[b][keep].contiguous().unsqueeze(0)
+            attention_keep = attention_cpu[b][keep].contiguous().unsqueeze(0)
+            input_embeds_keep = token_embeds_cpu[b][keep].contiguous().unsqueeze(0)
+            visual_pos_masks = placeholder_mask_2d_cpu[b][keep].contiguous().unsqueeze(0).bool()
+            pos_keep = pos_b[b][:, :, keep].contiguous()
+            deepstack_visual_embeds = deep_per_sample[b]
 
             ttid = build_token_type_ids_best_effort(
                 tok=tok,
-                input_ids_1d=ids_1d,
-                attention_mask_1d=attn_1d,
+                input_ids_1d=input_ids_keep.reshape(-1),
+                attention_mask_1d=attention_keep.reshape(-1),
                 image_token_id=image_token_id,
                 cls_token_id=cls_token_id,
                 context_text=context_texts[b],
@@ -695,14 +896,18 @@ def build_and_save_cache(
             item: Dict[str, Any] = {
                 "id": ids[b],
                 "label": labels[b].clone(),
-                "input_ids": ids_1d.cpu(),
-                "attention_mask": attn_1d.cpu(),
+                "input_ids": input_ids_keep,
+                "attention_mask": attention_keep,
+                "position_ids": pos_keep,
+                "input_embeds": input_embeds_keep,
+                "visual_pos_masks": visual_pos_masks,
+                "deepstack_visual_embeds": deepstack_visual_embeds,
                 "token_type_ids": ttid.cpu(),
                 "masks": {k: v.cpu() for k, v in masks.items()},
-                "pixel_values": pixel_values[b].cpu().contiguous(),
+                "pixel_values": pixel_values[b].detach().cpu().contiguous(),
             }
-            if image_grid_thw is not None:
-                item["image_grid_thw"] = image_grid_thw[b].cpu().contiguous()
+            if image_grid_thw_cpu is not None:
+                item["image_grid_thw"] = image_grid_thw_cpu[b].cpu().contiguous()
 
             if cache_image_embeds:
                 if isinstance(visual_out, torch.Tensor):

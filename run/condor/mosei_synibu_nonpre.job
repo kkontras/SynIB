@@ -1,6 +1,6 @@
 Notification = Error
 executable   = /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/condor/run_train.sh
-initialdir   = /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/condor/logs/mosei_synibu
+initialdir   = /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/condor/logs/mosei_synibu_nonpre
 Log          = $(ClusterId)_$(Process).log
 Output       = $(ClusterId)_$(Process).out
 Error        = $(ClusterId)_$(Process).err
@@ -10,4 +10,4 @@ RequestWalltime = 100000
 Request_GPUs = 1
 NiceUser     = True
 Requirements = (GPUs_GlobalMemoryMb > 8000) &&(machine != "spinel.esat.kuleuven.be") && (machine != "raidho.esat.kuleuven.be") && (machine != "thurisaz.esat.kuleuven.be") && (machine != "spchcl18.esat.kuleuven.be") && (machine != "psi-test2.esat.kuleuven.be") && (machine != "wulfenite.esat.kuleuven.be") && (machine != "vladimir.esat.kuleuven.be") && (machine != "estragon.esat.kuleuven.be")
-Queue Arguments from /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/condor/mosei_synibu.args
+Queue Arguments from /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/condor/mosei_synibu_nonpre.args
