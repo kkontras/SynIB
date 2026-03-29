@@ -630,23 +630,28 @@ def compute_qwen3vl_visual_outputs(
 
     visual = model.model.visual
 
-    try:
-        out = visual(pixel_values, grid_thw=image_grid_thw)
-        return out
-    except TypeError:
-        pass
+    def _call_visual(grid):
+        try:
+            return visual(pixel_values, grid_thw=grid)
+        except TypeError:
+            pass
+
+        try:
+            return visual(pixel_values=pixel_values, grid_thw=grid)
+        except TypeError:
+            pass
+
+        try:
+            return visual(pixel_values=pixel_values, image_grid_thw=grid)
+        except TypeError as e:
+            raise RuntimeError(f"Could not call model.model.visual with known signatures: {e}")
 
     try:
-        out = visual(pixel_values=pixel_values, grid_thw=image_grid_thw)
-        return out
-    except TypeError:
-        pass
-
-    try:
-        out = visual(pixel_values=pixel_values, image_grid_thw=image_grid_thw)
-        return out
-    except TypeError as e:
-        raise RuntimeError(f"Could not call model.model.visual with known signatures: {e}")
+        return _call_visual(image_grid_thw)
+    except RuntimeError as e:
+        if _is_cuda_invalid_argument_error(e) and torch.is_tensor(image_grid_thw) and image_grid_thw.is_cuda:
+            return _call_visual(image_grid_thw.detach().cpu())
+        raise
 
 
 # =========================
