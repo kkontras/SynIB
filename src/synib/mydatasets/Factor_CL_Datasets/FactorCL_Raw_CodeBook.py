@@ -201,6 +201,11 @@ def _build_token_type_ids(input_ids_1d: torch.Tensor, *, image_token_id: int, cl
     return out.unsqueeze(0)
 
 
+def _chunked(items: List[str], chunk_size: int) -> Iterable[List[str]]:
+    for i in range(0, len(items), chunk_size):
+        yield items[i:i + chunk_size]
+
+
 @torch.no_grad()
 def build_shared_cache(
     *,
@@ -212,6 +217,7 @@ def build_shared_cache(
     fps: float,
     image_size: int,
     shard_size: int,
+    batch_size: int,
     device: str,
     dtype: str,
     local_files_only: bool,
@@ -282,30 +288,41 @@ def build_shared_cache(
         shard_items = []
         shard_idx += 1
 
+    pending_ids = [sid for sid in unique_ids if sid not in seen_existing]
     start_time = time.time()
-    for sample_id in tqdm(unique_ids, desc=f"[factorcl-cache] {dataset_name}"):
-        if sample_id in seen_existing:
-            continue
-        row = rows_by_id[sample_id]
-        rel_video_path = row.get("video_path")
-        if not rel_video_path:
-            raise KeyError(f"Sample {sample_id} missing video_path")
-        video_path = (raw_root_p / rel_video_path).resolve()
-        if not video_path.exists():
-            raise FileNotFoundError(f"Sample {sample_id} video not found: {video_path}")
+    pbar = tqdm(_chunked(pending_ids, max(1, batch_size)), total=(len(pending_ids) + max(1, batch_size) - 1) // max(1, batch_size), desc=f"[factorcl-cache] {dataset_name}")
+    for batch_ids in pbar:
+        batch_rows = []
+        batch_prompts = []
+        batch_images = []
+        batch_labels = []
 
-        frames = _extract_frames(video_path, fps=fps, image_size=image_size)
-        pil_images = [to_pil_image(frames[i].clamp(0.0, 1.0)) for i in range(int(frames.shape[0]))]
-        prompt = _build_prompt(
-            processor=processor,
-            text=str(row.get("text", row.get("utterance", ""))),
-            dataset_name=dataset_name,
-            context=row.get("context", []),
-            n_frames=len(pil_images),
-        )
+        for sample_id in batch_ids:
+            row = rows_by_id[sample_id]
+            rel_video_path = row.get("video_path")
+            if not rel_video_path:
+                raise KeyError(f"Sample {sample_id} missing video_path")
+            video_path = (raw_root_p / rel_video_path).resolve()
+            if not video_path.exists():
+                raise FileNotFoundError(f"Sample {sample_id} video not found: {video_path}")
+
+            frames = _extract_frames(video_path, fps=fps, image_size=image_size)
+            pil_images = [to_pil_image(frames[i].clamp(0.0, 1.0)) for i in range(int(frames.shape[0]))]
+            prompt = _build_prompt(
+                processor=processor,
+                text=str(row.get("text", row.get("utterance", ""))),
+                dataset_name=dataset_name,
+                context=row.get("context", []),
+                n_frames=len(pil_images),
+            )
+            batch_rows.append(row)
+            batch_prompts.append(prompt)
+            batch_images.append(pil_images)
+            batch_labels.append(int(row["label"]))
+
         proc = processor(
-            text=[prompt],
-            images=pil_images if pil_images else None,
+            text=batch_prompts,
+            images=batch_images if batch_images else None,
             padding=True,
             truncation=True,
             return_tensors="pt",
@@ -336,14 +353,21 @@ def build_shared_cache(
         placeholder_mask_2d = placeholder_mask[..., 0] if placeholder_mask.dim() == 3 else placeholder_mask
         token_embeds = token_embeds.masked_scatter(placeholder_mask, image_embeds_cat)
 
+        attention_mask_tensor = attention_mask
+        if attention_mask_tensor is not None and attention_mask_tensor.ndim == 4:
+            attention_mask_tensor = torch.diagonal(attention_mask_tensor[:, 0], dim1=1, dim2=2)
+            if attention_mask_tensor.dtype.is_floating_point:
+                attention_mask_tensor = attention_mask_tensor / torch.finfo(attention_mask_tensor.dtype).min
+                attention_mask_tensor = (1.0 - attention_mask_tensor).int()
+
         try:
             position_ids, _ = model.model.get_rope_index(
-                input_ids, image_grid_thw_for_ops, None, attention_mask=attention_mask
+                input_ids, image_grid_thw_for_ops, None, attention_mask=attention_mask_tensor
             )
         except RuntimeError as e:
             if _is_cuda_invalid_argument_error(e) and image_grid_thw_for_ops is image_grid_thw_dev:
                 position_ids, _ = model.model.get_rope_index(
-                    input_ids, image_grid_thw_cpu, None, attention_mask=attention_mask
+                    input_ids, image_grid_thw_cpu, None, attention_mask=attention_mask_tensor
                 )
             else:
                 raise
@@ -352,42 +376,43 @@ def build_shared_cache(
         attention_cpu = attention_mask.detach().cpu()
         token_embeds_cpu = token_embeds.detach().cpu()
         placeholder_mask_2d_cpu = placeholder_mask_2d.detach().cpu()
-        pos_b = _normalize_pos_to_B_3_1_T(position_ids.detach().cpu(), 1)
-        deep_per_sample = _stack_deep_levels_per_sample(deep_stack_viz_list, 1)
+        pos_b = _normalize_pos_to_B_3_1_T(position_ids.detach().cpu(), len(batch_rows))
+        deep_per_sample = _stack_deep_levels_per_sample(deep_stack_viz_list, len(batch_rows))
 
-        keep = attention_cpu[0].bool()
-        input_ids_keep = input_ids_cpu[0][keep].contiguous().unsqueeze(0)
-        attention_keep = attention_cpu[0][keep].contiguous().unsqueeze(0)
-        input_embeds_keep = token_embeds_cpu[0][keep].contiguous().unsqueeze(0)
-        visual_pos_masks = placeholder_mask_2d_cpu[0][keep].contiguous().unsqueeze(0).bool()
-        pos_keep = pos_b[0][:, :, keep].contiguous()
-        deepstack_visual_embeds = deep_per_sample[0]
-        token_type_ids = _build_token_type_ids(
-            input_ids_keep, image_token_id=image_token_id, cls_token_id=cls_token_id
-        )
+        for i, sample_id in enumerate(batch_ids):
+            keep = attention_cpu[i].bool()
+            input_ids_keep = input_ids_cpu[i][keep].contiguous().unsqueeze(0)
+            attention_keep = attention_cpu[i][keep].contiguous().unsqueeze(0)
+            input_embeds_keep = token_embeds_cpu[i][keep].contiguous().unsqueeze(0)
+            visual_pos_masks = placeholder_mask_2d_cpu[i][keep].contiguous().unsqueeze(0).bool()
+            pos_keep = pos_b[i][:, :, keep].contiguous()
+            deepstack_visual_embeds = deep_per_sample[i]
+            token_type_ids = _build_token_type_ids(
+                input_ids_keep, image_token_id=image_token_id, cls_token_id=cls_token_id
+            )
 
-        item = {
-            "label": torch.tensor(int(row["label"]), dtype=torch.long),
-            "id": sample_id,
-            "prompt": prompt,
-            "token_type_ids": token_type_ids.cpu(),
-            "masks": {
-                "image": (token_type_ids == TT_IMAGE).cpu(),
-                "hint": (token_type_ids == TT_TEXT).cpu(),
-                "cls": (token_type_ids == TT_CLS).cpu(),
-                "other": (token_type_ids == TT_OTHER).cpu(),
-            },
-            "input_ids": input_ids_keep,
-            "attention_mask": attention_keep,
-            "position_ids": pos_keep,
-            "input_embeds": input_embeds_keep,
-            "visual_pos_masks": visual_pos_masks,
-            "deepstack_visual_embeds": deepstack_visual_embeds,
-        }
-        shard_items.append(item)
-        seen_existing.add(sample_id)
-        if len(shard_items) >= shard_size:
-            flush_shard()
+            item = {
+                "label": torch.tensor(batch_labels[i], dtype=torch.long),
+                "id": sample_id,
+                "prompt": batch_prompts[i],
+                "token_type_ids": token_type_ids.cpu(),
+                "masks": {
+                    "image": (token_type_ids == TT_IMAGE).cpu(),
+                    "hint": (token_type_ids == TT_TEXT).cpu(),
+                    "cls": (token_type_ids == TT_CLS).cpu(),
+                    "other": (token_type_ids == TT_OTHER).cpu(),
+                },
+                "input_ids": input_ids_keep,
+                "attention_mask": attention_keep,
+                "position_ids": pos_keep,
+                "input_embeds": input_embeds_keep,
+                "visual_pos_masks": visual_pos_masks,
+                "deepstack_visual_embeds": deepstack_visual_embeds,
+            }
+            shard_items.append(item)
+            seen_existing.add(sample_id)
+            if len(shard_items) >= shard_size:
+                flush_shard()
 
     flush_shard()
 
@@ -424,6 +449,7 @@ def main() -> None:
     ap.add_argument("--fps", type=float, default=1.0)
     ap.add_argument("--image_size", type=int, default=224)
     ap.add_argument("--shard_size", type=int, default=512)
+    ap.add_argument("--batch_size", type=int, default=4)
     ap.add_argument("--device", type=str, default="cuda:0")
     ap.add_argument("--dtype", type=str, default="fp16", choices=["fp16", "bf16", "fp32"])
     ap.add_argument("--local_files_only", action="store_true")
@@ -438,6 +464,7 @@ def main() -> None:
         fps=args.fps,
         image_size=args.image_size,
         shard_size=args.shard_size,
+        batch_size=args.batch_size,
         device=args.device,
         dtype=args.dtype,
         local_files_only=bool(args.local_files_only),

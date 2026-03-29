@@ -18,6 +18,7 @@ CACHE_ROOT="${CACHE_ROOT:-${ROOT_DIR}/artifacts/cache/factorcl}"
 MODEL_NAME="${MODEL_NAME:-Qwen/Qwen3-VL-2B-Instruct}"
 GPU="${GPU:-0}"
 FOLDS="${FOLDS:-0 1 2}"
+BATCH_SIZE="${BATCH_SIZE:-4}"
 FORCE_DOWNLOAD=0
 FORCE_CACHE=0
 SKIP_DOWNLOAD=0
@@ -36,6 +37,7 @@ Options:
   --model-name NAME       VLM model name (default: Qwen/Qwen3-VL-2B-Instruct)
   --gpu ID                CUDA device id (default: 0)
   --folds "0 1 2"         Space-separated fold list for fold manifests
+  --batch-size N          Samples per processor/model batch (default: 4)
   --force-download        Re-materialize raw roots
   --force-cache           Rebuild cache artifacts
   --skip-download         Skip raw download/materialization
@@ -59,6 +61,7 @@ while [[ $# -gt 0 ]]; do
     --model-name) MODEL_NAME="$2"; shift 2 ;;
     --gpu) GPU="$2"; shift 2 ;;
     --folds) FOLDS="$2"; shift 2 ;;
+    --batch-size) BATCH_SIZE="$2"; shift 2 ;;
     --force-download) FORCE_DOWNLOAD=1; shift ;;
     --force-cache) FORCE_CACHE=1; shift ;;
     --skip-download) SKIP_DOWNLOAD=1; shift ;;
@@ -159,6 +162,7 @@ build_cache() {
     --out_dir "${cache_dir}"
     --model_name "${MODEL_NAME}"
     --folds ${FOLDS}
+    --batch_size "${BATCH_SIZE}"
     --device "cuda:${GPU}"
   )
   [[ "${LOCAL_FILES_ONLY}" == "1" ]] && args+=(--local_files_only)
