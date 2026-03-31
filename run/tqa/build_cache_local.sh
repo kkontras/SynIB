@@ -12,7 +12,8 @@ echo "[build_cache_local] DATA_ROOTS=${DATA_ROOTS}"
 echo "[build_cache_local] OUT_DIR=${OUT_DIR}"
 echo "[build_cache_local] GPU=${GPU}"
 
-for SPLIT in train val test; do
+SPLITS="${SPLITS:-train val test}"
+for SPLIT in ${SPLITS}; do
   echo "[build_cache_local] Building split=${SPLIT} ..."
   CUDA_VISIBLE_DEVICES="${GPU}" PYTHONPATH="${ROOT_DIR}/src" python \
     src/synib/mydatasets/TQA/TQA_Codebook.py \
