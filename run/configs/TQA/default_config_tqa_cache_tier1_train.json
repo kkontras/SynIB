@@ -53,7 +53,7 @@
   "dataset": {
     "dataloader_class": "TQA_MemmapDataloader",
     "data_roots": "/dodrio/scratch/projects/2026_029/kkontras/data/TQA",
-    "cache_root": "/dodrio/scratch/projects/2026_029/kkontras/data/TQA"
+    "cache_root": "/dodrio/scratch/projects/2026_029/kkontras/data/TQA/cache_qwen3_vl_2b"
   },
   "model": {
     "save_base_dir": "/dodrio/scratch/projects/2026_029/kkontras/checkpoints/synergy/TQA"

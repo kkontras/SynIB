@@ -928,11 +928,14 @@ class _JointTFIHAEncoderLayer(nn.Module):
         assert d_model % nhead == 0, "d_model must be divisible by nhead"
         self.nhead = nhead
         self.head_dim = d_model // nhead
+        self.num_pseudo_q  = num_pseudo_q  if num_pseudo_q  is not None else nhead
+        self.num_pseudo_kv = num_pseudo_kv if num_pseudo_kv is not None else nhead
 
         self.q_proj = nn.Linear(d_model, d_model)
         self.k_proj = nn.Linear(d_model, d_model)
         self.v_proj = nn.Linear(d_model, d_model)
-        self.out_proj = nn.Linear(d_model, d_model)
+        # out_proj maps from pseudo-q heads back to d_model
+        self.out_proj = nn.Linear(self.num_pseudo_q * self.head_dim, d_model)
 
         self.iha = IHAMixingLayer(
             num_q_heads=nhead, num_kv_heads=nhead,
@@ -960,12 +963,13 @@ class _JointTFIHAEncoderLayer(nn.Module):
         # IHA mixing: blends heads via learned M_Q, M_K, M_V
         q, k, v = self.iha(q, k, v)
 
-        # Scaled dot-product attention (B, H, T, dh)
+        # Scaled dot-product attention (B, P_q, T, dh) — GQA when P_q != P_kv
         dp = self.dropout_p if self.training else 0.0
-        attn_out = F.scaled_dot_product_attention(q, k, v, attn_mask=src_mask, dropout_p=dp)
+        attn_out = F.scaled_dot_product_attention(q, k, v, attn_mask=src_mask, dropout_p=dp,
+                                                  enable_gqa=(self.num_pseudo_q != self.num_pseudo_kv))
 
-        # Merge heads -> (B, T, D)
-        attn_out = attn_out.permute(0, 2, 1, 3).contiguous().view(B, T, D)
+        # Merge pseudo-heads -> (B, T, P_q * dh)
+        attn_out = attn_out.permute(0, 2, 1, 3).contiguous().view(B, T, self.num_pseudo_q * self.head_dim)
         attn_out = self.out_proj(attn_out)
 
         # Post-LN residual blocks
