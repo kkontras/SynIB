@@ -64,19 +64,26 @@ def extract_score(val_payload):
 
 best = {}
 all_rows = defaultdict(list)
+files = sorted(f for f in os.listdir(".") if f.endswith(".pth.tar"))
+total = len(files)
 
-for f in sorted(os.listdir(".")):
-    if not f.endswith(".pth.tar"):
-        continue
+print(f"Scanning {total} checkpoint files in {os.getcwd()}", flush=True)
+
+for idx, f in enumerate(files, start=1):
+    print(f"[{idx}/{total}] opening {f}", flush=True)
     try:
         ckpt = torch.load(f, map_location="cpu", weights_only=False)
     except Exception as e:
+        print(f"[{idx}/{total}] failed {f}: {e}", flush=True)
         all_rows["FAILED"].append((None, f, str(e)))
         continue
 
     group = group_name(f)
     val_payload = extract_val_payload(ckpt)
     score, score_key = extract_score(val_payload)
+    score_str = "NA" if score is None else f"{score:.6f}"
+    key_str = "NA" if score_key is None else score_key
+    print(f"[{idx}/{total}] done group={group} score={score_str} key={key_str}", flush=True)
     all_rows[group].append((score, f, score_key))
 
     if score is None:
