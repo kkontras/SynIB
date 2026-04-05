@@ -35,5 +35,12 @@ src/synib/mydatasets/MultimodalQA/final_dataset_images
 # MUStARD raw data (videos + metadata downloaded by download.sh)
 src/synib/mydatasets/MUStARD/prepared/
 
+# FactorCL generated k-fold artifacts
+src/synib/mydatasets/Factor_CL_Datasets/generate_kfold_splits.py
+src/synib/mydatasets/Factor_CL_Datasets/prepared/mosei/mosei_kfold10.pkl
+src/synib/mydatasets/Factor_CL_Datasets/prepared/mosi/mosi_kfold10.pkl
+src/synib/mydatasets/Factor_CL_Datasets/prepared/mustard/mustard_kfold10.pkl
+src/synib/mydatasets/Factor_CL_Datasets/prepared/ur_funny/ur_funny_kfold10.pkl
+
 # Planning docs
 *.docx

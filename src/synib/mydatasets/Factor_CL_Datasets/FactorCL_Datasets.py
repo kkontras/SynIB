@@ -1,7 +1,15 @@
+import pickle
 import numpy as np
 import torch
+from torch.utils.data import DataLoader
 
-from synib.mydatasets.Factor_CL_Datasets.MultiBench.datasets.affect.get_data import get_dataloader
+from synib.mydatasets.Factor_CL_Datasets.MultiBench.datasets.affect.get_data import (
+    get_dataloader,
+    Affectdataset,
+    _process_1,
+    _process_2,
+    drop_entry,
+)
 
 
 def _convert_affect_batch(batch, task="classification"):
@@ -72,6 +80,52 @@ class _BatchAdapter:
         return getattr(self.loader, item)
 
 
+def _make_loaders_from_kfold(config, fold):
+    """Build train/valid/test DataLoaders from a pre-generated kfold pkl."""
+    kfold_path = config.dataset.kfold_data_roots
+    data_type  = config.dataset.get("data_type", "mosi")
+    task       = config.get("task", "classification")
+    batch_size = int(config.training_params.get("batch_size", 32))
+    num_workers= int(config.training_params.get("data_loader_workers", 2))
+    max_pad    = bool(config.dataset.get("max_pad", False))
+    max_seq_len= int(config.dataset.get("max_seq_len", 50))
+    flatten    = bool(config.dataset.get("flatten_time_series", False))
+    z_norm     = bool(config.dataset.get("z_norm", False))
+    process    = _process_2 if max_pad else _process_1
+
+    with open(kfold_path, "rb") as f:
+        kfold = pickle.load(f)
+
+    pooled     = kfold["pooled"]
+    fold_entry = kfold["folds"][str(fold)]
+
+    def subset(pool, indices):
+        """Slice every array/list in pool by indices."""
+        out = {}
+        for k, v in pool.items():
+            if isinstance(v, np.ndarray):
+                out[k] = v[indices]
+            else:
+                out[k] = [v[i] for i in indices]
+        return out
+
+    splits = {
+        "train": subset(pooled, fold_entry["train"]),
+        "valid": subset(pooled, fold_entry["valid"]),
+        "test":  subset(pooled, fold_entry["test"]),
+    }
+
+    loaders = []
+    for split_name in ("train", "valid", "test"):
+        shuffle = (split_name == "train") and bool(config.dataset.get("train_shuffle", True))
+        ds = Affectdataset(splits[split_name], flatten, task=task,
+                           max_pad=max_pad, max_pad_num=max_seq_len,
+                           data_type=data_type, z_norm=z_norm)
+        loaders.append(DataLoader(ds, shuffle=shuffle, num_workers=num_workers,
+                                  batch_size=batch_size, collate_fn=process))
+    return loaders
+
+
 class FactorCL_Dataloader:
     def __init__(self, config):
         self.config = config
@@ -83,20 +137,28 @@ class FactorCL_Dataloader:
         data_type = self.config.dataset.get("data_type", "mosi")
         task = self.config.get("task", "classification")
 
-        train_loader, valid_loader, test_loader = get_dataloader(
-            filepath=self.config.dataset.data_roots,
-            robust_test=False,
-            data_type=data_type,
-            task=task,
-            batch_size=int(self.config.training_params.get("batch_size", 32)),
-            train_shuffle=bool(self.config.dataset.get("train_shuffle", True)),
-            num_workers=int(self.config.training_params.get("data_loader_workers", 2)),
-            max_pad=bool(self.config.dataset.get("max_pad", False)),
-            max_seq_len=int(self.config.dataset.get("max_seq_len", 50)),
-            flatten_time_series=bool(self.config.dataset.get("flatten_time_series", False)),
-            raw_path=self.config.dataset.get("raw_path", ""),
-            z_norm=bool(self.config.dataset.get("z_norm", False)),
-        )
+        fold = self.config.dataset.get("fold", None)
+        use_kfold = (fold is not None and
+                     self.config.dataset.get("kfold_data_roots", None) is not None)
+
+        if use_kfold:
+            train_loader, valid_loader, test_loader = _make_loaders_from_kfold(
+                self.config, int(fold))
+        else:
+            train_loader, valid_loader, test_loader = get_dataloader(
+                filepath=self.config.dataset.data_roots,
+                robust_test=False,
+                data_type=data_type,
+                task=task,
+                batch_size=int(self.config.training_params.get("batch_size", 32)),
+                train_shuffle=bool(self.config.dataset.get("train_shuffle", True)),
+                num_workers=int(self.config.training_params.get("data_loader_workers", 2)),
+                max_pad=bool(self.config.dataset.get("max_pad", False)),
+                max_seq_len=int(self.config.dataset.get("max_seq_len", 50)),
+                flatten_time_series=bool(self.config.dataset.get("flatten_time_series", False)),
+                raw_path=self.config.dataset.get("raw_path", ""),
+                z_norm=bool(self.config.dataset.get("z_norm", False)),
+            )
 
         train_loader.generator = g
         train_loader.worker_init_fn = lambda worker_id: np.random.seed(seed + worker_id)

@@ -30,7 +30,9 @@ def main(config_path, default_config_path, args):
         config.dataset.fold = int(args.fold)
         m += "fold{}".format(args.fold)
         enc_m += "{}".format(args.fold)
-        seeds = [0, 109, 19, 337] if "UCF" in config_path else [109, 19, 337]
+        seeds = ([0, 109, 19, 337, 42, 7, 1234, 5678, 999, 12345]
+                 if "UCF" in config_path else
+                 [109, 19, 337, 42, 7, 1234, 5678, 999, 12345, 54321])
         config.training_params.seed = int(seeds[int(args.fold)])
         if "norm_wav_path" in config.dataset:
             config.dataset.norm_wav_path = config.dataset.norm_wav_path.format(args.fold)
@@ -224,6 +226,10 @@ def main(config_path, default_config_path, args):
             config.model.args.iha_config["layers"] = [int(x) for x in args.iha_layers.split(",")]
         m += "_ihaL{}".format(args.iha_layers.replace(",", "-"))
 
+    if getattr(args, "num_layers", None) is not None:
+        config.model.args.num_layers = int(args.num_layers)
+        m += "_nlayers{}".format(args.num_layers)
+
     config.model.save_dir = config.model.save_dir.format(m)
 
     if enc_m != "":
@@ -291,6 +297,8 @@ parser.add_argument('--iha_init', required=False, default=None,
                     help="IHA init: identity, identity_noise, orthogonal")
 parser.add_argument('--iha_lr', required=False, type=float, default=None,
                     help="Separate learning rate for IHA mixing params")
+parser.add_argument('--num_layers', required=False, type=int, default=None,
+                    help="Override num_layers in model config (e.g. 1, 2, 3).")
 parser.add_argument('--iha_layers', required=False, default=None,
                     help="IHA layers: 'all' or comma-sep e.g. '20,21,22,23,24,25,26,27'")
 

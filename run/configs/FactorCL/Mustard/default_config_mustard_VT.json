@@ -4,7 +4,9 @@
   "task": "classification",
   "training_params": {
     "cuda": true,
-    "gpu_device": [0],
+    "gpu_device": [
+      0
+    ],
     "seed": 109,
     "batch_size": 32,
     "test_batch_size": 32,
@@ -24,7 +26,11 @@
     "wandb_disable": true,
     "res": true
   },
-  "scheduler": {"type":"cosanneal", "max_lr": 0.03, "warm_up_steps": 780},
+  "scheduler": {
+    "type": "cosanneal",
+    "max_lr": 0.03,
+    "warm_up_steps": 780
+  },
   "optimizer": {
     "type": "Adam",
     "learning_rate": 0.0001,
@@ -54,7 +60,8 @@
       "vision_absmax_threshold": 1000000.0,
       "check_aligned_segment": true,
       "min_aligned_len": 1
-    }
+    },
+    "kfold_data_roots": "./src/synib/mydatasets/Factor_CL_Datasets/prepared/mustard/mustard_kfold10.pkl"
   },
   "model": {
     "model_class": "Base_Model",

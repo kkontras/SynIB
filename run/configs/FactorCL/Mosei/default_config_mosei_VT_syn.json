@@ -53,7 +53,8 @@
   "dataset": {
     "dataloader_class": "FactorCL_Dataloader",
     "data_roots": "./src/synib/mydatasets/Factor_CL_Datasets/prepared/mosei/mosei_data.pkl",
-    "data_type": "mosei"
+    "data_type": "mosei",
+    "kfold_data_roots": "./src/synib/mydatasets/Factor_CL_Datasets/prepared/mosei/mosei_kfold10.pkl"
   },
   "model": {
     "save_base_dir": "./artifacts/models/factorcl/mosei/vt"

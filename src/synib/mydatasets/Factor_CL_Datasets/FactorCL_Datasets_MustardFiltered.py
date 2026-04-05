@@ -136,7 +136,10 @@ def _filter_corrupt_mustard_samples(dataset_split, split_name, cfg):
 
     filtered = {}
     for k, v in dataset_split.items():
-        filtered[k] = v[keep_idx]
+        if isinstance(v, np.ndarray):
+            filtered[k] = v[keep_idx]
+        else:
+            filtered[k] = [v[i] for i in keep_idx]
 
     print(
         f"[MustardFilteredDataloader] {split_name}: dropped {len(dropped)}/{n} samples "
@@ -196,7 +199,39 @@ class FactorCL_MustardFiltered_Dataloader:
 
         process = _process_2 if max_pad else _process_1
 
-        processed_dataset = _load_affect_with_optional_mustard_filter(self.config)
+        fold = self.config.dataset.get("fold", None)
+        use_kfold = (fold is not None and
+                     self.config.dataset.get("kfold_data_roots", None) is not None)
+
+        if use_kfold:
+            kfold_path = self.config.dataset.kfold_data_roots
+            with open(kfold_path, "rb") as _f:
+                kfold = pickle.load(_f)
+            pooled     = kfold["pooled"]
+            fold_entry = kfold["folds"][str(int(fold))]
+
+            def _subset(pool, indices):
+                out = {}
+                for k, v in pool.items():
+                    if isinstance(v, np.ndarray):
+                        out[k] = v[indices]
+                    else:
+                        out[k] = [v[i] for i in indices]
+                return out
+
+            processed_dataset = {
+                "train": _subset(pooled, fold_entry["train"]),
+                "valid": _subset(pooled, fold_entry["valid"]),
+                "test":  _subset(pooled, fold_entry["test"]),
+            }
+            # Apply Mustard corruption filter to kfold splits too
+            filter_cfg = self.config.dataset.get("mustard_video_filter", {})
+            if data_type in {"mustard", "sarcasm"}:
+                for split in ("train", "valid", "test"):
+                    processed_dataset[split] = _filter_corrupt_mustard_samples(
+                        processed_dataset[split], split, filter_cfg)
+        else:
+            processed_dataset = _load_affect_with_optional_mustard_filter(self.config)
 
         train_loader = DataLoader(
             Affectdataset(

@@ -1,0 +1,12 @@
+Notification = Error
+executable   = /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/condor/run_tqa_tier1.sh
+initialdir   = /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/condor/logs/tqa_tier1
+Log          = $(ClusterId)_$(Process).log
+Output       = $(ClusterId)_$(Process).out
+Error        = $(ClusterId)_$(Process).err
+RequestCpus  = 8
+RequestWalltime = 200000
+Request_GPUs = 1
+NiceUser     = True
+Requirements = (GPUs_GlobalMemoryMb > 64000) && (machine != "psi-test2.esat.kuleuven.be")
+Queue Arguments from /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/condor/tqa_tier1.args
