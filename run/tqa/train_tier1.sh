@@ -14,11 +14,16 @@ Targets:
   image  -> run/configs/TQA/cache_image_lora_tier1.json
   text   -> run/configs/TQA/cache_text_lora_tier1.json
   joint  -> run/configs/TQA/cache_lora_tier1.json
+  synib  -> run/configs/TQA/cache_synib_lora_tier1.json
+  iha    -> run/configs/TQA/cache_iha_lora_tier1.json
 
 Examples:
   $0 image --fold 0 --lr 0.0001 --wd 0.0001 --validate_with accuracy
   $0 text --fold 0 --lr 0.0001 --wd 0.0001 --validate_with accuracy
   $0 joint --fold 0 --lr 0.0005 --wd 0.0001 --validate_with accuracy
+  $0 synib --fold 0 --lr 0.0005 --wd 0.0001 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1 --validate_with accuracy
+  $0 synib --fold 0 --lr 0.0005 --wd 0.0001 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1 --validate_with accuracy
+  $0 iha --fold 0 --lr 0.0005 --wd 0.0001 --iha_init identity --iha_layers all --iha_lr 0.005 --validate_with accuracy
 EOF
   exit 1
 }
@@ -37,6 +42,12 @@ case "$TARGET" in
     ;;
   joint)
     CONFIG="run/configs/TQA/cache_lora_tier1.json"
+    ;;
+  synib)
+    CONFIG="run/configs/TQA/cache_synib_lora_tier1.json"
+    ;;
+  iha)
+    CONFIG="run/configs/TQA/cache_iha_lora_tier1.json"
     ;;
   -h|--help)
     usage

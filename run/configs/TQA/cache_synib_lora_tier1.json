@@ -25,9 +25,8 @@
     }
   },
   "model": {
-    "model_class": "QwenVL_Cached",
+    "model_class": "QwenVL_Cached_SynIB",
     "args": {
-      "model_class": "QwenVL_Cached",
       "d_model": 512,
       "num_classes": 4,
       "fc_inner": 64,
@@ -36,6 +35,13 @@
       "cls_finetune": false,
       "cls_type": "linear",
       "clip_grad": false,
+      "perturb": {
+        "reestimate_features": false,
+        "p": 0.5,
+        "num_samples": 1,
+        "type": "mask"
+      },
+      "synergy_type": "gaussian",
       "bias_infusion": {
         "method": "false",
         "l": 0.1,
@@ -69,7 +75,7 @@
       "test": "./artifacts/ceus/tqa/tqa_ceu_test.pkl"
     },
     "load_ongoing": false,
-    "save_dir": "SynIBCache_LoRa_{}.pth.tar",
+    "save_dir": "SynIBCache_SynIB_LoRa_{}.pth.tar",
     "encoders": [
       {
         "model": "LinearHead_Qwen",

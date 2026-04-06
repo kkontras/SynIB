@@ -3,7 +3,7 @@
     "tdqm_disable": false,
     "wandb_disable": false,
     "batch_size": 2,
-    "test_batch_size": 2
+    "test_batch_size": 4
   },
   "early_stopping": {
     "end_of_epoch_check": true,
@@ -25,14 +25,12 @@
     }
   },
   "model": {
-    "model_class": "QwenVL_Cached",
+    "model_class": "QwenVL_Cached_IHA_LoRA",
     "args": {
-      "model_class": "QwenVL_Cached",
       "d_model": 512,
       "num_classes": 4,
       "fc_inner": 64,
       "dropout": 0.1,
-      "cls_emb_path": "Synprom_IBInput2_fold0_lr0.0001_wd0.0001_cls_embedding.pt",
       "cls_finetune": false,
       "cls_type": "linear",
       "clip_grad": false,
@@ -56,6 +54,13 @@
         "lora_bias": "none",
         "lora_lr": 0.0002
       },
+      "iha_config": {
+        "use_iha": true,
+        "layers": "all",
+        "init": "identity",
+        "noise_std": 0.01,
+        "iha_lr": 0.005
+      },
       "multi_loss": {
         "multi_supervised_w": {
           "combined": 0,
@@ -69,7 +74,7 @@
       "test": "./artifacts/ceus/tqa/tqa_ceu_test.pkl"
     },
     "load_ongoing": false,
-    "save_dir": "SynIBCache_LoRa_{}.pth.tar",
+    "save_dir": "TQA_Cache_IHA_LoRa_{}.pth.tar",
     "encoders": [
       {
         "model": "LinearHead_Qwen",

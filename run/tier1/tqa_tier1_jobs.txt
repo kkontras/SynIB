@@ -30,3 +30,45 @@
 ./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.001
 ./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0001
 ./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0
+
+## TQA Tier1 -- SynIB Perturb Random (best LR/WD from joint sweep, sweep pmin x l)
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 0.01
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 0.1
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 1.0
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.01
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 1.0
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.8 --l 0.01
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.8 --l 0.1
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.8 --l 1.0
+
+## TQA Tier1 -- SynIB Perturb Learned (best LR/WD from joint sweep, sweep lsparse x l)
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.01 --l 0.01
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.01 --l 0.1
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.01 --l 1.0
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.01
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 1.0
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 1.0 --l 0.01
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 1.0 --l 0.1
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 1.0 --l 1.0
+
+## TQA Tier1 -- IHA + LoRA LR/WD x iha_lr sweep
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.001 --wd 0.001 --iha_init identity --iha_layers all --iha_lr 0.005
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.001 --wd 0.001 --iha_init identity --iha_layers all --iha_lr 0.001
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0001 --iha_init identity --iha_layers all --iha_lr 0.005
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0001 --iha_init identity --iha_layers all --iha_lr 0.001
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.005
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.001 --iha_init identity --iha_layers all --iha_lr 0.005
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.001 --iha_init identity --iha_layers all --iha_lr 0.001
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0001 --iha_init identity --iha_layers all --iha_lr 0.005
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0001 --iha_init identity --iha_layers all --iha_lr 0.001
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.005
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.001 --iha_init identity --iha_layers all --iha_lr 0.005
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.001 --iha_init identity --iha_layers all --iha_lr 0.001
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0001 --iha_init identity --iha_layers all --iha_lr 0.005
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0001 --iha_init identity --iha_layers all --iha_lr 0.001
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.005
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001
