@@ -56,7 +56,7 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   exit 0
 fi
 
-module swap cluster/dodrio/gpu_rome_a100_80
+module swap cluster/dodrio/gpu_rome_a100_80_rhel9
 
 if [[ "${1:-}" == "--cache" ]]; then
   submit_cache
