@@ -46,20 +46,45 @@ def extract_val_payload(ckpt):
     return best_logs
 
 
-def extract_score(val_payload):
-    acc = val_payload.get("acc")
+def extract_combined_acc(payload):
+    acc = payload.get("acc")
     if isinstance(acc, dict) and acc:
-        if "total" in acc and isinstance(acc["total"], (int, float)):
-            return float(acc["total"]), "acc.total"
+        for key in ("combined", "total"):
+            value = acc.get(key)
+            if isinstance(value, (int, float)):
+                return float(value), f"acc.{key}"
         numeric = [(k, v) for k, v in acc.items() if isinstance(v, (int, float))]
         if numeric:
             k, v = max(numeric, key=lambda kv: kv[1])
             return float(v), f"acc.{k}"
     for k in ("accuracy", "acc", "best_accuracy", "best_acc"):
-        v = val_payload.get(k)
+        v = payload.get(k)
         if isinstance(v, (int, float)):
             return float(v), k
     return None, None
+
+
+def extract_test_payload(ckpt, val_payload):
+    logs = ckpt.get("logs", {})
+    test_logs = logs.get("test_logs", {})
+    if not isinstance(test_logs, dict):
+        return {}
+
+    step = val_payload.get("step")
+    if step in test_logs:
+        payload = test_logs[step]
+    elif str(step) in test_logs:
+        payload = test_logs[str(step)]
+    else:
+        return {}
+
+    if "acc" not in payload and "test_acc" in payload:
+        payload = {k.replace("test_", ""): v for k, v in payload.items()}
+    return payload
+
+
+def fmt_score(score):
+    return "NA" if score is None else f"{score:.6f}"
 
 
 best = {}
@@ -80,30 +105,39 @@ for idx, f in enumerate(files, start=1):
 
     group = group_name(f)
     val_payload = extract_val_payload(ckpt)
-    score, score_key = extract_score(val_payload)
-    score_str = "NA" if score is None else f"{score:.6f}"
-    key_str = "NA" if score_key is None else score_key
-    print(f"[{idx}/{total}] done group={group} score={score_str} key={key_str}", flush=True)
-    all_rows[group].append((score, f, score_key))
+    test_payload = extract_test_payload(ckpt, val_payload)
+    val_score, val_key = extract_combined_acc(val_payload)
+    test_score, test_key = extract_combined_acc(test_payload)
+    print(
+        f"[{idx}/{total}] done group={group} "
+        f"val_acc_combined={fmt_score(val_score)} "
+        f"test_acc_combined={fmt_score(test_score)}",
+        flush=True,
+    )
+    all_rows[group].append((val_score, test_score, f, val_key, test_key))
 
-    if score is None:
+    if val_score is None:
         continue
-    if group not in best or score > best[group][0]:
-        best[group] = (score, f, score_key)
+    if group not in best or val_score > best[group][0]:
+        best[group] = (val_score, test_score, f, val_key, test_key)
 
 print("BEST PER CATEGORY")
 for group in sorted(best):
-    score, f, score_key = best[group]
-    print(f"{group}\t{score:.6f}\t{score_key}\t{f}")
+    val_score, test_score, f, val_key, test_key = best[group]
+    print(
+        f"{group}\tval_acc_combined={fmt_score(val_score)}\t"
+        f"test_acc_combined={fmt_score(test_score)}\t{f}"
+    )
 
 print("\nTOP RUNS PER CATEGORY")
 for group in sorted(k for k in all_rows if k != "FAILED"):
     print(f"\n[{group}]")
-    rows = sorted(all_rows[group], key=lambda x: (-1 if x[0] is None else -x[0], x[1]))
-    for score, f, score_key in rows[:10]:
-        score_str = "NA" if score is None else f"{score:.6f}"
-        key_str = "NA" if score_key is None else score_key
-        print(f"{score_str}\t{key_str}\t{f}")
+    rows = sorted(all_rows[group], key=lambda x: (-1 if x[0] is None else -x[0], x[2]))
+    for val_score, test_score, f, val_key, test_key in rows[:10]:
+        print(
+            f"val_acc_combined={fmt_score(val_score)}\t"
+            f"test_acc_combined={fmt_score(test_score)}\t{f}"
+        )
 
 if "FAILED" in all_rows:
     print("\n[FAILED]")
