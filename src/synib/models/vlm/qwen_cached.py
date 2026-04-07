@@ -35,6 +35,7 @@ class _QwenVL_CachedCombinedImpl(nn.Module):
         self.backbone = Qwen3VLForConditionalGeneration.from_pretrained(
             model_name,
             cache_dir=hf_cache,
+            torch_dtype=torch.bfloat16 if getattr(self.args, "bf16", False) else torch.float16,
         )
         if added > 0:
             self.backbone.resize_token_embeddings(len(tok))
@@ -409,6 +410,7 @@ class _QwenVL_CachedTextImpl(nn.Module):
         self.backbone = Qwen3VLForConditionalGeneration.from_pretrained(
             model_name,
             cache_dir=hf_cache,
+            torch_dtype=torch.bfloat16 if getattr(self.args, "bf16", False) else torch.float16,
         )
         if added > 0:
             self.backbone.resize_token_embeddings(len(tok))
@@ -788,6 +790,7 @@ class _QwenVL_CachedImageImpl(nn.Module):
         self.backbone = Qwen3VLForConditionalGeneration.from_pretrained(
             model_name,
             cache_dir=hf_cache,
+            torch_dtype=torch.bfloat16 if getattr(self.args, "bf16", False) else torch.float16,
         )
         if added > 0:
             self.backbone.resize_token_embeddings(len(tok))
@@ -1172,6 +1175,7 @@ class _QwenVL_CachedSynIBImpl(nn.Module):
         self.backbone = Qwen3VLForConditionalGeneration.from_pretrained(
             model_name,
             cache_dir=hf_cache,
+            torch_dtype=torch.bfloat16 if getattr(self.args, "bf16", False) else torch.float16,
         )
         if added > 0:
             self.backbone.resize_token_embeddings(len(tok))
@@ -1770,6 +1774,7 @@ class _QwenVL_CachedMCRImpl(nn.Module):
         self.backbone = Qwen3VLForConditionalGeneration.from_pretrained(
             model_name,
             cache_dir=hf_cache,
+            torch_dtype=torch.bfloat16 if getattr(self.args, "bf16", False) else torch.float16,
         )
         if added > 0:
             self.backbone.resize_token_embeddings(len(tok))
@@ -2144,6 +2149,7 @@ class _QwenVL_CachedMMParetoImpl(nn.Module):
         self.backbone = Qwen3VLForConditionalGeneration.from_pretrained(
             model_name,
             cache_dir=hf_cache,
+            torch_dtype=torch.bfloat16 if getattr(self.args, "bf16", False) else torch.float16,
         )
         if added > 0:
             self.backbone.resize_token_embeddings(len(tok))

@@ -51,6 +51,7 @@ class Agent():
 
         self.accelerator = Accelerator(
             kwargs_handlers=[DistributedDataParallelKwargs(find_unused_parameters=False)],
+            gradient_accumulation_steps=self.config.training_params.get("gradient_accumulation_steps", 1),
             cpu=False,
         )
         deterministic(self.config.training_params.seed)

@@ -57,10 +57,13 @@ class Trainer():
             pbar = tqdm(enumerate(self.agent.data_loader.train_loader), total=len(self.agent.data_loader.train_loader), desc="Training", leave=None, disable=self.agent.config.training_params.tdqm_disable or not self.agent.accelerator.is_main_process, position=0)
             for batch_idx, served_dict in pbar:
 
-                self.agent.optimizer.zero_grad()
-                step_outcome, optstep_done = self.this_train_step_func(served_dict)
-                self._clip_grads()
-                if not optstep_done: self.agent.optimizer.step()
+                with self.agent.accelerator.accumulate(self.agent.model):
+                    self.agent.optimizer.zero_grad()
+                    step_outcome, optstep_done = self.this_train_step_func(served_dict)
+                    if self.agent.accelerator.sync_gradients:
+                        self._clip_grads()
+                    if not optstep_done:
+                        self.agent.optimizer.step()
                 self.agent.scheduler.step(step=self.agent.logs["current_step"]+1, loss=step_outcome["loss"]["total"].item())
 
                 all_outputs = self.agent.accelerator.gather(step_outcome)

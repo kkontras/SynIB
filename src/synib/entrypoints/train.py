@@ -230,6 +230,14 @@ def main(config_path, default_config_path, args):
         config.model.args.num_layers = int(args.num_layers)
         m += "_nlayers{}".format(args.num_layers)
 
+    if getattr(args, "bf16", False):
+        config.model.args.bf16 = True
+        m += "_bf16"
+
+    if getattr(args, "grad_accum", None) is not None:
+        config.training_params.gradient_accumulation_steps = int(args.grad_accum)
+        m += "_ga{}".format(args.grad_accum)
+
     config.model.save_dir = config.model.save_dir.format(m)
 
     if enc_m != "":
@@ -301,6 +309,10 @@ parser.add_argument('--num_layers', required=False, type=int, default=None,
                     help="Override num_layers in model config (e.g. 1, 2, 3).")
 parser.add_argument('--iha_layers', required=False, default=None,
                     help="IHA layers: 'all' or comma-sep e.g. '20,21,22,23,24,25,26,27'")
+parser.add_argument('--bf16', action='store_true', default=False,
+                    help="Load backbone in bfloat16 instead of float16")
+parser.add_argument('--grad_accum', required=False, type=int, default=None,
+                    help="Gradient accumulation steps (1 = no accumulation)")
 
 parser.set_defaults(pre=False)
 parser.set_defaults(start_over=False)
