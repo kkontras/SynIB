@@ -81,3 +81,9 @@
     ]
   }
 }
+
+
+
+  PYTHONPATH=src python -m synib.entrypoints.train --config run/configs/FactorCL/URFunny/release/VT/joint_tf_iha.json --default_config run/configs/FactorCL/URFunny/default_config_ur_funny_VT.json --fold 0 --validate_with accuracy --batch_size 32 --no_model_save --lr 0.001 --wd 0.0001 --pseudo_heads_q 4 --pseudo_heads_kv 4 --iha_init identity_noise --iha_layers all --start_over  2>&1 | tee run/condor/logs/urfunny_joint_tf_iha_hsearch/local_identity_noise_fold0.out          
+                                                                  
+rsync -avh --progress -e "ssh -i ~/.ssh/vsc_ssh"   /esat/smcdata/users/kkontras/Image_Dataset/no_backup/TQA/cache_qwen3_vl_2b/test   vsc35057@tier1.hpc.ugent.be:/dodrio/scratch/projects/2026_029/kkontras/data/TQA/

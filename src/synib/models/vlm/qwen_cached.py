@@ -2732,7 +2732,7 @@ class QwenVL_Cached_SynIB(_QwenVL_CachedSynIBImpl):
             deep_stack_viz_extended = [torch.cat([deep_stack_viz_pass0[di], deep_stack_viz_pass1[di], deep_stack_viz_pass2[di], deep_stack_viz_uni_t[di], deep_stack_viz_uni_v[di]], dim=0) for di in range(len(deep_stack_viz))]
             hidden_all = self._encode_from_inputs_embeds(position_ids_expanded, input_embeds_expanded, filter_deep_stack, deep_stack_viz_extended, masks)
             ids_all = input_ids.repeat(k, 1)
-            h_cls_all = self._get_cls_token_repr(hidden_all, ids_all)
+            h_cls_all = self._get_cls_token_repr(hidden_all, ids_all).to(self.enc_0.linear.weight.dtype)
             logits_all = self.enc_0(h_cls_all)
             head_logits, head_logits_0, head_logits_1, head_logits_uni_t, head_logits_uni_v = torch.chunk(logits_all, chunks=k, dim=0)
             h_cls, featcls_0, featcls_1, featcls_uni_t, featcls_uni_v = torch.chunk(h_cls_all, chunks=k, dim=0)
@@ -2751,7 +2751,7 @@ class QwenVL_Cached_SynIB(_QwenVL_CachedSynIBImpl):
             deep_stack_viz_extended = [torch.cat([deep_stack_viz_pass0[di], deep_stack_viz_pass1[di], deep_stack_viz_pass2[di]], dim=0) for di in range(len(deep_stack_viz))]
             hidden_all = self._encode_from_inputs_embeds(position_ids_expanded, input_embeds_expanded, filter_deep_stack, deep_stack_viz_extended, masks)
             ids_all = input_ids.repeat(3, 1)
-            h_cls_all = self._get_cls_token_repr(hidden_all, ids_all)
+            h_cls_all = self._get_cls_token_repr(hidden_all, ids_all).to(self.enc_0.linear.weight.dtype)
             logits_all = self.enc_0(h_cls_all)
             head_logits, head_logits_0, head_logits_1 = torch.chunk(logits_all, chunks=3, dim=0)
             h_cls, featcls_0, featcls_1 = torch.chunk(h_cls_all, chunks=3, dim=0)

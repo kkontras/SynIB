@@ -28,7 +28,6 @@ echo "JOB_ARGS=${JOB_ARGS}"
 echo "GPU=${GPU}"
 
 if [[ -n "${JOB_ARGS}" ]]; then
-  # shellcheck disable=SC2206
   ARGS=( ${JOB_ARGS} )
 else
   ARGS=()

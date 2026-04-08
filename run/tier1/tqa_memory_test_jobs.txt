@@ -1,68 +1,49 @@
-## TQA Tier1 -- Memory/Config Test Runs (no unimodals)
-## Goal: find largest batch size & best dtype that fits on A100-80GB
-## Best LR/WD from prior sweep: lr=0.0001, wd=0.0
-## All runs: fold 0, validate_with accuracy
-##
-## Naming convention in checkpoint: _bf16 / _ga<N>  / _bs<N>
-## fp16 = default (no flag needed after dtype fix in qwen_cached.py)
+## IHA + SynIB memory sweep -- bf16 only
 
 ## ─────────────────────────────────────────────────────────
-## JOINT (QwenVL_Cached + LoRA)
+## IHA
 ## ─────────────────────────────────────────────────────────
-
-## bf16, bs=8
-./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --bf16 --batch_size 8
-
-## bf16, bs=4, grad_accum=2 (effective bs=8)
-./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --bf16 --batch_size 8 --grad_accum 2
-
-## ─────────────────────────────────────────────────────────
-## IHA (QwenVL_Cached_IHA_LoRA)
-## ─────────────────────────────────────────────────────────
-
-## fp16, bs=2 — baseline
-./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001
-
-## fp16, bs=2, grad_accum=2
-./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001 --grad_accum 2
-
-## bf16, bs=2
-./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001 --bf16
-
-## bf16, bs=4
-./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001 --bf16 --batch_size 4
 
 ## bf16, bs=2, grad_accum=2
 ./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001 --bf16 --grad_accum 2
+
+## bf16, bs=2, grad_accum=4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001 --bf16 --grad_accum 4
+
+## bf16, bs=1, grad_accum=2
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001 --bf16 --batch_size 1 --grad_accum 2
+
+## bf16, bs=1, grad_accum=4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001 --bf16 --batch_size 1 --grad_accum 4
 
 ## ─────────────────────────────────────────────────────────
 ## SynIB -- perturb random
 ## ─────────────────────────────────────────────────────────
 
-## fp16, bs=2 — baseline
-./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1
+## bf16, bs=2, grad_accum=2
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1 --bf16 --grad_accum 2
 
-## fp16, bs=2, grad_accum=2
-./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1 --grad_accum 2
+## bf16, bs=2, grad_accum=4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1 --bf16 --grad_accum 4
 
-## bf16, bs=2
-./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1 --bf16
+## bf16, bs=1, grad_accum=2
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1 --bf16 --batch_size 1 --grad_accum 2
 
-## bf16, bs=4
-./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1 --bf16 --batch_size 4
+## bf16, bs=1, grad_accum=4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1 --bf16 --batch_size 1 --grad_accum 4
 
 ## ─────────────────────────────────────────────────────────
 ## SynIB -- perturb learned
 ## ─────────────────────────────────────────────────────────
 
-## fp16, bs=2 — baseline
-./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1
+## bf16, bs=2, grad_accum=2
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1 --bf16 --grad_accum 2
 
-## fp16, bs=2, grad_accum=2
-./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1 --grad_accum 2
+## bf16, bs=2, grad_accum=4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1 --bf16 --grad_accum 4
 
-## bf16, bs=2
-./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1 --bf16
+## bf16, bs=1, grad_accum=2
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1 --bf16 --batch_size 1 --grad_accum 2
 
-## bf16, bs=4
-./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1 --bf16 --batch_size 4
+## bf16, bs=1, grad_accum=4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1 --bf16 --batch_size 1 --grad_accum 4
