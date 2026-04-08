@@ -10,26 +10,11 @@
 ## JOINT (QwenVL_Cached + LoRA)
 ## ─────────────────────────────────────────────────────────
 
-## fp16, bs=2 — baseline after dtype fix
-./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0
-
-## fp16, bs=2, grad_accum=2 (effective bs=4 for optimizer)
-./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --grad_accum 2
-
-## fp16, bs=4 — if fp16 fits well at bs=2
-./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --batch_size 4
-
-## bf16, bs=2
-./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --bf16
-
-## bf16, bs=4
-./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --bf16 --batch_size 4
-
 ## bf16, bs=8
 ./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --bf16 --batch_size 8
 
 ## bf16, bs=4, grad_accum=2 (effective bs=8)
-./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --bf16 --batch_size 4 --grad_accum 2
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --bf16 --batch_size 8 --grad_accum 2
 
 ## ─────────────────────────────────────────────────────────
 ## IHA (QwenVL_Cached_IHA_LoRA)

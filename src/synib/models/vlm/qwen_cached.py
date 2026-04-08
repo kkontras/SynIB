@@ -239,9 +239,10 @@ class _QwenVL_CachedCombinedImpl(nn.Module):
         elif "visual_pos_masks" in proc:
             image_mask = proc["visual_pos_masks"].to(device)
         # vision_embeds = proc["vision_embeds"].to(device)
-        input_embeds = proc["input_embeds"].to(device)
+        _bdtype = next(self.backbone.parameters()).dtype
+        input_embeds = proc["input_embeds"].to(device=device, dtype=_bdtype)
         position_ids = proc["position_ids"].to(device)
-        deep_stack_viz = proc["deepstack_visual_embeds"].to(device)
+        deep_stack_viz = proc["deepstack_visual_embeds"].to(device=device, dtype=_bdtype)
 
         # position_ids = position_ids.permute(1, 0, 2)
 
@@ -611,9 +612,10 @@ class _QwenVL_CachedTextImpl(nn.Module):
         elif "visual_pos_masks" in proc:
             image_mask = proc["visual_pos_masks"].to(device)
         # vision_embeds = proc["vision_embeds"].to(device)
-        input_embeds = proc["input_embeds"].to(device)
+        _bdtype = next(self.backbone.parameters()).dtype
+        input_embeds = proc["input_embeds"].to(device=device, dtype=_bdtype)
         position_ids = proc["position_ids"].to(device)
-        deep_stack_viz = proc["deepstack_visual_embeds"].to(device)
+        deep_stack_viz = proc["deepstack_visual_embeds"].to(device=device, dtype=_bdtype)
 
         # position_ids = position_ids.permute(1, 0, 2)
 
@@ -994,9 +996,10 @@ class _QwenVL_CachedImageImpl(nn.Module):
         elif "visual_pos_masks" in proc:
             image_mask = proc["visual_pos_masks"].to(device)
         # vision_embeds = proc["vision_embeds"].to(device)
-        input_embeds = proc["input_embeds"].to(device)
+        _bdtype = next(self.backbone.parameters()).dtype
+        input_embeds = proc["input_embeds"].to(device=device, dtype=_bdtype)
         position_ids = proc["position_ids"].to(device)
-        deep_stack_viz = proc["deepstack_visual_embeds"].to(device)
+        deep_stack_viz = proc["deepstack_visual_embeds"].to(device=device, dtype=_bdtype)
 
         # position_ids = position_ids.permute(1, 0, 2)
 
@@ -1382,9 +1385,10 @@ class _QwenVL_CachedSynIBImpl(nn.Module):
         elif "visual_pos_masks" in proc:
             image_mask = proc["visual_pos_masks"].to(device)
         # vision_embeds = proc["vision_embeds"].to(device)
-        input_embeds = proc["input_embeds"].to(device)
+        _bdtype = next(self.backbone.parameters()).dtype
+        input_embeds = proc["input_embeds"].to(device=device, dtype=_bdtype)
         position_ids = proc["position_ids"].to(device)
-        deep_stack_viz = proc["deepstack_visual_embeds"][0].to(device)
+        deep_stack_viz = proc["deepstack_visual_embeds"][0].to(device=device, dtype=_bdtype)
 
         # position_ids = position_ids.permute(1, 0, 2)
 
@@ -1546,9 +1550,10 @@ class _QwenVL_CachedSynIBImpl(nn.Module):
         elif "visual_pos_masks" in proc:
             image_mask = proc["visual_pos_masks"].to(device)
         # vision_embeds = proc["vision_embeds"].to(device)
-        input_embeds = proc["input_embeds"].to(device)
+        _bdtype = next(self.backbone.parameters()).dtype
+        input_embeds = proc["input_embeds"].to(device=device, dtype=_bdtype)
         position_ids = proc["position_ids"].to(device)
-        deep_stack_viz = proc["deepstack_visual_embeds"].to(device)
+        deep_stack_viz = proc["deepstack_visual_embeds"].to(device=device, dtype=_bdtype)
 
         # position_ids = position_ids.permute(1, 0, 2)
 
@@ -1978,9 +1983,10 @@ class _QwenVL_CachedMCRImpl(nn.Module):
         elif "visual_pos_masks" in proc:
             image_mask = proc["visual_pos_masks"].to(device)
         # vision_embeds = proc["vision_embeds"].to(device)
-        input_embeds = proc["input_embeds"].to(device)
+        _bdtype = next(self.backbone.parameters()).dtype
+        input_embeds = proc["input_embeds"].to(device=device, dtype=_bdtype)
         position_ids = proc["position_ids"].to(device)
-        deep_stack_viz = proc["deepstack_visual_embeds"].to(device)
+        deep_stack_viz = proc["deepstack_visual_embeds"].to(device=device, dtype=_bdtype)
 
         # position_ids = position_ids.permute(1, 0, 2)
 
@@ -2353,9 +2359,10 @@ class _QwenVL_CachedMMParetoImpl(nn.Module):
         elif "visual_pos_masks" in proc:
             image_mask = proc["visual_pos_masks"].to(device)
         # vision_embeds = proc["vision_embeds"].to(device)
-        input_embeds = proc["input_embeds"].to(device)
+        _bdtype = next(self.backbone.parameters()).dtype
+        input_embeds = proc["input_embeds"].to(device=device, dtype=_bdtype)
         position_ids = proc["position_ids"].to(device)
-        deep_stack_viz = proc["deepstack_visual_embeds"].to(device)
+        deep_stack_viz = proc["deepstack_visual_embeds"].to(device=device, dtype=_bdtype)
 
         # position_ids = position_ids.permute(1, 0, 2)
 
@@ -2635,9 +2642,10 @@ class QwenVL_Cached_SynIB(_QwenVL_CachedSynIBImpl):
             image_mask = proc["image_mask"].to(device)
         elif "visual_pos_masks" in proc:
             image_mask = proc["visual_pos_masks"].to(device)
-        input_embeds = proc["input_embeds"].to(device)
+        _bdtype = next(self.backbone.parameters()).dtype
+        input_embeds = proc["input_embeds"].to(device=device, dtype=_bdtype)
         position_ids = proc["position_ids"].to(device)
-        deep_stack_viz = proc["deepstack_visual_embeds"].to(device)
+        deep_stack_viz = proc["deepstack_visual_embeds"].to(device=device, dtype=_bdtype)
         deep_stack_viz = [deep_stack_viz[i] for i in range(len(deep_stack_viz))]
 
         m1 = proc.get("hint_mask", None)
