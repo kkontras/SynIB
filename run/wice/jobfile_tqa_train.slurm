@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
 #SBATCH --time=72:00:00
-#SBATCH --cluster=wice
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=12
@@ -10,17 +7,18 @@ set -euo pipefail
 #SBATCH --mem=100G
 #SBATCH --partition=dedicated_big_gpu
 #SBATCH --open-mode=append
-#SBATCH --output=/scratch/leuven/350/vsc35057/projects/SynIB/condor_logs/logs_wice/slurmout_%J.txt
-#SBATCH --error=/scratch/leuven/350/vsc35057/projects/SynIB/condor_logs/logs_wice/slurmerr_%J.txt
+#SBATCH --output=/scratch/leuven/350/vsc35057/projects/SynIB/condor_logs/logs_mindwell/slurmout_%J.txt
+#SBATCH --error=/scratch/leuven/350/vsc35057/projects/SynIB/condor_logs/logs_mindwell/slurmerr_%J.txt
+set -euo pipefail
 
 PROJECT_ROOT="${PROJECT_ROOT:-/scratch/leuven/350/vsc35057/projects/SynIB}"
-ENV_PATH="${ENV_PATH:-/data/leuven/350/vsc35057/synib_env}"
+ENV_PATH="${ENV_PATH:-/data/leuven/350/vsc35057/synergy_new}"
 RUN_SCRIPT="${RUN_SCRIPT:-./run/tqa/train_wice.sh}"
 JOB_ARGS="${JOB_ARGS:-}"
 GPU="${GPU:-0}"
 
 cd "${PROJECT_ROOT}"
-mkdir -p ./condor_logs/logs_wice
+mkdir -p ./condor_logs/logs_mindwell
 
 module load CUDA/11.3.1
 module load cuDNN/8.2.1.32-CUDA-11.3.1

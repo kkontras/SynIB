@@ -32,6 +32,7 @@ submit_job() {
   local job_args="$2"
   echo "Submitting: ${run_script} ${job_args}"
   sbatch -A "${WICE_ACCOUNT}" \
+    -M wice \
     --export=GPU="${GPU}",PROJECT_ROOT="${PROJECT_ROOT}",ENV_PATH="${ENV_PATH}",RUN_SCRIPT="${run_script}",JOB_ARGS="${job_args}" \
     ./run/wice/jobfile_tqa_b200.slurm
 }
