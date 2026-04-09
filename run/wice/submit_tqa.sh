@@ -109,7 +109,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --)
       shift
-      while [[ $# -gt 0 && "$1" != ":::" ]]; do
+      while [[ $# -gt 0 && "$1" != ":::s" ]]; do
         current_args+=("$1")
         shift
       done
