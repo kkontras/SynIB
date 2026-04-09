@@ -3,9 +3,9 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=12
-#SBATCH -G 1
+#SBATCH --gpus-per-node=1
 #SBATCH --mem=100G
-#SBATCH --partition=dedicated_big_gpu
+#SBATCH --partition=gpu_h100
 #SBATCH --open-mode=append
 #SBATCH --output=/scratch/leuven/350/vsc35057/projects/SynIB/condor_logs/logs_mindwell/slurmout_%J.txt
 #SBATCH --error=/scratch/leuven/350/vsc35057/projects/SynIB/condor_logs/logs_mindwell/slurmerr_%J.txt

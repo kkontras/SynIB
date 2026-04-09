@@ -10,7 +10,7 @@ cd "${ROOT_DIR}"
 GPU="${GPU:-0}"
 PROJECT_ROOT="${PROJECT_ROOT:-/scratch/leuven/350/vsc35057/projects/SynIB}"
 ENV_PATH="${ENV_PATH:-/scratch/leuven/350/vsc35057/synergy_new}"
-WICE_ACCOUNT="${WICE_ACCOUNT:-lp_big_wice_gpu}"
+WICE_ACCOUNT="${WICE_ACCOUNT:-lp_biomed_mdv}"
 RUN_SCRIPT_DEFAULT="./run/tqa/train_wice.sh"
 
 usage() {
