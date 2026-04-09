@@ -14,7 +14,7 @@
 set -euo pipefail
 
 PROJECT_ROOT="${PROJECT_ROOT:-/scratch/leuven/350/vsc35057/projects/SynIB}"
-ENV_PATH="${ENV_PATH:-/data/leuven/350/vsc35057/synergy_new}"
+ENV_PATH="${ENV_PATH:-/scratch/leuven/350/vsc35057/synergy_new}"
 RUN_SCRIPT="${RUN_SCRIPT:-./run/tqa/train_wice_b200.sh}"
 JOB_ARGS="${JOB_ARGS:-}"
 GPU="${GPU:-0}"
@@ -22,8 +22,8 @@ GPU="${GPU:-0}"
 cd "${PROJECT_ROOT}"
 mkdir -p ./condor_logs/logs_mindwell
 
-module load CUDA/11.3.1
-module load cuDNN/8.2.1.32-CUDA-11.3.1
+module load CUDA/12.6.0
+module load cuDNN/9.10.2.21-CUDA-12.6.0
 
 source /data/leuven/350/vsc35057/anaconda3/etc/profile.d/conda.sh
 conda activate "${ENV_PATH}"
