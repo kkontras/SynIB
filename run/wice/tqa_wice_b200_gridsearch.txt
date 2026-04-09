@@ -1,0 +1,18 @@
+## TQA WICE B200 -- IHA + LoRA gridsearch (lr x iha_lr)
+## effective batch size = 2 x grad_accum 2 = 4
+./run/tqa/train_wice_b200.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.005
+./run/tqa/train_wice_b200.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001
+./run/tqa/train_wice_b200.sh :: iha --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.005
+./run/tqa/train_wice_b200.sh :: iha --fold 0 --validate_with accuracy --lr 0.0005 --wd 0.0 --iha_init identity --iha_layers all --iha_lr 0.001
+
+## TQA WICE B200 -- SynIB Random (mask) gridsearch (pmin x l)
+./run/tqa/train_wice_b200.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 0.1
+./run/tqa/train_wice_b200.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 1.0
+./run/tqa/train_wice_b200.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1
+./run/tqa/train_wice_b200.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 1.0
+
+## TQA WICE B200 -- SynIB Learned (rand) gridsearch (lsparse x l)
+./run/tqa/train_wice_b200.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1  --l 0.1
+./run/tqa/train_wice_b200.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1  --l 1.0
+./run/tqa/train_wice_b200.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 1.0  --l 0.1
+./run/tqa/train_wice_b200.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 1.0  --l 1.0
