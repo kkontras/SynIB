@@ -1,0 +1,31 @@
+## TQA Tier1 -- SynIB hyperparameter sweep
+## Config: bf16, bs=1, grad_accum=4 (effective bs=4)
+## Fixed: lr=0.0001, wd=0.0, fold=0, validate_with=accuracy
+
+## ─────────────────────────────────────────────────────────
+## SynIB -- perturb random  (pmin x l)
+## ─────────────────────────────────────────────────────────
+
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 0.01 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 0.1 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.3 --l 1.0 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.01 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 0.1 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.5 --l 1.0 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.7 --l 0.01 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.7 --l 0.1 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb random --perturb_fill ema --perturb_pmin 0.7 --l 1.0 --bf16 --batch_size 1 --grad_accum 4
+
+## ─────────────────────────────────────────────────────────
+## SynIB -- perturb learned  (lsparse x l)
+## ─────────────────────────────────────────────────────────
+
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.01 --l 0.01 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.01 --l 0.1 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.01 --l 1.0 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.01 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 0.1 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 0.1 --l 1.0 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 1.0 --l 0.01 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 1.0 --l 0.1 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: synib --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --perturb learned --perturb_fill ema --perturb_lsparse 1.0 --l 1.0 --bf16 --batch_size 1 --grad_accum 4
