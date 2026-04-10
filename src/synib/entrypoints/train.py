@@ -238,6 +238,19 @@ def main(config_path, default_config_path, args):
         config.training_params.gradient_accumulation_steps = int(args.grad_accum)
         m += "_ga{}".format(args.grad_accum)
 
+    # ── LoRA config injection ──
+    if getattr(args, "lora_r", None) is not None:
+        if not hasattr(config.model.args, "lora_config"):
+            config.model.args.lora_config = {}
+        config.model.args.lora_config["lora_r"] = int(args.lora_r)
+        config.model.args.lora_config["lora_alpha"] = int(args.lora_r) * 2
+        m += "_r{}".format(args.lora_r)
+    if getattr(args, "lora_lr", None) is not None:
+        if not hasattr(config.model.args, "lora_config"):
+            config.model.args.lora_config = {}
+        config.model.args.lora_config["lora_lr"] = float(args.lora_lr)
+        m += "_loralr{}".format(args.lora_lr)
+
     config.model.save_dir = config.model.save_dir.format(m)
 
     if enc_m != "":
@@ -313,6 +326,10 @@ parser.add_argument('--bf16', action='store_true', default=False,
                     help="Load backbone in bfloat16 instead of float16")
 parser.add_argument('--grad_accum', required=False, type=int, default=None,
                     help="Gradient accumulation steps (1 = no accumulation)")
+parser.add_argument('--lora_r', required=False, type=int, default=None,
+                    help="LoRA rank (lora_alpha set to 2*lora_r automatically)")
+parser.add_argument('--lora_lr', required=False, type=float, default=None,
+                    help="Separate learning rate for LoRA parameters")
 
 parser.set_defaults(pre=False)
 parser.set_defaults(start_over=False)

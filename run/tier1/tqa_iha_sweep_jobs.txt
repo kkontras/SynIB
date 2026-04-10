@@ -1,0 +1,47 @@
+## TQA Tier1 -- IHA hyperparameter sweep
+## Config: bf16, bs=1, grad_accum=4 (effective bs=4)
+## Fixed: lr=0.0001, wd=0.0, fold=0, validate_with=accuracy, iha_init=identity, iha_layers=all
+## Qwen3-VL-2B: Q heads=16, KV heads=8
+##
+## Axes:
+##   pseudo_heads : 1x (Q=16,KV=8 — same as Qwen) | 2x (Q=32,KV=16 — double Qwen)
+##   iha_lr       : 0.0002 (=lora_lr) | 0.001 | 0.005
+##   lora_r       : 8 | 16 | 32
+##
+## LoRA-only baselines (joint, no IHA) sweep lora_r for direct comparison.
+
+## ─────────────────────────────────────────────────────────
+## LoRA-only baselines (no IHA)  -- lora_r sweep
+## ─────────────────────────────────────────────────────────
+
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --lora_r 8  --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --lora_r 16 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: joint --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --lora_r 32 --bf16 --batch_size 1 --grad_accum 4
+
+## ─────────────────────────────────────────────────────────
+## IHA -- pseudo_heads 1x (Q=16, KV=8)  (iha_lr x lora_r)
+## ─────────────────────────────────────────────────────────
+
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 16 --pseudo_heads_kv 8  --iha_lr 0.0002 --lora_r 8  --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 16 --pseudo_heads_kv 8  --iha_lr 0.0002 --lora_r 16 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 16 --pseudo_heads_kv 8  --iha_lr 0.0002 --lora_r 32 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 16 --pseudo_heads_kv 8  --iha_lr 0.001  --lora_r 8  --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 16 --pseudo_heads_kv 8  --iha_lr 0.001  --lora_r 16 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 16 --pseudo_heads_kv 8  --iha_lr 0.001  --lora_r 32 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 16 --pseudo_heads_kv 8  --iha_lr 0.005  --lora_r 8  --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 16 --pseudo_heads_kv 8  --iha_lr 0.005  --lora_r 16 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 16 --pseudo_heads_kv 8  --iha_lr 0.005  --lora_r 32 --bf16 --batch_size 1 --grad_accum 4
+
+## ─────────────────────────────────────────────────────────
+## IHA -- pseudo_heads 2x (Q=32, KV=16)  (iha_lr x lora_r)
+## ─────────────────────────────────────────────────────────
+
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 32 --pseudo_heads_kv 16 --iha_lr 0.0002 --lora_r 8  --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 32 --pseudo_heads_kv 16 --iha_lr 0.0002 --lora_r 16 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 32 --pseudo_heads_kv 16 --iha_lr 0.0002 --lora_r 32 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 32 --pseudo_heads_kv 16 --iha_lr 0.001  --lora_r 8  --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 32 --pseudo_heads_kv 16 --iha_lr 0.001  --lora_r 16 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 32 --pseudo_heads_kv 16 --iha_lr 0.001  --lora_r 32 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 32 --pseudo_heads_kv 16 --iha_lr 0.005  --lora_r 8  --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 32 --pseudo_heads_kv 16 --iha_lr 0.005  --lora_r 16 --bf16 --batch_size 1 --grad_accum 4
+./run/tqa/train_tier1.sh :: iha --fold 0 --validate_with accuracy --lr 0.0001 --wd 0.0 --iha_init identity --iha_layers all --pseudo_heads_q 32 --pseudo_heads_kv 16 --iha_lr 0.005  --lora_r 32 --bf16 --batch_size 1 --grad_accum 4
