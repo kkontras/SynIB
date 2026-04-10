@@ -1637,7 +1637,7 @@ class _QwenVL_CachedSynIBImpl(nn.Module):
         for i in range(len(proc["deepstack_visual_embeds"])):
             self.synib.z2_deepstack_stats[i].ema_update(proc["deepstack_visual_embeds"][i])
 
-        if self.args.get("perturb", {}).get("type", "rand") == "rand":
+        if self.args.get("perturb", {}).get("type", "rand") in ("rand", "random"):
             m1t, m2t = self.synib._random_masks(m1, m2, True, True, **kwargs)
         elif self.args.get("perturb", {}).get("type", "rand") == "learned":
             m1t, m2t = self.synib._learned_masks(m1, m2, True, True, proc={"input_ids":input_ids, "position_ids":position_ids, "input_embeds":input_embeds, "image_mask":image_mask, "deep_stack_viz":deep_stack_viz, "attention_mask":attention_mask}, **kwargs)
@@ -2663,7 +2663,7 @@ class QwenVL_Cached_SynIB(_QwenVL_CachedSynIBImpl):
         perturb_type = self.args.get("perturb", {}).get("type", "rand") if isinstance(self.args, dict) else getattr(self.args, "perturb", {}).get("type", "rand")
         m1forw, m2forw = self.synib._random_masks_randomp(m1, m2, True, True)
 
-        if perturb_type == "rand":
+        if perturb_type in ("rand", "random"):
             this_embed_1 = input_embeds.clone()
             this_embed_1[m2] = self.synib.z2_stats.noise_like(input_embeds[m2], 1.0).to(this_embed_1.dtype)
             deep_stack_viz_pass1 = [self.synib.z2_deepstack_stats[di].noise_like(deep_stack_viz[di], 1.0).to(deep_stack_viz[di].dtype) for di in range(len(deep_stack_viz))]
