@@ -1,0 +1,73 @@
+{
+  "dataset": {
+    "cache_root": "./data/HatefulMemes/cache_clip_b16_deberta_base"
+  },
+  "model": {
+    "model_class": "FusionIBModel_Mask",
+    "args": {
+      "d_model": 512,
+      "num_classes": 2,
+      "fc_inner": 128,
+      "dropout": 0.1,
+      "cls_type": "tf",
+      "fusion_layers": 4,
+      "clip_grad": false,
+      "perturb": {
+        "type": "rand",
+        "p": 0.5,
+        "p_min": 0.3,
+        "p_max": 0.7,
+        "num_samples": 1,
+        "fill": "ema",
+        "noise_std": 1.0,
+        "steps": 5,
+        "lr": 0.1,
+        "tau": 1.0,
+        "lsparse": 1.0
+      },
+      "synergy_type": "gaussian",
+      "bias_infusion": {
+        "method": "false",
+        "l": 0.0,
+        "starting_epoch": 0,
+        "ending_epoch": 1500,
+        "use": false,
+        "plot": false
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 1,
+          "c": 0,
+          "g": 0
+        }
+      }
+    },
+    "load_ongoing": false,
+    "save_dir": "HM_SmallSmart_DeBERTa_{}.pth.tar",
+    "encoders": [
+      {
+        "model": "HFTextEncoder",
+        "args": {
+          "modality_key": 0,
+          "native_dim": 768,
+          "d_model": 512,
+          "num_classes": 2,
+          "live_encode": false,
+          "ckpt": "microsoft/deberta-v3-base",
+          "text_kind": "encoder"
+        }
+      },
+      {
+        "model": "CLIPVisionEncoder",
+        "args": {
+          "modality_key": 1,
+          "native_dim": 768,
+          "d_model": 512,
+          "num_classes": 2,
+          "live_encode": false,
+          "ckpt": "openai/clip-vit-base-patch16"
+        }
+      }
+    ]
+  }
+}

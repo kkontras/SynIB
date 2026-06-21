@@ -1,0 +1,27 @@
+# Runtime dependencies for SynIB (curated to what the code imports).
+# Versions reflect the tested environment; relax the pins if needed.
+# For a CUDA build of torch, install from the appropriate PyTorch index (https://pytorch.org).
+
+torch==2.9.1
+torchvision==0.24.1
+torchaudio==2.9.1
+torchmetrics==1.8.2
+transformers==4.57.1
+accelerate==1.11.0
+peft==0.18.0
+pytorch-metric-learning==2.9.0
+numpy==1.26.4
+scipy==1.15.3
+scikit-learn==1.7.2
+matplotlib==3.10.7
+h5py==3.15.1
+librosa==0.11.0
+opencv-python==4.12.0.88
+pillow==12.0.0
+easydict==1.13
+colorama==0.4.6
+tqdm==4.67.1
+wandb==0.23.0
+openTSNE==1.0.4
+fannypack
+gdown==5.2.1

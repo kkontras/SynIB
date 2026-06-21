@@ -1,0 +1,31 @@
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+.env
+.idea/
+.vscode/
+.mypy_cache/
+.pytest_cache/
+*.pth.tar
+*.pt
+*.log
+outputs/
+wandb/
+artifacts/
+lightning_logs/
+.DS_Store
+
+# Local data root (placeholder used by configs: ./data/...)
+/data/
+/checkpoints/
+
+# Large prepared / raw dataset features.
+# Rebuilt with run/multibench/download_and_build_cache.sh and run/hateful_memes/build_cache.sh.
+src/synib/mydatasets/Factor_CL_Datasets/prepared/
+src/synib/mydatasets/Factor_CL_Datasets/raw/
+src/synib/mydatasets/HatefulMemes/cache*/
+src/synib/mydatasets/Irony_Cremad/raw/
+
+# Planning docs
+*.docx

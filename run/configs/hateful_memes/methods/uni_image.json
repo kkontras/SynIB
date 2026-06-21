@@ -1,0 +1,18 @@
+{
+  "model": {
+    "args": {
+      "bias_infusion": {
+        "method": "false",
+        "l": 0.0,
+        "use": false
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 0,
+          "c": 0,
+          "g": 1
+        }
+      }
+    }
+  }
+}

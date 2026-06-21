@@ -1,0 +1,41 @@
+{
+  "model": {
+    "model_class": "FusionIBModel_Mask_U",
+    "ceu": {
+      "val": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_val_small_tf_deberta.pkl",
+      "test": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_test_small_tf_deberta.pkl"
+    },
+    "args": {
+      "synergy_type": "unimodal_anchor",
+      "anchor_unimodal": true,
+      "bias_infusion": {
+        "method": "false",
+        "l": 0.1,
+        "starting_epoch": 0,
+        "ending_epoch": 1500,
+        "use": true,
+        "plot": false
+      },
+      "perturb": {
+        "type": "rand",
+        "p": 0.5,
+        "p_min": 0.3,
+        "p_max": 0.7,
+        "fill": "ema",
+        "noise_std": 1.0,
+        "num_samples": 1,
+        "steps": 5,
+        "lr": 0.1,
+        "tau": 1.0,
+        "lsparse": 1.0
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 1,
+          "c": 0,
+          "g": 0
+        }
+      }
+    }
+  }
+}

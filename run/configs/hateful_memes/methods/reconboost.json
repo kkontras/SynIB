@@ -1,0 +1,35 @@
+{
+  "model": {
+    "model_class": "Base_Model",
+    "save_dir": "HM_ReconBoost_{}.pth.tar",
+    "ceu": {
+      "val": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_val_small_tf_deberta.pkl",
+      "test": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_test_small_tf_deberta.pkl"
+    },
+    "args": {
+      "cls_type": "tf",
+      "fusion_layers": 2,
+      "shared_pred": true,
+      "bias_infusion": {
+        "method": "ReconBoost",
+        "use": true,
+        "starting_epoch": 0,
+        "ending_epoch": 1500,
+        "alpha": 0.8,
+        "weight1": 5.0,
+        "weight2": 1.0,
+        "epoch_stages": 4,
+        "ensemble_stages": 4,
+        "use_ga": true,
+        "plot": false
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 1,
+          "c": 1,
+          "g": 1
+        }
+      }
+    }
+  }
+}

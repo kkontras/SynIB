@@ -1,0 +1,56 @@
+{
+  "training_params": {
+    "batch_size": 32,
+    "test_batch_size": 64,
+    "wandb_disable": true
+  },
+  "early_stopping": {
+    "max_epoch": 10,
+    "validate_every": 100,
+    "save_every_valstep": 3,
+    "n_steps_stop": 5
+  },
+  "model": {
+    "model_class": "FusionIBModel_Mask",
+    "ceu": {
+      "val": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_val_small_tf_deberta.pkl",
+      "test": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_test_small_tf_deberta.pkl"
+    },
+    "args": {
+      "synib_masking_only": true,
+      "synib_use_random_ce": true,
+      "synib_use_learnable_kl": false,
+      "synergy_type": "gaussian",
+      "bias_infusion": {
+        "method": "false",
+        "l": 1.0,
+        "starting_epoch": 0,
+        "ending_epoch": 1500,
+        "use": true,
+        "plot": false
+      },
+      "perturb": {
+        "type": "rand",
+        "p": 0.5,
+        "p_min": 0.3,
+        "p_max": 0.7,
+        "fill": "ema",
+        "noise_std": 1.0,
+        "num_samples": 1
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 1,
+          "c": 0,
+          "g": 0,
+          "randmask0": 1,
+          "randmask1": 1,
+          "randmask01": 0,
+          "mask0": 0,
+          "mask1": 0,
+          "mask01": 0
+        }
+      }
+    }
+  }
+}

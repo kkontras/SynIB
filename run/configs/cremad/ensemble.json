@@ -1,0 +1,59 @@
+{
+  "training_params": {
+    "batch_size": 32,
+    "test_batch_size": 32
+  },
+  "early_stopping": {
+    "max_epoch": 0
+  },
+  "dataset": {
+    "norm": false,
+    "return_data": {
+      "video": true,
+      "spectrogram": true,
+      "audio": false,
+      "face": false
+    },
+    "sampling_rate": 22050,
+    "data_split": {
+      "fold": 0
+    }
+  },
+  "model": {
+    "model_class": "Base_Ensemble_Model",
+    "args": {
+      "d_model": 512,
+      "num_classes": 7,
+      "fc_inner": 64,
+      "dropout": 0.1,
+      "shared_pred": true,
+      "cls_type": "linear",
+      "norm_decision": "standardization",
+      "clip_grad": false,
+      "bias_infusion": {
+        "method": false
+      },
+    "multi_loss": {
+      "multi_supervised_w": {
+        "combined": 1,
+        "c": 0,
+        "g": 0
+      }
+    }
+    },
+    "ceu": {"val": "./artifacts/ceus/cremad/cremadplus_ceu_val_res_{}.pkl", "test": "./artifacts/ceus/cremad/cremadplus_ceu_test_res_{}.pkl"},
+    "load_ongoing": false,
+    "save_dir": "ens_{}.pth.tar",
+    "encoders": [
+      {
+        "model": "Audio_ResNet",
+        "args": { "d_model": 512, "num_classes": 7, "fc_inner": 64, "dropout": 0.1, "freeze_encoder": false},
+        "pretrainedEncoder": {"use": true, "dir": "unimodal_audio_fold{}_lr0.001_wd0.0001_clsmlp_bs64.pth.tar"}
+      },
+      {
+        "model": "Video_ResNet",
+        "args": {"d_model": 512, "num_classes": 7, "fc_inner": 64, "dropout": 0.1, "freeze_encoder": false},
+        "pretrainedEncoder": {"use": true, "dir": "unimodal_video_fold{}_lr0.0001_wd0.0001_clsmlp_bs64.pth.tar"}}
+    ]
+  }
+}

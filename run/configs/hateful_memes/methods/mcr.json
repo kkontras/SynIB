@@ -1,0 +1,38 @@
+{
+  "model": {
+    "model_class": "MCR_Model",
+    "save_dir": "HM_MCR_{}.pth.tar",
+    "ceu": {
+      "val": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_val_small_tf_deberta.pkl",
+      "test": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_test_small_tf_deberta.pkl"
+    },
+    "args": {
+      "cls_type": "tf",
+      "fusion_layers": 2,
+      "shufflegradmulti": true,
+      "bias_infusion": {
+        "method": "MCR",
+        "use": true,
+        "starting_epoch": 0,
+        "ending_epoch": 1500,
+        "regby": "greedy",
+        "num_samples": 32,
+        "shuffle": true,
+        "shuffle_type": "rand",
+        "l": 0.1,
+        "lib": 0,
+        "contr_coeff": 1,
+        "contr_type": "label",
+        "temperature": 0.5,
+        "plot": false
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 1,
+          "c": 1,
+          "g": 1
+        }
+      }
+    }
+  }
+}

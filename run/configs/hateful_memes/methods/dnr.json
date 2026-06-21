@@ -1,0 +1,34 @@
+{
+  "model": {
+    "model_class": "Base_Model",
+    "save_dir": "HM_DnR_{}.pth.tar",
+    "ceu": {
+      "val": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_val_small_tf_deberta.pkl",
+      "test": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_test_small_tf_deberta.pkl"
+    },
+    "args": {
+      "cls_type": "tf",
+      "fusion_layers": 2,
+      "shared_pred": true,
+      "bias_infusion": {
+        "method": "DnR",
+        "use": true,
+        "starting_epoch": 0,
+        "ending_epoch": 1500,
+        "reinit_epoch": 5,
+        "kmepoch": 2,
+        "epoch_stages": 1,
+        "n_classes": 6,
+        "alpha": 1.0,
+        "plot": false
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 1,
+          "c": 1,
+          "g": 1
+        }
+      }
+    }
+  }
+}

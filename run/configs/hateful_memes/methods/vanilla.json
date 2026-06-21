@@ -1,0 +1,22 @@
+{
+  "model": {
+    "ceu": {
+      "val": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_val_small_tf_deberta.pkl",
+      "test": "artifacts/ceus/hatefulmemes/hatefulmemes_ceu_test_small_tf_deberta.pkl"
+    },
+    "args": {
+      "bias_infusion": {
+        "method": "false",
+        "l": 0.0,
+        "use": false
+      },
+      "multi_loss": {
+        "multi_supervised_w": {
+          "combined": 1,
+          "c": 0,
+          "g": 0
+        }
+      }
+    }
+  }
+}
