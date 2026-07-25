@@ -1,0 +1,15 @@
+{
+  "tag": "rotated_full_tanh",
+  "rotation": "full",
+  "rot_seed": 0,
+  "nonlinearity": "tanh",
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["vanilla", "mrand", "mlearned"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 1.0,
+  "epochs": 30,
+  "mask_diag": false,
+  "destroy_fix": true,
+  "note": "Nonlinear entanglement arm: x <- tanh(Qx) applied after block construction, before standardization. Invertible, but not absorbable by any linear layer; the unimodal support becomes a curved manifold. Strongest version of the reviewer's disentanglement concern."
+}

@@ -1,0 +1,15 @@
+{
+  "tag": "rotated_full_fixed_steps100",
+  "rotation": "full",
+  "rot_seed": 0,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["mlearned"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 0.0,
+  "mask_steps": 100,
+  "epochs": 30,
+  "mask_diag": false,
+  "destroy_fix": true,
+  "note": "TUNED inner-loop-budget arm under full rotation: with no axis-aligned support to find, a localization-capable adversary should degrade toward random-mask-like behavior (the paper's claimed fallback)."
+}

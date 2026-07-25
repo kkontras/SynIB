@@ -1,0 +1,14 @@
+{
+  "tag": "rotated_partial_fixed",
+  "rotation": "partial",
+  "rot_seed": 0,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["vanilla", "mrand", "mlearned"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 1.0,
+  "epochs": 30,
+  "mask_diag": false,
+  "destroy_fix": true,
+  "note": "Intermediate entanglement: block-diagonal rotation within random pairs of blocks, real masking."
+}

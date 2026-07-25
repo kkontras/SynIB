@@ -1,0 +1,13 @@
+{
+  "tag": "identity",
+  "rotation": "identity",
+  "rot_seed": 0,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["vanilla", "mstar", "mrand", "mlearned"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 1.0,
+  "epochs": 30,
+  "mask_diag": true,
+  "note": "Sanity arm: must reproduce paper Fig. 8 (S acc 0.50/0.91/0.87/0.89) within seed noise. mask_diag drives Experiment 2."
+}

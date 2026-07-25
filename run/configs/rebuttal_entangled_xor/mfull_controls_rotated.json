@@ -1,0 +1,14 @@
+{
+  "tag": "rotated_full_fixed",
+  "rotation": "full",
+  "rot_seed": 0,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["mfull"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 1.0,
+  "epochs": 30,
+  "mask_diag": false,
+  "destroy_fix": true,
+  "note": "Destroy-all control on the rotated arm."
+}

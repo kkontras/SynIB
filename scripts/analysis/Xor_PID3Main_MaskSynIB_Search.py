@@ -291,6 +291,22 @@ class PID4BlockDataset(Dataset):
                 self.x1[i, b1[MASK_SYN]] = x_s1_full[b1[MASK_SYN]]
                 self.mask0[i, b0[MASK_SYN]] = MASK_SYN
                 self.mask1[i, b1[MASK_SYN]] = MASK_SYN
+
+        # Optional fixed orthogonal rotation (rebuttal entangled-XOR ablation, opt-in).
+        # Applied AFTER block construction and BEFORE standardization. Off unless
+        # cfg.rotation_Q0 / cfg.rotation_Q1 are set (default: absent -> identity).
+        Q0 = getattr(cfg, "rotation_Q0", None)
+        Q1 = getattr(cfg, "rotation_Q1", None)
+        if Q0 is not None:
+            self.x0 = self.x0 @ torch.as_tensor(Q0, dtype=self.x0.dtype).T
+        if Q1 is not None:
+            self.x1 = self.x1 @ torch.as_tensor(Q1, dtype=self.x1.dtype).T
+        # Optional elementwise nonlinearity after rotation (invertible mixing that
+        # no linear layer can absorb). Off unless cfg.rotation_nonlinearity is set.
+        if getattr(cfg, "rotation_nonlinearity", None) == "tanh":
+            self.x0 = torch.tanh(self.x0)
+            self.x1 = torch.tanh(self.x1)
+
         self.stats = self._normalize(split, train_stats)
 
         # -------------------- print distribution (one-liners) --------------------

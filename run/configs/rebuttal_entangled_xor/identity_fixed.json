@@ -1,0 +1,14 @@
+{
+  "tag": "identity_fixed",
+  "rotation": "identity",
+  "rot_seed": 0,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["vanilla", "mstar", "mrand", "mlearned"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 1.0,
+  "epochs": 30,
+  "mask_diag": true,
+  "destroy_fix": true,
+  "note": "Identity arm with the destroy_block no-op FIXED (block_list [1] instead of int 1): mrand/mlearned counterfactuals actually corrupt the input. New baseline for the rotation comparison. mask_diag drives Experiment 2 on a mask that actually trains the model."
+}

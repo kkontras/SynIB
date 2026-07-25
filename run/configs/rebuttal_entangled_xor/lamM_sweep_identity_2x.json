@@ -1,0 +1,14 @@
+{
+  "tag": "identity_fixed_lam20",
+  "rotation": "identity",
+  "rot_seed": 0,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["mlearned"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 2.0,
+  "epochs": 30,
+  "mask_diag": true,
+  "destroy_fix": true,
+  "note": "TUNED arm (pre-registered contingency): mild lambda_M sweep, 2x paper value. Reported separately from the headline table."
+}

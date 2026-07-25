@@ -1,0 +1,14 @@
+{
+  "tag": "rotated_full_klonly",
+  "rotation": "full",
+  "rot_seed": 0,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["mrand"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 1.0,
+  "epochs": 30,
+  "mask_diag": false,
+  "destroy_fix": false,
+  "note": "Reference arm: the paper's as-published code path (destroy_block no-op) under full rotation = KL-to-uniform on INTACT inputs (confidence penalty, no masking). mrand and mlearned are computationally identical on this path, so only mrand is run."
+}

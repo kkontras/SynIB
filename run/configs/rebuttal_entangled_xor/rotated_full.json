@@ -1,0 +1,14 @@
+{
+  "tag": "rotated_full_fixed",
+  "rotation": "full",
+  "rot_seed": 0,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["vanilla", "mrand", "mlearned", "mstar_srcbasis"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 1.0,
+  "epochs": 30,
+  "mask_diag": false,
+  "destroy_fix": true,
+  "note": "Full random orthogonal rotation per modality (Q from seeded QR), applied after block construction, before standardization. destroy_fix=true so masking is real. mstar_srcbasis = oracle masking in the pre-rotation source basis (upper reference); no axis-aligned oracle exists in the input basis."
+}
