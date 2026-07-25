@@ -84,6 +84,10 @@ class Validator_Tester():
                 output_losses.update({i: output["losses"][i] for i in output["losses"]})
             output_losses.update({"total": total_loss})
 
+            # reference-ablation diagnostics: logged/averaged like losses but excluded from total
+            if "diag" in output:
+                output_losses.update({k: v.detach() for k, v in output["diag"].items()})
+
             for i in output["preds"]:  output["preds"][i] =  output["preds"][i].detach()
 
             process_flag = False

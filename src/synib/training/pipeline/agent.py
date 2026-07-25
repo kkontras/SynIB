@@ -64,6 +64,19 @@ class Agent():
         self.initialize_logs()
         self.get_loss()
 
+        # --- rebuttal reference ablation: fixed empirical class prior from the train split ---
+        if (self.config.model.args.get("reference_type", None) == "class_prior"
+                and self.config.model.args.get("class_prior", None) is None):
+            from synib.utils.data.class_prior import compute_class_prior
+            prior, counts = compute_class_prior(self.data_loader.train_loader,
+                                                int(self.config.model.args.num_classes))
+            self.config.model.args.class_prior = [float(p) for p in prior]
+            if self.accelerator.is_main_process:
+                self.logger.info("class_prior counts={} prior={}".format(
+                    [int(c) for c in counts], [round(float(p), 4) for p in prior]))
+            # re-seed so the label sweep leaves the RNG stream identical to other arms
+            deterministic(self.config.training_params.seed)
+
         self.mem_loader = Loader(agent = self)
         self.monitor_n_saver = Monitor_n_Save(agent = self)
         self.trainer = Trainer(agent = self)

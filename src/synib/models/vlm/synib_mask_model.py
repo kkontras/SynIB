@@ -1105,6 +1105,20 @@ class SynIB(nn.Module):
         kl = F.kl_div(p_masked, p_target, reduction="batchmean") * self._branch_weight(name)
         return {name: kl}
 
+    def _kl_to_reference(self, pred_masked, ref_probs, name):
+        """Categorical KL(q_masked ‖ r) against an explicit reference distribution r.
+
+        Used by the rebuttal reference ablation (`model.args.reference_type`);
+        r is computed by the parent model (uniform / class_prior / unimodal_anchor)
+        and is always gradient-free."""
+        ref_probs = ref_probs.detach()
+        if ref_probs.shape[0] != pred_masked.shape[0]:
+            reps = pred_masked.shape[0] // ref_probs.shape[0]
+            ref_probs = ref_probs.repeat(reps, 1)
+        p_masked = F.log_softmax(pred_masked, dim=-1)
+        kl = F.kl_div(p_masked, ref_probs, reduction="batchmean") * self._branch_weight(name)
+        return {name: kl}
+
     def ce_losses(self, base_output, **kwargs):
         loss = {}
         for k, pred in base_output["preds"].items():
@@ -1199,6 +1213,29 @@ class FusionIBModel_Mask(nn.Module):
 
         self.synib = SynIB(args, [], main=self)
 
+        # --- rebuttal reference ablation: reference distribution r in the masked-pred KL ---
+        # reference_type None keeps the legacy behavior (synergy_type-driven) bit-exact.
+        self.reference_type = _cfg(args, "reference_type", None)
+        if self.reference_type not in (None, "uniform", "class_prior", "unimodal_anchor", "anchor_legacy"):
+            raise ValueError("Unknown reference_type: {}".format(self.reference_type))
+        self.ref_diag = bool(_cfg(args, "ref_diag", False))
+        ref_init = _cfg(args, "ref_anchor_init", {}) or {}
+        if self.reference_type == "class_prior":
+            cp = _cfg(args, "class_prior", None)
+            if cp is None:
+                raise ValueError("reference_type=class_prior requires model.args.class_prior "
+                                 "(train-split label frequencies, set by the agent at startup)")
+            cp = torch.as_tensor(list(cp), dtype=torch.float32)
+            self.register_buffer("ref_class_prior", (cp / cp.sum()).clamp_min(1e-8))
+        if self.reference_type == "unimodal_anchor":
+            self.ref_ema_decay = float(_cfg(args, "ref_ema_decay", 0.99))
+            self.ref_enc_0 = self._make_ref_copy(self.enc_0, ref_init, "enc_0")
+            self.ref_enc_1 = self._make_ref_copy(self.enc_1, ref_init, "enc_1")
+        if self.ref_diag:
+            # frozen-at-init unimodal snapshots for the diagnostic KL — identical across arms
+            self.diag_enc_0 = self._make_ref_copy(self.enc_0, ref_init, "enc_0")
+            self.diag_enc_1 = self._make_ref_copy(self.enc_1, ref_init, "enc_1")
+
         # --- wire mask-snapshot directory, if save_masks flag is on ---
         if self.synib.save_masks_flag:
             import os as _os
@@ -1207,6 +1244,79 @@ class FusionIBModel_Mask(nn.Module):
             _slug = _os.path.splitext(_os.path.basename(str(_sd)))[0]
             _slug = _slug.replace(".pth.tar", "").replace(".pth", "") or "run"
             self.synib._save_mask_dir = _os.path.join("./mask_snapshots", _slug)
+
+    # -------------------------
+    # rebuttal reference ablation helpers
+    # -------------------------
+    def _make_ref_copy(self, enc, init_cfg, key):
+        """Detached deep copy of a modality encoder, optionally re-initialized from a
+        trained unimodal checkpoint (`ref_anchor_init: {enc_0: path, enc_1: path}` —
+        needed on Hateful Memes where the live unimodal heads are never trained)."""
+        ref = copy.deepcopy(enc)
+        path = init_cfg.get(key) if isinstance(init_cfg, dict) else None
+        if path:
+            base = _cfg(self.args, "save_base_dir", None)
+            import os as _os
+            if base and not _os.path.isabs(str(path)):
+                path = _os.path.join(str(base), str(path))
+            ck = torch.load(path, map_location="cpu", weights_only=False)
+            sd = None
+            for k in ("best_model_accuracy_state_dict", "best_model_state_dict", "model_state_dict"):
+                if isinstance(ck, dict) and k in ck:
+                    sd = ck[k]
+                    break
+            if sd is None:
+                sd = ck
+            prefix = key + "."
+            sub = {k[len(prefix):]: v for k, v in sd.items() if k.startswith(prefix)}
+            missing, unexpected = ref.load_state_dict(sub, strict=False)
+            print("[ref_ablation] anchor init {} <- {} ({} keys, missing={}, unexpected={})".format(
+                key, path, len(sub), len(missing), len(unexpected)), flush=True)
+        for p in ref.parameters():
+            p.requires_grad_(False)
+        ref.eval()
+        return ref
+
+    @torch.no_grad()
+    def _ref_ema_update(self):
+        d = self.ref_ema_decay
+        for ref, live in ((self.ref_enc_0, self.enc_0), (self.ref_enc_1, self.enc_1)):
+            for p_ref, p_live in zip(ref.parameters(), live.parameters()):
+                p_ref.lerp_(p_live.detach(), 1.0 - d)
+            for b_ref, b_live in zip(ref.buffers(), live.buffers()):
+                if b_ref.dtype.is_floating_point:
+                    b_ref.lerp_(b_live.detach(), 1.0 - d)
+                else:
+                    b_ref.copy_(b_live)
+
+    @torch.no_grad()
+    def _ref_uni_logits(self, enc, x):
+        """Gradient-free unimodal prediction from a frozen/EMA encoder copy.
+        Forced to eval() so BN/dropout in copies never drift from ref forwards."""
+        enc.eval()
+        return _as_tensor_preds(enc(x, detach_pred=True))
+
+    def _reference_probs(self, x, uni_pred_1, uni_pred_2):
+        """Per-branch reference r. Branch '_1' has z2 masked → the complementary
+        (unmasked) modality is 1, so r₁ comes from modality-1's unimodal model,
+        per App. H.5 / the rebuttal decomposition. `anchor_legacy` reproduces the
+        released code's direction (masked modality's own clean prediction)."""
+        rt = self.reference_type
+        B, K = uni_pred_1.shape[0], self.num_classes
+        dev = uni_pred_1.device
+        if rt == "uniform":
+            r = torch.full((B, K), 1.0 / K, device=dev)
+            return r, r
+        if rt == "class_prior":
+            r = self.ref_class_prior.to(dev).unsqueeze(0).expand(B, K)
+            return r, r
+        if rt == "unimodal_anchor":
+            p1 = self._ref_uni_logits(self.ref_enc_0, x)
+            p2 = self._ref_uni_logits(self.ref_enc_1, x)
+            return F.softmax(p1, dim=-1), F.softmax(p2, dim=-1)
+        if rt == "anchor_legacy":
+            return F.softmax(uni_pred_2.detach(), dim=-1), F.softmax(uni_pred_1.detach(), dim=-1)
+        raise ValueError("reference_type is None — _reference_probs should not be called")
 
     # -------------------------
     # original interfaces kept
@@ -1262,6 +1372,9 @@ class FusionIBModel_Mask(nn.Module):
         }
 
     def _base_forward_synib(self, x, **kwargs):
+        # captured at entry: get_learnable_mask_multiclass() resets the model to train()
+        # in its finally clause, so self.training is unreliable later in this method
+        _was_training = self.training
         uni_pred_1, uni_pred_2, z1, z2, na_z1, na_z2 = self._get_features(x, **kwargs)
         # --- modality dropout also applies on the SynIB forward path ---
         mdrop = float(_cfg(self.args, "modality_dropout", 0.0) or 0.0)
@@ -1294,6 +1407,14 @@ class FusionIBModel_Mask(nn.Module):
 
         losses = {}
 
+        # --- rebuttal reference ablation: explicit reference r overrides the legacy KL target ---
+        use_ref = self.reference_type is not None
+        ref1 = ref2 = None
+        if use_ref and not masking_only:
+            if self.training and self.reference_type == "unimodal_anchor":
+                self._ref_ema_update()
+            ref1, ref2 = self._reference_probs(x, uni_pred_1, uni_pred_2)
+
         if use_rand:
             feat_tilde_random = self.synib.get_random_mask_multiclass(features)
             pred_randmask0, feat_randmask0 = self._compute_logits(feat_tilde_random["z1K"], feat_tilde_random["tz2K"], feat_tilde_random["na_z1K"], feat_tilde_random["na_tz2K"], att_mask1=feat_tilde_random["mask1"], att_mask2=None)
@@ -1305,7 +1426,10 @@ class FusionIBModel_Mask(nn.Module):
             # synib_loss contribution = l * (KL_rand_1 + l_pareto * KL_rand_2)
             # (scaling is applied inside _kl_pass / _kl_unimodal_anchor via _branch_weight.)
             if not masking_only:
-                if self.synib.anchor_to_unimodal:
+                if use_ref:
+                    losses["kl_synergy_rand_1"] = self.synib._kl_to_reference(pred_randmask0, ref1, name="kl_synergy_rand_1")["kl_synergy_rand_1"]
+                    losses["kl_synergy_rand_2"] = self.synib._kl_to_reference(pred_randmask1, ref2, name="kl_synergy_rand_2")["kl_synergy_rand_2"]
+                elif self.synib.anchor_to_unimodal:
                     losses["kl_synergy_rand_1"] = self.synib._kl_unimodal_anchor(pred_randmask0, uni_pred_2, name="kl_synergy_rand_1")["kl_synergy_rand_1"]
                     losses["kl_synergy_rand_2"] = self.synib._kl_unimodal_anchor(pred_randmask1, uni_pred_1, name="kl_synergy_rand_2")["kl_synergy_rand_2"]
                 else:
@@ -1322,12 +1446,34 @@ class FusionIBModel_Mask(nn.Module):
             # KL penalty on learnable-mask fused predictions.
             # Same outer scaling as the rand branch: l * (KL_1 + l_pareto * KL_2).
             if not masking_only:
-                if self.synib.anchor_to_unimodal:
+                if use_ref:
+                    losses.update(self.synib._kl_to_reference(pred_mask0, ref1, name="kl_synergy_1"))
+                    losses.update(self.synib._kl_to_reference(pred_mask1, ref2, name="kl_synergy_2"))
+                elif self.synib.anchor_to_unimodal:
                     losses.update(self.synib._kl_unimodal_anchor(pred_mask0, uni_pred_2, name="kl_synergy_1"))
                     losses.update(self.synib._kl_unimodal_anchor(pred_mask1, uni_pred_1, name="kl_synergy_2"))
                 else:
                     losses.update(self.synib._kl_pass(feat_mask0, pred_mask0, name="kl_synergy_1", **kwargs))
                     losses.update(self.synib._kl_pass(feat_mask1, pred_mask1, name="kl_synergy_2", **kwargs))
+
+        # --- rebuttal reference ablation: diagnostic KL to frozen unimodal snapshots ---
+        # E[D_KL(q(·|x̃_i, x_{-i}) ‖ p̂(·|x_{-i}))] with p̂ frozen at init; computed at eval
+        # time only, identically for ALL reference types (it does not depend on which r trains).
+        diag = None
+        if self.ref_diag and (not _was_training) and use_rand:
+            with torch.no_grad():
+                d1 = self._ref_uni_logits(self.diag_enc_0, x)
+                d2 = self._ref_uni_logits(self.diag_enc_1, x)
+
+                def _diag_kl(pred_masked, tgt_logits):
+                    t = F.softmax(tgt_logits, dim=-1)
+                    if t.shape[0] != pred_masked.shape[0]:
+                        t = t.repeat(pred_masked.shape[0] // t.shape[0], 1)
+                    return F.kl_div(F.log_softmax(pred_masked, dim=-1), t, reduction="batchmean")
+
+                # branch _1: z2 masked, remaining modality 1 → p̂(·|x₁); branch _2 symmetric
+                diag = {"diag_kl_1": _diag_kl(pred_randmask0, d1),
+                        "diag_kl_2": _diag_kl(pred_randmask1, d2)}
 
         # --- diagnostic logging: CF accuracies + entropies + unimodal accs ---
         if debug_mask_stats and self.training:
@@ -1387,11 +1533,14 @@ class FusionIBModel_Mask(nn.Module):
                                   diag["diag/acc_mask0"],  # mask0 = z1 clean, z2 masked
                                   diag.get("diag/acc_uni2_on_learned_mask", float('nan'))), flush=True)
 
-        return {
+        out = {
             "preds": preds,
             "features": features,
             "losses": losses,
         }
+        if diag is not None:
+            out["diag"] = diag
+        return out
 
     def forward(self, x, **kwargs):
 

@@ -214,6 +214,22 @@ def main(config_path, default_config_path, args):
     if getattr(args, "masking_only", False):
         config.model.args.synib_masking_only = True
         m += "_maskonly"
+    # --- rebuttal reference ablation ---
+    if getattr(args, "reference_type", None) is not None:
+        config.model.args.reference_type = args.reference_type
+        m += "_ref{}".format(args.reference_type)
+    if getattr(args, "ref_diag", False):
+        config.model.args.ref_diag = True
+    if getattr(args, "ref_ema_decay", None) is not None:
+        config.model.args.ref_ema_decay = float(args.ref_ema_decay)
+        m += "_refema{}".format(args.ref_ema_decay)
+    # per-fold anchor-init checkpoint selection: '{}' in ref_anchor_init paths is filled
+    # from ref_anchor_seeds[fold] (HM: trained unimodal heads exist per seed, not per fold)
+    if ("ref_anchor_init" in config.model.args and args.fold is not None
+            and config.model.args.get("ref_anchor_seeds", None) is not None):
+        _tok = str(config.model.args.ref_anchor_seeds[int(args.fold)])
+        for _k in list(config.model.args.ref_anchor_init.keys()):
+            config.model.args.ref_anchor_init[_k] = str(config.model.args.ref_anchor_init[_k]).format(_tok)
     if getattr(args, "modality_dropout", None) is not None and float(args.modality_dropout) > 0:
         config.model.args.modality_dropout = float(args.modality_dropout)
         m += "_mdrop{}".format(args.modality_dropout)
@@ -429,6 +445,18 @@ parser.add_argument('--l_pareto', required=False, type=float, default=None,
                          "l_pareto < 1 up-weights the text-destroyed branch. "
                          "Sets l_z2_masked = l and l_z1_masked = l * l_pareto. "
                          "Ignored if --l_z1_masked or --l_z2_masked is given explicitly.")
+parser.add_argument('--reference_type', required=False, default=None,
+                    choices=["uniform", "class_prior", "unimodal_anchor", "anchor_legacy"],
+                    help="Rebuttal reference ablation: reference distribution r in the masked-pred KL. "
+                         "'uniform' = 1/K; 'class_prior' = fixed empirical train-label frequencies; "
+                         "'unimodal_anchor' = EMA copy of the COMPLEMENTARY (unmasked) modality's unimodal "
+                         "model (per App. H.5); 'anchor_legacy' = released-code direction (masked modality's "
+                         "own clean prediction, live head). Default None = legacy synergy_type behavior.")
+parser.add_argument('--ref_diag', action='store_true', default=False,
+                    help="Log the reference-ablation diagnostic KL to frozen unimodal snapshots at every "
+                         "validation pass (keys diag_kl_1/diag_kl_2 in val/test logs).")
+parser.add_argument('--ref_ema_decay', required=False, type=float, default=None,
+                    help="EMA decay for the unimodal_anchor reference copies (default 0.99).")
 parser.add_argument('--tag', required=False, default=None,
                     help="Prefix tag added to save_dir and wandb run name for this sweep.")
 
