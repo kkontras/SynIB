@@ -1,0 +1,203 @@
+Starting SynIB reference-ablation job
+Python 3.12.12
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB  (git 9191f76)
+GPU 0: NVIDIA GeForce RTX 3090 (UUID: GPU-97601f5c-9e32-f178-e4a8-b5517f10d8de)
+Executing: PYTHONPATH=src /esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/bin/python -m synib.entrypoints.train --config run/configs/rebuttal_ref_ablation/cremad_synib_u.json --default_config run/configs/rebuttal_ref_ablation/cremad_default.json --fold 2 --ironic_rate 0.5 --rmask random --l 1.0 --perturb_pmin 0.20 --perturb_fill ema --reference_type unimodal_anchor --ref_diag --start_over --tag REFABL_cremad
+Namespace(config='run/configs/rebuttal_ref_ablation/cremad_synib_u.json', default_config='run/configs/rebuttal_ref_ablation/cremad_default.json', fold='2', alpha=None, tanh_mode_beta=None, regby=None, batch_size=None, l='1.0', multil=None, lib=None, kmepoch=None, num_samples=None, contrcoeff=None, contr_type=None, shuffle_type=None, validate_with=None, num_classes=None, optim_method=None, ending_epoch=None, load_ongoing=None, recon_weight1=None, recon_weight2=None, recon_epochstages=None, recon_ensemblestages=None, lr=None, wd=None, cls=None, ironic_rate='0.5', perturb='random', perturb_fill='ema', perturb_pmax=None, perturb_pmin='0.20', perturb_lsparse=None, rmask='random', pmin=None, pmax=None, lsparse=None, debug_mask_stats=False, pre=False, frozen=False, tdqm_disable=False, start_over=True, no_model_save=False, num_layers=None, grad_accum=None, init_from=None, init_strict=False, perturb_lsparse_sign=None, l_anneal_epochs=None, perturb_steps=None, perturb_lsparse_warmup=None, perturb_lsparse_schedule=None, persist_ell=False, save_masks=False, penalty_swap=False, disable_ce_random=False, disable_kl_learned=False, masking_only=False, modality_dropout=None, modality_dropout_target=None, l_z1_masked=None, l_z2_masked=None, l_pareto=None, reference_type='unimodal_anchor', ref_diag=True, ref_ema_decay=None, tag='REFABL_cremad')
+2026-07-25 19:02:38,131 - Config - INFO - run/configs/rebuttal_ref_ablation/cremad_synib_u.json
+2026-07-25 19:02:38,134 - Config - INFO -  THE Configuration of your experiment ..
+{'agent': 'Agent',
+ 'dataset': {'data_roots': './data/CremaD/CREMA-D',
+             'data_split': {'fold': 0, 'method': 'non_inclusive'},
+             'dataloader_class': 'IronyCremadDataloader',
+             'fps': 1,
+             'ironic_label_name': 'SARCASM',
+             'ironic_modes': ['train', 'val', 'test'],
+             'ironic_rate': 1.0,
+             'norm': False,
+             'norm_face_path': './src/synib/mydatasets/Irony_Cremad/assets/norms/norm_face_path_fold{}.pkl',
+             'norm_wav_path': './src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold{}.pkl',
+             'num_frame': 3,
+             'return_data': {'audio': False,
+                             'face': False,
+                             'spectrogram': True,
+                             'video': True},
+             'sampling_rate': 22050},
+ 'early_stopping': {'end_of_epoch_check': True,
+                    'log_interval': 10,
+                    'max_epoch': 1500,
+                    'n_steps_stop': 30,
+                    'n_steps_stop_after': 0,
+                    'save_every_step': 3000,
+                    'save_every_valstep': 10,
+                    'validate_after': 0,
+                    'validate_every': 25,
+                    'validate_with': 'accuracy'},
+ 'exp_name': 'CREMAD Experiment',
+ 'model': {'args': {'bias_infusion': {'contrcoeff': 0.0, 'l': 1.0},
+                    'cls_type': 'mlp',
+                    'd_model': 512,
+                    'dropout': 0.1,
+                    'fc_inner': 64,
+                    'in_dim': 64,
+                    'multi_loss': {'multi_supervised_w': {'c': 1,
+                                                          'combined': 1,
+                                                          'g': 1}},
+                    'norm_decision': False,
+                    'num_classes': 7,
+                    'synergy_type': 'unimodal_anchor'},
+           'ceu': {'test': './artifacts/ceus/cremad/cremadplus_ceu_test_res_{}.pkl',
+                   'val': './artifacts/ceus/cremad/cremadplus_ceu_val_res_{}.pkl'},
+           'encoders': [{'args': {'d_model': 512,
+                                  'dropout': 0.1,
+                                  'fc_inner': 64,
+                                  'freeze_encoder': False,
+                                  'num_classes': 7},
+                         'model': 'Audio_ResNet',
+                         'name': 'enc_0_modality1_encoder',
+                         'pretrainedEncoder': {'dir': 'unimodal_audio_fold{}_ir1.0_lr0.001_wd0.0001_clsmlp_bs64.pth.tar',
+                                               'use': True},
+                         'save_encoder': False},
+                        {'args': {'d_model': 512,
+                                  'dropout': 0.1,
+                                  'fc_inner': 64,
+                                  'freeze_encoder': False,
+                                  'num_classes': 7},
+                         'model': 'Video_ResNet',
+                         'name': 'enc_1_modality2_encoder',
+                         'pretrainedEncoder': {'dir': 'unimodal_video_fold{}_ir1.0_lr0.0001_wd0.0001_clsmlp_bs64.pth.tar',
+                                               'use': True},
+                         'save_encoder': False},
+                        {'args': {'d_model': 512,
+                                  'dropout': 0.1,
+                                  'fc_inner': 64,
+                                  'freeze_encoder': False},
+                         'model': 'FusionTrunkLinear',
+                         'name': 'enc_2_fusion_trunk',
+                         'pretrainedEncoder': {'dir': 'enc_2_fusion_trunk_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False},
+                        {'args': {'freeze_encoder': False,
+                                  'in_dim': 64,
+                                  'num_classes': 7},
+                         'model': 'LinearHead',
+                         'name': 'enc_3_fusion_head',
+                         'pretrainedEncoder': {'dir': 'enc_3_fusion_head_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False},
+                        {'args': {'dropout': 0.1,
+                                  'freeze_encoder': False,
+                                  'hidden_dim': 64,
+                                  'in_dim': 512,
+                                  'num_classes': 7},
+                         'model': 'MLPHead',
+                         'name': 'enc_4_unimodal_head_1',
+                         'pretrainedEncoder': {'dir': 'enc_4_unimodal1_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False},
+                        {'args': {'dropout': 0.1,
+                                  'freeze_encoder': False,
+                                  'hidden_dim': 64,
+                                  'in_dim': 512,
+                                  'num_classes': 7},
+                         'model': 'MLPHead',
+                         'name': 'enc_5_unimodal_head_2',
+                         'pretrainedEncoder': {'dir': 'enc_5_unimodal2_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False}],
+           'load_ongoing': False,
+           'model_class': 'FusionIBModel_Mask_U',
+           'save_base_dir': './data/data/2025_data/synergy/CremadPlus/v2',
+           'save_dir': 'SynIB_RMask_U_{}.pth.tar'},
+ 'optimizer': {'beta1': 0.9,
+               'beta2': 0.999,
+               'learning_rate': 1e-05,
+               'momentum': 0.9,
+               'type': 'Adam',
+               'weight_decay': 1e-05},
+ 'scheduler': {'max_lr': 0.03, 'type': 'cosanneal', 'warm_up_steps': 780},
+ 'training_params': {'async_loading': True,
+                     'batch_size': 128,
+                     'cuda': True,
+                     'data_loader_workers': 8,
+                     'gpu_device': [0],
+                     'pin_memory': False,
+                     'rec_test': True,
+                     'res': True,
+                     'seed': 109,
+                     'tdqm_disable': False,
+                     'test_batch_size': 128,
+                     'test_on_bottoms': True,
+                     'use_test_set': True,
+                     'validation': True,
+                     'verbose': True,
+                     'wandb_disable': False}}
+2026-07-25 19:02:38,137 - Config - INFO -  *************************************** 
+2026-07-25 19:02:38,138 - Config - INFO - The experiment name is CREMAD Experiment
+2026-07-25 19:02:38,138 - Config - INFO -  *************************************** 
+2026-07-25 19:02:38,138 - root - INFO - save_dir: SynIB_RMask_U_REFABL_cremad_fold2_l1.0_ir0.5_perturbrandom_fillema_pmin0.20_refunimodal_anchor.pth.tar
+2026-07-25 19:02:38,267 - Cuda Statistics - INFO - __Python VERSION:  3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:16:04) [GCC 11.2.0]
+2026-07-25 19:02:38,267 - Cuda Statistics - INFO - __pyTorch VERSION:  2.7.1+cu118
+2026-07-25 19:02:38,267 - Cuda Statistics - INFO - __CUDA VERSION
+2026-07-25 19:02:38,269 - Cuda Statistics - INFO - __CUDNN VERSION:  90100
+2026-07-25 19:02:38,312 - Cuda Statistics - INFO - __Number CUDA Devices:  1
+2026-07-25 19:02:38,312 - Cuda Statistics - INFO - __Devices
+2026-07-25 19:02:38,312 - Cuda Statistics - INFO - index, name, driver_version, memory.total [MiB], memory.used [MiB], memory.free [MiB]
+2026-07-25 19:02:38,312 - Cuda Statistics - INFO - 0, NVIDIA GeForce RTX 3090, 610.43.03, 24576 MiB, 4 MiB, 24120 MiB
+2026-07-25 19:02:38,315 - Cuda Statistics - INFO - Active CUDA Device: GPU 0
+2026-07-25 19:02:38,315 - Cuda Statistics - INFO - Available devices  1
+2026-07-25 19:02:38,316 - Cuda Statistics - INFO - Current cuda device  0
+2026-07-25 19:02:38,694 - IronyCremadDataset - INFO - Loaded wav norm from ./src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold2.pkl
+2026-07-25 19:02:38,799 - IronyCremadDataset - INFO - Loaded wav norm from ./src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold2.pkl
+2026-07-25 19:02:38,900 - IronyCremadDataset - INFO - Loaded wav norm from ./src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold2.pkl
+2026-07-25 19:02:38,905 - Agent - INFO - Device: cuda:0
+2026-07-25 19:02:38,905 - Agent - INFO - Total training batches: 32, validate every 25 batches, steps per epoch: 2
+2026-07-25 19:02:39,012 - Agent - INFO - Loss Weights are {'total': 1, 'combined': 1, 'c': 1, 'g': 1}
+2026-07-25 19:02:39,012 - root - INFO - There is no CEU for train
+2026-07-25 19:02:39,013 - root - INFO - There is no CEU for val
+2026-07-25 19:02:39,013 - root - INFO - There is no CEU for test
+{'d_model': 512, 'num_classes': 7, 'fc_inner': 64, 'dropout': 0.1, 'freeze_encoder': False}
+2026-07-25 19:02:39,431 - root - INFO - Loading enc best model state dict from ./data/data/2025_data/synergy/CremadPlus/v2/unimodal_audio_fold2_ir0.5_lr0.001_wd0.0001_clsmlp_bs64.pth.tar
+2026-07-25 19:02:39,935 - root - INFO - Loading enc best model state dict from ./data/data/2025_data/synergy/CremadPlus/v2/unimodal_video_fold2_ir0.5_lr0.0001_wd0.0001_clsmlp_bs64.pth.tar
+2026-07-25 19:02:40,223 - Agent - INFO - Total number of trainable parameters are: 67194431
+2026-07-25 19:02:40,232 - Agent - INFO - Total number of trainable parameters are: 22486563
+2026-07-25 19:04:12,500 - Evaluator - INFO - New best with loss-accuracy-
+2026-07-25 19:04:12,500 - Agent - INFO - [37mVal Epoch 1 step 1 with [31mce_loss_combined : 1.688663 [31mce_loss_c : 1.514320 [31mce_loss_g : 2.155265 [31mkl_synergy_rand_1 : 0.978309 [31mkl_synergy_rand_2 : 1.083885 [31mkl_synergy_1 : 0.979634 [31mkl_synergy_2 : 1.086357 [31mtotal : 5.816848 [31mdiag_kl_1 : 0.971668 [31mdiag_kl_2 : 1.113882 [94mAcc_combined: 45.80 [94mAcc_c: 52.59 [94mAcc_g: 42.35 [92mF1_combined: 38.10 [92mF1_c: 47.31 [92mF1_g: 37.90 [39m
+2026-07-25 19:04:12,516 - Agent - INFO - [37mTest Epoch 1 step 1 with [31mce_loss_combined : 1.706207 [31mce_loss_c : 1.405405 [31mce_loss_g : 2.150953 [31mkl_synergy_rand_1 : 0.946271 [31mkl_synergy_rand_2 : 1.038950 [31mkl_synergy_1 : 0.948542 [31mkl_synergy_2 : 1.037157 [31mtotal : 5.677127 [31mdiag_kl_1 : 0.945295 [31mdiag_kl_2 : 1.061624 [94mAcc_combined: 46.68 [94mAcc_c: 55.14 [94mAcc_g: 39.51 [92mF1_combined: 40.12 [92mF1_c: 49.25 [92mF1_g: 37.63 [39m
+2026-07-25 19:04:13,338 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_fold2_l1.0_ir0.5_perturbrandom_fillema_pmin0.20_refunimodal_anchor.pth.tar[39m
+2026-07-25 19:05:45,621 - Evaluator - INFO - New best with loss-accuracy-
+2026-07-25 19:05:45,622 - Agent - INFO - [37mVal Epoch 2 step 2 with [31mce_loss_combined : 1.479828 [31mce_loss_c : 1.539785 [31mce_loss_g : 2.216262 [31mkl_synergy_rand_1 : 0.860934 [31mkl_synergy_rand_2 : 0.840508 [31mkl_synergy_1 : 0.863046 [31mkl_synergy_2 : 0.852261 [31mtotal : 4.896577 [31mdiag_kl_1 : 0.853299 [31mdiag_kl_2 : 0.893615 [94mAcc_combined: 58.92 [94mAcc_c: 51.67 [94mAcc_g: 41.89 [92mF1_combined: 51.11 [92mF1_c: 46.11 [92mF1_g: 37.05 [39m
+2026-07-25 19:05:45,637 - Agent - INFO - [37mTest Epoch 2 step 2 with [31mce_loss_combined : 1.514701 [31mce_loss_c : 1.437262 [31mce_loss_g : 2.231221 [31mkl_synergy_rand_1 : 0.829686 [31mkl_synergy_rand_2 : 0.817763 [31mkl_synergy_1 : 0.829640 [31mkl_synergy_2 : 0.820845 [31mtotal : 4.812634 [31mdiag_kl_1 : 0.831552 [31mdiag_kl_2 : 0.857086 [94mAcc_combined: 60.71 [94mAcc_c: 52.78 [94mAcc_g: 39.83 [92mF1_combined: 53.57 [92mF1_c: 47.25 [92mF1_g: 38.03 [39m
+2026-07-25 19:05:47,252 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_fold2_l1.0_ir0.5_perturbrandom_fillema_pmin0.20_refunimodal_anchor.pth.tar[39m
+2026-07-25 19:07:24,523 - Evaluator - INFO - New best with loss-accuracy-
+2026-07-25 19:07:24,523 - Agent - INFO - [37mVal Epoch 3 step 3 with [31mce_loss_combined : 1.318447 [31mce_loss_c : 1.550803 [31mce_loss_g : 2.030179 [31mkl_synergy_rand_1 : 0.785924 [31mkl_synergy_rand_2 : 0.691421 [31mkl_synergy_1 : 0.784333 [31mkl_synergy_2 : 0.703580 [31mtotal : 4.283704 [31mdiag_kl_1 : 0.781624 [31mdiag_kl_2 : 0.754047 [94mAcc_combined: 60.64 [94mAcc_c: 51.09 [94mAcc_g: 42.92 [92mF1_combined: 52.90 [92mF1_c: 45.53 [92mF1_g: 39.33 [39m
+2026-07-25 19:07:24,539 - Agent - INFO - [37mTest Epoch 3 step 3 with [31mce_loss_combined : 1.368578 [31mce_loss_c : 1.477766 [31mce_loss_g : 2.043419 [31mkl_synergy_rand_1 : 0.744050 [31mkl_synergy_rand_2 : 0.678777 [31mkl_synergy_1 : 0.740939 [31mkl_synergy_2 : 0.688331 [31mtotal : 4.220675 [31mdiag_kl_1 : 0.750340 [31mdiag_kl_2 : 0.713996 [94mAcc_combined: 61.56 [94mAcc_c: 51.71 [94mAcc_g: 40.26 [92mF1_combined: 54.21 [92mF1_c: 46.49 [92mF1_g: 39.29 [39m
+2026-07-25 19:07:26,542 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_fold2_l1.0_ir0.5_perturbrandom_fillema_pmin0.20_refunimodal_anchor.pth.tar[39m
+2026-07-25 19:09:08,064 - Evaluator - INFO - New best with loss-accuracy-
+2026-07-25 19:09:08,064 - Agent - INFO - [37mVal Epoch 4 step 4 with [31mce_loss_combined : 1.226140 [31mce_loss_c : 1.563287 [31mce_loss_g : 2.043781 [31mkl_synergy_rand_1 : 0.716342 [31mkl_synergy_rand_2 : 0.551118 [31mkl_synergy_1 : 0.716853 [31mkl_synergy_2 : 0.565100 [31mtotal : 3.775552 [31mdiag_kl_1 : 0.731276 [31mdiag_kl_2 : 0.628091 [94mAcc_combined: 62.26 [94mAcc_c: 50.17 [94mAcc_g: 39.36 [92mF1_combined: 54.41 [92mF1_c: 44.58 [92mF1_g: 36.45 [39m
+2026-07-25 19:09:08,080 - Agent - INFO - [37mTest Epoch 4 step 4 with [31mce_loss_combined : 1.276479 [31mce_loss_c : 1.490098 [31mce_loss_g : 2.132923 [31mkl_synergy_rand_1 : 0.683208 [31mkl_synergy_rand_2 : 0.552205 [31mkl_synergy_1 : 0.683163 [31mkl_synergy_2 : 0.565650 [31mtotal : 3.760705 [31mdiag_kl_1 : 0.701167 [31mdiag_kl_2 : 0.612822 [94mAcc_combined: 62.21 [94mAcc_c: 49.79 [94mAcc_g: 36.40 [92mF1_combined: 54.83 [92mF1_c: 44.76 [92mF1_g: 36.50 [39m
+2026-07-25 19:09:09,756 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_fold2_l1.0_ir0.5_perturbrandom_fillema_pmin0.20_refunimodal_anchor.pth.tar[39m
+2026-07-25 19:10:54,152 - Evaluator - INFO - New best with loss-accuracy-
+2026-07-25 19:10:54,153 - Agent - INFO - [37mVal Epoch 5 step 5 with [31mce_loss_combined : 1.168486 [31mce_loss_c : 1.549877 [31mce_loss_g : 1.983466 [31mkl_synergy_rand_1 : 0.657905 [31mkl_synergy_rand_2 : 0.470518 [31mkl_synergy_1 : 0.657095 [31mkl_synergy_2 : 0.483809 [31mtotal : 3.437813 [31mdiag_kl_1 : 0.686603 [31mdiag_kl_2 : 0.568726 [94mAcc_combined: 63.41 [94mAcc_c: 50.06 [94mAcc_g: 36.71 [92mF1_combined: 55.71 [92mF1_c: 44.34 [92mF1_g: 35.40 [39m
+2026-07-25 19:10:54,168 - Agent - INFO - [37mTest Epoch 5 step 5 with [31mce_loss_combined : 1.214791 [31mce_loss_c : 1.494046 [31mce_loss_g : 2.016438 [31mkl_synergy_rand_1 : 0.640682 [31mkl_synergy_rand_2 : 0.479267 [31mkl_synergy_1 : 0.635495 [31mkl_synergy_2 : 0.485733 [31mtotal : 3.455966 [31mdiag_kl_1 : 0.670291 [31mdiag_kl_2 : 0.557845 [94mAcc_combined: 61.46 [94mAcc_c: 49.68 [94mAcc_g: 34.69 [92mF1_combined: 54.63 [92mF1_c: 45.04 [92mF1_g: 35.63 [39m
+2026-07-25 19:10:55,893 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_fold2_l1.0_ir0.5_perturbrandom_fillema_pmin0.20_refunimodal_anchor.pth.tar[39m
+2026-07-25 19:12:31,953 - Evaluator - INFO - New best with loss-
+2026-07-25 19:12:31,953 - Agent - INFO - [37mVal Epoch 6 step 6 with [31mce_loss_combined : 1.147090 [31mce_loss_c : 1.544389 [31mce_loss_g : 1.936680 [31mkl_synergy_rand_1 : 0.612972 [31mkl_synergy_rand_2 : 0.407762 [31mkl_synergy_1 : 0.604390 [31mkl_synergy_2 : 0.422624 [31mtotal : 3.194838 [31mdiag_kl_1 : 0.665736 [31mdiag_kl_2 : 0.545584 [94mAcc_combined: 62.83 [94mAcc_c: 49.83 [94mAcc_g: 34.52 [92mF1_combined: 55.47 [92mF1_c: 44.09 [92mF1_g: 33.07 [39m
+2026-07-25 19:12:31,969 - Agent - INFO - [37mTest Epoch 6 step 6 with [31mce_loss_combined : 1.191064 [31mce_loss_c : 1.491073 [31mce_loss_g : 1.952854 [31mkl_synergy_rand_1 : 0.614721 [31mkl_synergy_rand_2 : 0.424657 [31mkl_synergy_1 : 0.595610 [31mkl_synergy_2 : 0.436916 [31mtotal : 3.262969 [31mdiag_kl_1 : 0.665689 [31mdiag_kl_2 : 0.523651 [94mAcc_combined: 60.92 [94mAcc_c: 49.46 [94mAcc_g: 35.01 [92mF1_combined: 54.51 [92mF1_c: 44.58 [92mF1_g: 35.29 [39m
+2026-07-25 19:12:34,021 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_fold2_l1.0_ir0.5_perturbrandom_fillema_pmin0.20_refunimodal_anchor.pth.tar[39m
+2026-07-25 19:14:18,480 - Evaluator - INFO - New best with loss-
+2026-07-25 19:14:18,481 - Agent - INFO - [37mVal Epoch 7 step 7 with [31mce_loss_combined : 1.132323 [31mce_loss_c : 1.541576 [31mce_loss_g : 1.966147 [31mkl_synergy_rand_1 : 0.572249 [31mkl_synergy_rand_2 : 0.350045 [31mkl_synergy_1 : 0.555487 [31mkl_synergy_2 : 0.369529 [31mtotal : 2.979633 [31mdiag_kl_1 : 0.626633 [31mdiag_kl_2 : 0.521134 [94mAcc_combined: 62.72 [94mAcc_c: 49.60 [94mAcc_g: 29.23 [92mF1_combined: 57.18 [92mF1_c: 43.94 [92mF1_g: 28.64 [39m
+2026-07-25 19:14:18,496 - Agent - INFO - [37mTest Epoch 7 step 7 with [31mce_loss_combined : 1.166988 [31mce_loss_c : 1.499323 [31mce_loss_g : 2.024682 [31mkl_synergy_rand_1 : 0.571567 [31mkl_synergy_rand_2 : 0.364567 [31mkl_synergy_1 : 0.550301 [31mkl_synergy_2 : 0.379541 [31mtotal : 3.032965 [31mdiag_kl_1 : 0.619414 [31mdiag_kl_2 : 0.518145 [94mAcc_combined: 61.78 [94mAcc_c: 49.04 [94mAcc_g: 29.44 [92mF1_combined: 57.28 [92mF1_c: 44.17 [92mF1_g: 29.75 [39m
+2026-07-25 19:14:21,038 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_fold2_l1.0_ir0.5_perturbrandom_fillema_pmin0.20_refunimodal_anchor.pth.tar[39m
+2026-07-25 19:15:55,720 - Agent - INFO - [37mVal Epoch 8 step 8 with [31mce_loss_combined : 1.138480 [31mce_loss_c : 1.538006 [31mce_loss_g : 1.892819 [31mkl_synergy_rand_1 : 0.547192 [31mkl_synergy_rand_2 : 0.329975 [31mkl_synergy_1 : 0.519865 [31mkl_synergy_2 : 0.344220 [31mtotal : 2.879732 [31mdiag_kl_1 : 0.618999 [31mdiag_kl_2 : 0.563488 [94mAcc_combined: 62.37 [94mAcc_c: 49.37 [94mAcc_g: 30.15 [92mF1_combined: 57.38 [92mF1_c: 43.96 [92mF1_g: 29.03 [39m
+2026-07-25 19:15:55,736 - Agent - INFO - [37mTest Epoch 8 step 8 with [31mce_loss_combined : 1.165049 [31mce_loss_c : 1.494977 [31mce_loss_g : 1.919367 [31mkl_synergy_rand_1 : 0.554079 [31mkl_synergy_rand_2 : 0.363648 [31mkl_synergy_1 : 0.524806 [31mkl_synergy_2 : 0.373317 [31mtotal : 2.980899 [31mdiag_kl_1 : 0.618494 [31mdiag_kl_2 : 0.541385 [94mAcc_combined: 62.53 [94mAcc_c: 48.72 [94mAcc_g: 32.12 [92mF1_combined: 58.50 [92mF1_c: 43.88 [92mF1_g: 31.58 [39m
+2026-07-25 19:17:35,059 - Agent - INFO - [37mVal Epoch 9 step 9 with [31mce_loss_combined : 1.139510 [31mce_loss_c : 1.515688 [31mce_loss_g : 1.980294 [31mkl_synergy_rand_1 : 0.491572 [31mkl_synergy_rand_2 : 0.287756 [31mkl_synergy_1 : 0.477326 [31mkl_synergy_2 : 0.304233 [31mtotal : 2.700396 [31mdiag_kl_1 : 0.572855 [31mdiag_kl_2 : 0.538221 [94mAcc_combined: 62.72 [94mAcc_c: 49.48 [94mAcc_g: 25.32 [92mF1_combined: 58.70 [92mF1_c: 44.41 [92mF1_g: 24.02 [39m
+2026-07-25 19:17:35,076 - Agent - INFO - [37mTest Epoch 9 step 9 with [31mce_loss_combined : 1.168525 [31mce_loss_c : 1.493802 [31mce_loss_g : 2.007369 [31mkl_synergy_rand_1 : 0.507920 [31mkl_synergy_rand_2 : 0.315405 [31mkl_synergy_1 : 0.485165 [31mkl_synergy_2 : 0.328023 [31mtotal : 2.805037 [31mdiag_kl_1 : 0.573281 [31mdiag_kl_2 : 0.535909 [94mAcc_combined: 60.60 [94mAcc_c: 49.14 [94mAcc_g: 26.98 [92mF1_combined: 57.22 [92mF1_c: 44.26 [92mF1_g: 26.49 [39m
+2026-07-25 19:19:07,728 - Agent - INFO - [37mVal Epoch 10 step 10 with [31mce_loss_combined : 1.142467 [31mce_loss_c : 1.521281 [31mce_loss_g : 1.982923 [31mkl_synergy_rand_1 : 0.458300 [31mkl_synergy_rand_2 : 0.280647 [31mkl_synergy_1 : 0.450337 [31mkl_synergy_2 : 0.295229 [31mtotal : 2.626981 [31mdiag_kl_1 : 0.548588 [31mdiag_kl_2 : 0.573541 [94mAcc_combined: 61.80 [94mAcc_c: 49.71 [94mAcc_g: 25.55 [92mF1_combined: 58.09 [92mF1_c: 44.72 [92mF1_g: 24.05 [39m
+2026-07-25 19:19:07,744 - Agent - INFO - [37mTest Epoch 10 step 10 with [31mce_loss_combined : 1.168976 [31mce_loss_c : 1.501148 [31mce_loss_g : 1.995702 [31mkl_synergy_rand_1 : 0.482086 [31mkl_synergy_rand_2 : 0.317390 [31mkl_synergy_1 : 0.458024 [31mkl_synergy_2 : 0.326453 [31mtotal : 2.752929 [31mdiag_kl_1 : 0.559792 [31mdiag_kl_2 : 0.556276 [94mAcc_combined: 61.88 [94mAcc_c: 49.25 [94mAcc_g: 26.98 [92mF1_combined: 58.58 [92mF1_c: 44.38 [92mF1_g: 26.23 [39m
+2026-07-25 19:20:45,732 - Agent - INFO - [37mVal Epoch 11 step 11 with [31mce_loss_combined : 1.136388 [31mce_loss_c : 1.508814 [31mce_loss_g : 1.993361 [31mkl_synergy_rand_1 : 0.431826 [31mkl_synergy_rand_2 : 0.284731 [31mkl_synergy_1 : 0.426021 [31mkl_synergy_2 : 0.296653 [31mtotal : 2.575619 [31mdiag_kl_1 : 0.519558 [31mdiag_kl_2 : 0.635586 [94mAcc_combined: 62.60 [94mAcc_c: 50.29 [94mAcc_g: 23.36 [92mF1_combined: 59.30 [92mF1_c: 45.29 [92mF1_g: 22.65 [39m
+2026-07-25 19:20:45,748 - Agent - INFO - [37mTest Epoch 11 step 11 with [31mce_loss_combined : 1.166373 [31mce_loss_c : 1.502402 [31mce_loss_g : 1.977384 [31mkl_synergy_rand_1 : 0.449623 [31mkl_synergy_rand_2 : 0.335208 [31mkl_synergy_1 : 0.433716 [31mkl_synergy_2 : 0.343929 [31mtotal : 2.728849 [31mdiag_kl_1 : 0.525759 [31mdiag_kl_2 : 0.598184 [94mAcc_combined: 63.49 [94mAcc_c: 49.04 [94mAcc_g: 23.88 [92mF1_combined: 60.85 [92mF1_c: 44.30 [92mF1_g: 23.26 [39m
+2026-07-25 19:22:25,003 - Agent - INFO - [37mVal Epoch 12 step 12 with [31mce_loss_combined : 1.157109 [31mce_loss_c : 1.521068 [31mce_loss_g : 2.022013 [31mkl_synergy_rand_1 : 0.408648 [31mkl_synergy_rand_2 : 0.275680 [31mkl_synergy_1 : 0.394989 [31mkl_synergy_2 : 0.291532 [31mtotal : 2.527957 [31mdiag_kl_1 : 0.512562 [31mdiag_kl_2 : 0.631990 [94mAcc_combined: 61.91 [94mAcc_c: 50.06 [94mAcc_g: 23.71 [92mF1_combined: 58.59 [92mF1_c: 45.12 [92mF1_g: 22.40 [39m
+2026-07-25 19:22:25,027 - Agent - INFO - [37mTest Epoch 12 step 12 with [31mce_loss_combined : 1.177626 [31mce_loss_c : 1.504535 [31mce_loss_g : 2.027500 [31mkl_synergy_rand_1 : 0.426685 [31mkl_synergy_rand_2 : 0.316980 [31mkl_synergy_1 : 0.410075 [31mkl_synergy_2 : 0.332266 [31mtotal : 2.663632 [31mdiag_kl_1 : 0.518047 [31mdiag_kl_2 : 0.602758 [94mAcc_combined: 62.42 [94mAcc_c: 49.04 [94mAcc_g: 23.34 [92mF1_combined: 59.67 [92mF1_c: 44.15 [92mF1_g: 22.03 [39m
+2026-07-25 19:24:02,512 - Agent - INFO - [37mVal Epoch 13 step 13 with [31mce_loss_combined : 1.164575 [31mce_loss_c : 1.518159 [31mce_loss_g : 2.043587 [31mkl_synergy_rand_1 : 0.374472 [31mkl_synergy_rand_2 : 0.284207 [31mkl_synergy_1 : 0.373084 [31mkl_synergy_2 : 0.295491 [31mtotal : 2.491829 [31mdiag_kl_1 : 0.473233 [31mdiag_kl_2 : 0.699608 [94mAcc_combined: 61.80 [94mAcc_c: 50.29 [94mAcc_g: 22.55 [92mF1_combined: 59.09 [92mF1_c: 45.40 [92mF1_g: 21.85 [39m
+2026-07-25 19:24:02,532 - Agent - INFO - [37mTest Epoch 13 step 13 with [31mce_loss_combined : 1.174664 [31mce_loss_c : 1.497638 [31mce_loss_g : 2.044373 [31mkl_synergy_rand_1 : 0.385213 [31mkl_synergy_rand_2 : 0.330667 [31mkl_synergy_1 : 0.382817 [31mkl_synergy_2 : 0.349820 [31mtotal : 2.623182 [31mdiag_kl_1 : 0.469982 [31mdiag_kl_2 : 0.659422 [94mAcc_combined: 63.06 [94mAcc_c: 49.57 [94mAcc_g: 22.91 [92mF1_combined: 60.41 [92mF1_c: 44.83 [92mF1_g: 22.00 [39m

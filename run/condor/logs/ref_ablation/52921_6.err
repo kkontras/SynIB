@@ -1,0 +1,37 @@
+Training:   0%|          | 0/32 [00:00<?, ?it/s][37mTraining batch 0/31 steps no improve 0 with ce_loss_combined: 2.055 ce_loss_c: 0.349 ce_loss_g: 0.718 kl_synergy_rand_1: 0.111 kl_synergy_rand_2: 0.113 kl_synergy_1: 0.108 kl_synergy_2: 0.114 total: 3.567 :   0%|          | 0/32 [00:11<?, ?it/s][37mTraining batch 0/31 steps no improve 0 with ce_loss_combined: 2.055 ce_loss_c: 0.349 ce_loss_g: 0.718 kl_synergy_rand_1: 0.111 kl_synergy_rand_2: 0.113 kl_synergy_1: 0.108 kl_synergy_2: 0.114 total: 3.567 :   0%|          | 0/32 [00:11<?, ?it/s][37mTraining batch 0/31 steps no improve 0 with ce_loss_combined: 2.055 ce_loss_c: 0.349 ce_loss_g: 0.718 kl_synergy_rand_1: 0.111 kl_synergy_rand_2: 0.113 kl_synergy_1: 0.108 kl_synergy_2: 0.114 total: 3.567 :   3%|▎         | 1/32 [00:11<06:02, 11.69s/it][37mTraining batch 0/31 steps no improve 0 with ce_loss_combined: 2.055 ce_loss_c: 0.349 ce_loss_g: 0.718 kl_synergy_rand_1: 0.111 kl_synergy_rand_2: 0.113 kl_synergy_1: 0.108 kl_synergy_2: 0.114 total: 3.567 :   3%|▎         | 1/32 [00:12<06:16, 12.14s/it]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/train.py", line 493, in <module>
+    cli()
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/train.py", line 489, in cli
+    main(config_path=args.config, default_config_path=args.default_config, args=args)
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/train.py", line 335, in main
+    agent.run()
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/training/pipeline/agent.py", line 157, in run
+    self.trainer.train_steps()
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/training/pipeline/helpers/Trainer.py", line 79, in train_steps
+    step_outcome, optstep_done = self.this_train_step_func(served_dict)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/training/pipeline/helpers/Trainer.py", line 128, in train_one_step
+    output = self.agent.model(data, label=label, return_features=True, current_step=self.agent.logs["current_step"], current_epoch=self.agent.logs["current_epoch"])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/vlm/synib_mask_model.py", line 1553, in forward
+    output = self._base_forward_synib(x, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/vlm/synib_mask_model.py", line 1378, in _base_forward_synib
+    uni_pred_1, uni_pred_2, z1, z2, na_z1, na_z2 = self._get_features(x, **kwargs)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/vlm/synib_mask_model.py", line 1335, in _get_features
+    na_z2 = F.layer_norm(na_z2, (na_z2.shape[-1],))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/functional.py", line 2910, in layer_norm
+    return torch.layer_norm(
+           ^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 38.00 MiB. GPU 0 has a total capacity of 11.63 GiB of which 38.81 MiB is free. Including non-PyTorch memory, this process has 11.58 GiB memory in use. Of the allocated memory 11.15 GiB is allocated by PyTorch, and 133.26 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

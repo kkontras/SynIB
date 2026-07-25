@@ -1,0 +1,70 @@
+Training:   0%|          | 0/32 [00:00<?, ?it/s]Training:   0%|          | 0/32 [00:04<?, ?it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/train.py", line 493, in <module>
+    cli()
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/train.py", line 489, in cli
+    main(config_path=args.config, default_config_path=args.default_config, args=args)
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/train.py", line 335, in main
+    agent.run()
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/training/pipeline/agent.py", line 157, in run
+    self.trainer.train_steps()
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/training/pipeline/helpers/Trainer.py", line 79, in train_steps
+    step_outcome, optstep_done = self.this_train_step_func(served_dict)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/training/pipeline/helpers/Trainer.py", line 128, in train_one_step
+    output = self.agent.model(data, label=label, return_features=True, current_step=self.agent.logs["current_step"], current_epoch=self.agent.logs["current_epoch"])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/vlm/synib_mask_model.py", line 1553, in forward
+    output = self._base_forward_synib(x, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/vlm/synib_mask_model.py", line 1416, in _base_forward_synib
+    ref1, ref2 = self._reference_probs(x, uni_pred_1, uni_pred_2)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/vlm/synib_mask_model.py", line 1314, in _reference_probs
+    p1 = self._ref_uni_logits(self.ref_enc_0, x)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/vlm/synib_mask_model.py", line 1297, in _ref_uni_logits
+    return _as_tensor_preds(enc(x, detach_pred=True))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/crema_d/crema_backbone_fusion_models.py", line 67, in forward
+    audio_feat = self.audio_net(x[0].unsqueeze(dim=1))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/model_utils/backbone.py", line 149, in forward
+    x = self.conv1(x)
+        ^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 554, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 549, in _conv_forward
+    return F.conv2d(
+           ^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 380.00 MiB. GPU 0 has a total capacity of 11.63 GiB of which 182.81 MiB is free. Including non-PyTorch memory, this process has 11.44 GiB memory in use. Of the allocated memory 11.10 GiB is allocated by PyTorch, and 52.05 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
