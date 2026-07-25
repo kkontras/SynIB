@@ -197,9 +197,11 @@ class IronyCremadDataset(Dataset):
         face_path = self.face_root / f"{uid}.npy"
         return audio_path, video_path, face_path
 
-    @staticmethod
-    def _valid_triplet(audio_path: Path, video_path: Path, face_path: Path) -> bool:
-        return audio_path.exists() and video_path.exists() and face_path.exists()
+    def _valid_triplet(self, audio_path: Path, video_path: Path, face_path: Path) -> bool:
+        # Face features are only required when the face modality is actually returned;
+        # the Face_features tree is no longer on disk but face is unused in all current configs.
+        face_ok = face_path.exists() or not self.return_data.get("face", False)
+        return audio_path.exists() and video_path.exists() and face_ok
 
     def _split_inclusive(self, mode: str) -> None:
         self.norm_audio = {"total": {"mean": -7.1276217, "std": 5.116028}}
