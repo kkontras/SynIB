@@ -1,0 +1,5 @@
+Starting SynIB reference-ablation job
+Python 3.10.19
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB  (git cb39a55)
+GPU 0: NVIDIA GeForce RTX 3080 (UUID: GPU-38ac18aa-ac37-19ec-83cc-711bae5cce9f)
+Executing: PYTHONPATH=src /esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new/bin/python -m synib.entrypoints.train --config run/configs/rebuttal_ref_ablation/mosi_synib_u.json --default_config run/configs/rebuttal_ref_ablation/mosi_default.json --fold 2 --rmask random --l 0.1 --perturb_pmin 0.3 --perturb_fill ema --lr 0.0005 --wd 0.001 --batch_size 32 --reference_type uniform --ref_diag --start_over --tag REFABL_mosi

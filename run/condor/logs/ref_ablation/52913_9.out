@@ -1,0 +1,5 @@
+Starting SynIB reference-ablation job
+Python 3.10.19
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB  (git cb39a55)
+GPU 0: NVIDIA GeForce RTX 3090 Ti (UUID: GPU-5d8e6215-b7c7-b778-8d5e-f71e0522dcb2)
+Executing: PYTHONPATH=src /esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new/bin/python -m synib.entrypoints.train --config run/configs/rebuttal_ref_ablation/urfunny_synib.json --default_config run/configs/rebuttal_ref_ablation/urfunny_default.json --fold 0 --rmask random --l 0.001 --perturb_pmin 0.7 --perturb_fill ema --lr 0.001 --wd 0.001 --reference_type uniform --ref_diag --start_over --tag REFABL_urfunny

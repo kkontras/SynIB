@@ -1,0 +1,5 @@
+Starting SynIB reference-ablation job
+Python 3.10.19
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB  (git cb39a55)
+GPU 0: NVIDIA GeForce RTX 2080 Ti (UUID: GPU-0726d6f8-8cd0-affe-f41f-036e4e1a6711)
+Executing: PYTHONPATH=src /esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new/bin/python -m synib.entrypoints.train --config run/configs/rebuttal_ref_ablation/hm_synib_u_merged.json --default_config run/configs/rebuttal_ref_ablation/hm_default_config.json --fold 1 --rmask random --l 0.01 --l_pareto 0.1 --perturb_pmin 0.3 --perturb_pmax 0.5 --reference_type uniform --ref_diag --start_over --tag REFABL_hm
