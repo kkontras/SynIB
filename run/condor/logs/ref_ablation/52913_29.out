@@ -1,0 +1,141 @@
+Starting SynIB reference-ablation job
+Python 3.10.19
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB  (git a2fb4fd)
+GPU 0: NVIDIA GeForce RTX 2080 Ti (UUID: GPU-87e1744a-d67f-c235-1181-a8b3a626015d)
+Executing: PYTHONPATH=src /esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new/bin/python -m synib.entrypoints.train --config run/configs/rebuttal_ref_ablation/hm_synib_u_merged.json --default_config run/configs/rebuttal_ref_ablation/hm_default_config.json --fold 2 --rmask random --l 0.01 --l_pareto 0.1 --perturb_pmin 0.3 --perturb_pmax 0.5 --reference_type class_prior --ref_diag --start_over --tag REFABL_hm
+Namespace(config='run/configs/rebuttal_ref_ablation/hm_synib_u_merged.json', default_config='run/configs/rebuttal_ref_ablation/hm_default_config.json', fold='2', alpha=None, tanh_mode_beta=None, regby=None, batch_size=None, l='0.01', multil=None, lib=None, kmepoch=None, num_samples=None, contrcoeff=None, contr_type=None, shuffle_type=None, validate_with=None, num_classes=None, optim_method=None, ending_epoch=None, load_ongoing=None, recon_weight1=None, recon_weight2=None, recon_epochstages=None, recon_ensemblestages=None, lr=None, wd=None, cls=None, ironic_rate=None, perturb='random', perturb_fill='ema', perturb_pmax='0.5', perturb_pmin='0.3', perturb_lsparse=None, rmask='random', pmin=None, pmax=None, lsparse=None, debug_mask_stats=False, pre=False, frozen=False, tdqm_disable=False, start_over=True, no_model_save=False, num_layers=None, grad_accum=None, init_from=None, init_strict=False, perturb_lsparse_sign=None, l_anneal_epochs=None, perturb_steps=None, perturb_lsparse_warmup=None, perturb_lsparse_schedule=None, persist_ell=False, save_masks=False, penalty_swap=False, disable_ce_random=False, disable_kl_learned=False, masking_only=False, modality_dropout=None, modality_dropout_target=None, l_z1_masked=None, l_z2_masked=None, l_pareto=0.1, reference_type='class_prior', ref_diag=True, ref_ema_decay=None, tag='REFABL_hm')
+2026-07-25 16:26:14,810 - Config - INFO - run/configs/rebuttal_ref_ablation/hm_synib_u_merged.json
+2026-07-25 16:26:14,813 - Config - INFO -  THE Configuration of your experiment ..
+{'agent': 'Agent',
+ 'dataset': {'cache_root': './data/HatefulMemes/cache_clip_b16_deberta_base',
+             'data_roots': './data/HatefulMemes',
+             'dataloader_class': 'HM_MemmapDataloader',
+             'image_subdir': 'img',
+             'test_split': 'test_seen',
+             'valid_split': 'dev_unseen'},
+ 'early_stopping': {'end_of_epoch_check': True,
+                    'log_interval': 10,
+                    'max_epoch': 50,
+                    'n_steps_stop': 20,
+                    'n_steps_stop_after': 0,
+                    'save_every_step': 3000,
+                    'save_every_valstep': 20,
+                    'validate_after': 0,
+                    'validate_every': 50,
+                    'validate_with': 'accuracy'},
+ 'exp_name': 'HatefulMemes Experiment',
+ 'model': {'args': {'anchor_unimodal': True,
+                    'bias_infusion': {'ending_epoch': 1500,
+                                      'l': 0.1,
+                                      'method': 'false',
+                                      'plot': False,
+                                      'starting_epoch': 0,
+                                      'use': True},
+                    'clip_grad': False,
+                    'cls_type': 'tf',
+                    'd_model': 512,
+                    'dropout': 0.1,
+                    'fc_inner': 128,
+                    'fusion_layers': 2,
+                    'multi_loss': {'multi_supervised_w': {'c': 0,
+                                                          'combined': 1,
+                                                          'g': 0}},
+                    'num_classes': 2,
+                    'perturb': {'fill': 'ema',
+                                'lr': 0.1,
+                                'lsparse': 1.0,
+                                'noise_std': 1.0,
+                                'num_samples': 1,
+                                'p': 0.5,
+                                'p_max': 0.7,
+                                'p_min': 0.3,
+                                'steps': 5,
+                                'tau': 1.0,
+                                'type': 'rand'},
+                    'ref_anchor_init': {'enc_0': 'HM_SmallTF_DeBERTa__uni_text_seed{}.pth.tar',
+                                        'enc_1': 'HM_SmallTF_DeBERTa__uni_image_seed{}.pth.tar'},
+                    'ref_anchor_seeds': [109, 27, 3407],
+                    'synergy_type': 'unimodal_anchor'},
+           'ceu': {'test': 'artifacts/ceus/hatefulmemes/hatefulmemes_ceu_test_small_tf_deberta.pkl',
+                   'val': 'artifacts/ceus/hatefulmemes/hatefulmemes_ceu_val_small_tf_deberta.pkl'},
+           'encoders': [{'args': {'ckpt': 'microsoft/deberta-v3-base',
+                                  'd_model': 512,
+                                  'live_encode': False,
+                                  'modality_key': 0,
+                                  'native_dim': 768,
+                                  'num_classes': 2,
+                                  'text_kind': 'encoder'},
+                         'model': 'HFTextEncoder'},
+                        {'args': {'ckpt': 'openai/clip-vit-base-patch16',
+                                  'd_model': 512,
+                                  'live_encode': False,
+                                  'modality_key': 1,
+                                  'native_dim': 768,
+                                  'num_classes': 2},
+                         'model': 'CLIPVisionEncoder'}],
+           'load_ongoing': False,
+           'model_class': 'FusionIBModel_Mask_U',
+           'save_base_dir': './data/data/2025_data/synergy/HatefulMemes',
+           'save_dir': 'HM_SmallTF_DeBERTa_{}.pth.tar'},
+ 'optimizer': {'beta1': 0.9,
+               'beta2': 0.999,
+               'learning_rate': 0.0001,
+               'momentum': 0.9,
+               'type': 'Adaw',
+               'weight_decay': 0.0001},
+ 'scheduler': {'max_lr': 0.001, 'type': 'cosanneal', 'warm_up_steps': 100},
+ 'task': 'classification',
+ 'training_params': {'adversarial_training': {'adv_epsilon': 0.01,
+                                              'use': False},
+                     'async_loading': True,
+                     'batch_size': 32,
+                     'cuda': True,
+                     'data_loader_workers': 4,
+                     'gpu_device': [0],
+                     'pin_memory': False,
+                     'rec_test': True,
+                     'res': True,
+                     'seed': 109,
+                     'tdqm_disable': True,
+                     'test_batch_size': 64,
+                     'test_on_bottoms': False,
+                     'use_test_set': True,
+                     'validation': True,
+                     'verbose': True,
+                     'wandb_disable': False}}
+2026-07-25 16:26:14,815 - Config - INFO -  *************************************** 
+2026-07-25 16:26:14,815 - Config - INFO - The experiment name is HatefulMemes Experiment
+2026-07-25 16:26:14,815 - Config - INFO -  *************************************** 
+2026-07-25 16:26:14,815 - root - INFO - save_dir: HM_SmallTF_DeBERTa_REFABL_hm_fold2_l0.01_perturbrandom_fillema_pmin0.3_pmax0.5_refclass_prior_pareto0.1.pth.tar
+2026-07-25 16:26:14,907 - Cuda Statistics - INFO - __Python VERSION:  3.10.19 (main, Oct 21 2025, 16:43:05) [GCC 11.2.0]
+2026-07-25 16:26:14,907 - Cuda Statistics - INFO - __pyTorch VERSION:  2.9.1+cu128
+2026-07-25 16:26:14,907 - Cuda Statistics - INFO - __CUDA VERSION
+2026-07-25 16:26:14,908 - Cuda Statistics - INFO - __CUDNN VERSION:  91002
+2026-07-25 16:26:14,927 - Cuda Statistics - INFO - __Number CUDA Devices:  1
+2026-07-25 16:26:14,927 - Cuda Statistics - INFO - __Devices
+2026-07-25 16:26:14,927 - Cuda Statistics - INFO - index, name, driver_version, memory.total [MiB], memory.used [MiB], memory.free [MiB]
+2026-07-25 16:26:14,927 - Cuda Statistics - INFO - 0, NVIDIA GeForce RTX 2080 Ti, 610.43.03, 11264 MiB, 283 MiB, 10547 MiB
+2026-07-25 16:26:14,930 - Cuda Statistics - INFO - Active CUDA Device: GPU 0
+2026-07-25 16:26:14,930 - Cuda Statistics - INFO - Available devices  1
+2026-07-25 16:26:14,931 - Cuda Statistics - INFO - Current cuda device  0
+2026-07-25 16:26:14,950 - Agent - INFO - Device: cuda:0
+2026-07-25 16:26:14,950 - Agent - INFO - Total training batches: 265, validate every 50 batches, steps per epoch: 6
+2026-07-25 16:36:31,324 - Agent - INFO - class_prior counts=[5471, 3009] prior=[0.6452, 0.3548]
+2026-07-25 16:36:31,330 - Agent - INFO - Loss Weights are {'total': 1, 'combined': 1, 'c': 0, 'g': 0}
+2026-07-25 16:36:31,330 - root - INFO - There is no CEU for train
+[ref_ablation] anchor init enc_0 <- ./data/data/2025_data/synergy/HatefulMemes/HM_SmallTF_DeBERTa__uni_text_seed3407.pth.tar (4 keys, missing=0, unexpected=0)
+[ref_ablation] anchor init enc_1 <- ./data/data/2025_data/synergy/HatefulMemes/HM_SmallTF_DeBERTa__uni_image_seed3407.pth.tar (4 keys, missing=0, unexpected=0)
+2026-07-25 16:36:33,161 - Agent - INFO - Total number of trainable parameters are: 10187918
+2026-07-25 16:36:33,164 - Agent - INFO - Total number of trainable parameters are: 9398410
+2026-07-25 16:46:53,811 - Evaluator - INFO - New best with loss-accuracy-syn_accuracy-
+2026-07-25 16:46:53,811 - Agent - INFO - [37mVal Epoch 1 step 1 with [31mce_loss_combined : 0.677244 [31mkl_synergy_rand_1 : 0.000839 [31mkl_synergy_rand_2 : 0.000095 [31mkl_synergy_1 : 0.000912 [31mkl_synergy_2 : 0.000094 [31mtotal : 0.679184 [31mdiag_kl_1 : 0.073489 [31mdiag_kl_2 : 0.095364 [94mAcc_combined: 59.26 [94mAcc_c: 50.00 [94mAcc_g: 44.63 [92mF1_combined: 45.41 [92mF1_c: 0.00 [92mF1_g: 49.15 [95mCEU_cue_audio: 0.7335 [95mCEU_cue_video: 0.3339 [95mCEU_synergy: 0.1798 [95mCEU_coexistence: 0.9119 [97mS:[93m18.0%[97m([91m5.6c[97m-[94mF1:15.2%) [97mU1:[93m73.3%[97m([91m6.1c[97m) [97mU2:[93m33.3%[97m([91m2.0c[97m) [97mR:[93m91.2%[97m([91m49.8c[97m) [97mS-L: [92m1:[96m18%[39m [39m
+2026-07-25 16:46:53,833 - Agent - INFO - [37mTest Epoch 1 step 1 with [31mce_loss_combined : 0.728350 [31mkl_synergy_rand_1 : 0.000791 [31mkl_synergy_rand_2 : 0.000086 [31mkl_synergy_1 : 0.000837 [31mkl_synergy_2 : 0.000085 [31mtotal : 0.730148 [31mdiag_kl_1 : 0.072631 [31mdiag_kl_2 : 0.099054 [94mAcc_combined: 56.25 [94mAcc_c: 50.00 [94mAcc_g: 45.45 [92mF1_combined: 38.08 [92mF1_c: 0.00 [92mF1_g: 50.79 [95mCEU_cue_audio: 0.8361 [95mCEU_cue_video: 0.3373 [95mCEU_synergy: 0.2236 [95mCEU_coexistence: 0.9087 [97mS:[93m22.4%[97m([91m9.1c[97m-[94mF1:18.3%) [97mU1:[93m83.6%[97m([91m5.1c[97m) [97mU2:[93m33.7%[97m([91m2.8c[97m) [97mR:[93m90.9%[97m([91m40.8c[97m) [97mS-L: [92m1:[96m22%[39m [39m
+2026-07-25 16:46:54,909 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/HatefulMemes/HM_SmallTF_DeBERTa_REFABL_hm_fold2_l0.01_perturbrandom_fillema_pmin0.3_pmax0.5_refclass_prior_pareto0.1.pth.tar[39m
+2026-07-25 16:57:22,050 - Evaluator - INFO - New best with accuracy-
+2026-07-25 16:57:22,051 - Agent - INFO - [37mVal Epoch 2 step 2 with [31mce_loss_combined : 0.692986 [31mkl_synergy_rand_1 : 0.001462 [31mkl_synergy_rand_2 : 0.000182 [31mkl_synergy_1 : 0.001765 [31mkl_synergy_2 : 0.000185 [31mtotal : 0.696580 [31mdiag_kl_1 : 0.122364 [31mdiag_kl_2 : 0.170466 [94mAcc_combined: 63.33 [94mAcc_c: 50.00 [94mAcc_g: 43.89 [92mF1_combined: 55.70 [92mF1_c: 0.00 [92mF1_g: 48.12 [95mCEU_cue_audio: 0.9112 [95mCEU_cue_video: 0.3028 [95mCEU_synergy: 0.1436 [95mCEU_coexistence: 0.9390 [97mS:[93m14.4%[97m([91m4.4c[97m-[94mF1:12.6%) [97mU1:[93m91.1%[97m([91m7.6c[97m) [97mU2:[93m30.3%[97m([91m1.9c[97m) [97mR:[93m93.9%[97m([91m51.3c[97m) [97mS-L: [92m1:[96m14%[39m [39m
+2026-07-25 16:57:22,073 - Agent - INFO - [37mTest Epoch 2 step 2 with [31mce_loss_combined : 0.763443 [31mkl_synergy_rand_1 : 0.001262 [31mkl_synergy_rand_2 : 0.000162 [31mkl_synergy_1 : 0.001532 [31mkl_synergy_2 : 0.000166 [31mtotal : 0.766564 [31mdiag_kl_1 : 0.108010 [31mdiag_kl_2 : 0.162241 [94mAcc_combined: 59.50 [94mAcc_c: 50.00 [94mAcc_g: 45.65 [92mF1_combined: 48.60 [92mF1_c: 0.00 [92mF1_g: 50.97 [95mCEU_cue_audio: 0.9344 [95mCEU_cue_video: 0.2651 [95mCEU_synergy: 0.1892 [95mCEU_coexistence: 0.9310 [97mS:[93m18.9%[97m([91m7.7c[97m-[94mF1:15.9%) [97mU1:[93m93.4%[97m([91m5.7c[97m) [97mU2:[93m26.5%[97m([91m2.2c[97m) [97mR:[93m93.1%[97m([91m41.8c[97m) [97mS-L: [92m1:[96m19%[39m [39m
+2026-07-25 16:57:23,587 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/HatefulMemes/HM_SmallTF_DeBERTa_REFABL_hm_fold2_l0.01_perturbrandom_fillema_pmin0.3_pmax0.5_refclass_prior_pareto0.1.pth.tar[39m
+2026-07-25 17:07:48,264 - Evaluator - INFO - New best with loss-syn_accuracy-
+2026-07-25 17:07:48,265 - Agent - INFO - [37mVal Epoch 3 step 3 with [31mce_loss_combined : 0.630458 [31mkl_synergy_rand_1 : 0.001320 [31mkl_synergy_rand_2 : 0.000152 [31mkl_synergy_1 : 0.001550 [31mkl_synergy_2 : 0.000158 [31mtotal : 0.633638 [31mdiag_kl_1 : 0.121287 [31mdiag_kl_2 : 0.145978 [94mAcc_combined: 63.15 [94mAcc_c: 50.00 [94mAcc_g: 44.72 [92mF1_combined: 54.36 [92mF1_c: 0.00 [92mF1_g: 45.58 [95mCEU_cue_audio: 0.7554 [95mCEU_cue_video: 0.5155 [95mCEU_synergy: 0.3113 [95mCEU_coexistence: 0.8949 [97mS:[93m31.1%[97m([91m9.6c[97m-[94mF1:23.7%) [97mU1:[93m75.6%[97m([91m6.3c[97m) [97mU2:[93m51.5%[97m([91m3.1c[97m) [97mR:[93m89.5%[97m([91m48.9c[97m) [97mS-L: [92m1:[96m31%[39m [39m
+2026-07-25 17:07:48,287 - Agent - INFO - [37mTest Epoch 3 step 3 with [31mce_loss_combined : 0.639422 [31mkl_synergy_rand_1 : 0.001332 [31mkl_synergy_rand_2 : 0.000144 [31mkl_synergy_1 : 0.001517 [31mkl_synergy_2 : 0.000156 [31mtotal : 0.642571 [31mdiag_kl_1 : 0.129398 [31mdiag_kl_2 : 0.146681 [94mAcc_combined: 63.85 [94mAcc_c: 50.00 [94mAcc_g: 46.95 [92mF1_combined: 54.38 [92mF1_c: 0.00 [92mF1_g: 48.02 [95mCEU_cue_audio: 0.8525 [95mCEU_cue_video: 0.5663 [95mCEU_synergy: 0.3907 [95mCEU_coexistence: 0.8753 [97mS:[93m39.1%[97m([91m15.9c[97m-[94mF1:28.1%) [97mU1:[93m85.2%[97m([91m5.2c[97m) [97mU2:[93m56.6%[97m([91m4.7c[97m) [97mR:[93m87.5%[97m([91m39.3c[97m) [97mS-L: [92m1:[96m39%[39m [39m
+2026-07-25 17:07:49,823 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/HatefulMemes/HM_SmallTF_DeBERTa_REFABL_hm_fold2_l0.01_perturbrandom_fillema_pmin0.3_pmax0.5_refclass_prior_pareto0.1.pth.tar[39m

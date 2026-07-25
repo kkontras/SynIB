@@ -1,0 +1,136 @@
+Starting SynIB reference-ablation job
+Python 3.10.19
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB  (git a2fb4fd)
+GPU 0: NVIDIA GeForce RTX 4070 Ti SUPER (UUID: GPU-d2a33811-19af-7b18-0dbc-8a49767988ab)
+Executing: PYTHONPATH=src /esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy_new/bin/python -m synib.entrypoints.train --config run/configs/rebuttal_ref_ablation/urfunny_synib.json --default_config run/configs/rebuttal_ref_ablation/urfunny_default.json --fold 2 --rmask random --l 0.001 --perturb_pmin 0.7 --perturb_fill ema --lr 0.001 --wd 0.001 --reference_type class_prior --ref_diag --start_over --tag REFABL_urfunny
+Namespace(config='run/configs/rebuttal_ref_ablation/urfunny_synib.json', default_config='run/configs/rebuttal_ref_ablation/urfunny_default.json', fold='2', alpha=None, tanh_mode_beta=None, regby=None, batch_size=None, l='0.001', multil=None, lib=None, kmepoch=None, num_samples=None, contrcoeff=None, contr_type=None, shuffle_type=None, validate_with=None, num_classes=None, optim_method=None, ending_epoch=None, load_ongoing=None, recon_weight1=None, recon_weight2=None, recon_epochstages=None, recon_ensemblestages=None, lr='0.001', wd='0.001', cls=None, ironic_rate=None, perturb='random', perturb_fill='ema', perturb_pmax=None, perturb_pmin='0.7', perturb_lsparse=None, rmask='random', pmin=None, pmax=None, lsparse=None, debug_mask_stats=False, pre=False, frozen=False, tdqm_disable=False, start_over=True, no_model_save=False, num_layers=None, grad_accum=None, init_from=None, init_strict=False, perturb_lsparse_sign=None, l_anneal_epochs=None, perturb_steps=None, perturb_lsparse_warmup=None, perturb_lsparse_schedule=None, persist_ell=False, save_masks=False, penalty_swap=False, disable_ce_random=False, disable_kl_learned=False, masking_only=False, modality_dropout=None, modality_dropout_target=None, l_z1_masked=None, l_z2_masked=None, l_pareto=None, reference_type='class_prior', ref_diag=True, ref_ema_decay=None, tag='REFABL_urfunny')
+2026-07-25 16:59:11,897 - Config - INFO - run/configs/rebuttal_ref_ablation/urfunny_synib.json
+2026-07-25 16:59:11,902 - Config - INFO -  THE Configuration of your experiment ..
+{'agent': 'Agent',
+ 'dataset': {'data_roots': './src/synib/mydatasets/Factor_CL_Datasets/prepared/ur_funny/ur_funny_data.pkl',
+             'data_type': 'humor',
+             'dataloader_class': 'FactorCL_Dataloader',
+             'kfold_data_roots': './src/synib/mydatasets/Factor_CL_Datasets/prepared/ur_funny/ur_funny_synergy3.pkl'},
+ 'early_stopping': {'end_of_epoch_check': True,
+                    'log_interval': 10,
+                    'max_epoch': 100,
+                    'n_steps_stop': 30,
+                    'n_steps_stop_after': 0,
+                    'save_every_step': 3000,
+                    'save_every_valstep': 50,
+                    'validate_after': 0,
+                    'validate_every': 185},
+ 'exp_name': 'UR-FUNNY Experiment',
+ 'model': {'args': {'bias_infusion': {'method': False},
+                    'clip_grad': False,
+                    'cls_type': 'mlp',
+                    'd_model': 40,
+                    'dropout': 0.1,
+                    'fc_inner': 64,
+                    'hidden_dim': 64,
+                    'in_dim': 64,
+                    'multi_loss': {'multi_supervised_w': {'c': 1,
+                                                          'combined': 1,
+                                                          'g': 1}},
+                    'norm_decision': False,
+                    'num_classes': 2},
+           'ceu': {'test': './artifacts/ceus/ur_funny/ur_funny_ceu_test.pkl',
+                   'val': './artifacts/ceus/ur_funny/ur_funny_ceu_val.pkl'},
+           'encoders': [{'args': {'freeze_encoder': False,
+                                  'hidden_size': 40,
+                                  'modality': 'c',
+                                  'n_features': 371,
+                                  'num_classes': 2},
+                         'model': 'FactorCL_Uni',
+                         'pretrainedEncoder': {'dir': 'unimodal_video_fold{}_vldaccuracy_lr0.001_wd0.0001.pth.tar',
+                                               'use': True}},
+                        {'args': {'freeze_encoder': False,
+                                  'hidden_size': 40,
+                                  'modality': 'g',
+                                  'n_features': 300,
+                                  'num_classes': 2},
+                         'model': 'FactorCL_Uni',
+                         'pretrainedEncoder': {'dir': 'unimodal_text_fold{}_vldaccuracy_lr0.001_wd0.001.pth.tar',
+                                               'use': True}}],
+           'load_ongoing': False,
+           'model_class': 'FusionIBModel_Mask',
+           'save_base_dir': './artifacts/models/multibench/ur_funny/vt',
+           'save_dir': 'SynIB_RMask_{}.pth.tar'},
+ 'optimizer': {'beta1': 0.9,
+               'beta2': 0.999,
+               'learning_rate': 0.0001,
+               'momentum': 0.9,
+               'type': 'Adam',
+               'weight_decay': 0.0001},
+ 'scheduler': {'max_lr': 0.03, 'type': 'cosanneal', 'warm_up_steps': 780},
+ 'task': 'classification',
+ 'training_params': {'adversarial_training': {'adv_epsilon': 0.01,
+                                              'use': False},
+                     'async_loading': True,
+                     'batch_size': 32,
+                     'cuda': True,
+                     'data_loader_workers': 8,
+                     'gpu_device': [0],
+                     'pin_memory': True,
+                     'rec_test': True,
+                     'res': True,
+                     'seed': 109,
+                     'tdqm_disable': False,
+                     'test_batch_size': 32,
+                     'test_on_bottoms': False,
+                     'use_test_set': True,
+                     'validation': True,
+                     'verbose': True,
+                     'wandb_disable': True}}
+2026-07-25 16:59:11,907 - Config - INFO -  *************************************** 
+2026-07-25 16:59:11,907 - Config - INFO - The experiment name is UR-FUNNY Experiment
+2026-07-25 16:59:11,907 - Config - INFO -  *************************************** 
+2026-07-25 16:59:11,907 - root - INFO - save_dir: SynIB_RMask_REFABL_urfunny_fold2_l0.001_perturbrandom_fillema_pmin0.7_refclass_prior_lr0.001_wd0.001.pth.tar
+2026-07-25 16:59:12,073 - Cuda Statistics - INFO - __Python VERSION:  3.10.19 (main, Oct 21 2025, 16:43:05) [GCC 11.2.0]
+2026-07-25 16:59:12,073 - Cuda Statistics - INFO - __pyTorch VERSION:  2.9.1+cu128
+2026-07-25 16:59:12,073 - Cuda Statistics - INFO - __CUDA VERSION
+2026-07-25 16:59:12,136 - Cuda Statistics - INFO - __CUDNN VERSION:  91002
+2026-07-25 16:59:12,188 - Cuda Statistics - INFO - __Number CUDA Devices:  1
+2026-07-25 16:59:12,188 - Cuda Statistics - INFO - __Devices
+2026-07-25 16:59:12,188 - Cuda Statistics - INFO - index, name, driver_version, memory.total [MiB], memory.used [MiB], memory.free [MiB]
+2026-07-25 16:59:12,188 - Cuda Statistics - INFO - 0, NVIDIA GeForce RTX 4070 Ti SUPER, 610.43.03, 16376 MiB, 657 MiB, 15316 MiB
+2026-07-25 16:59:12,207 - Cuda Statistics - INFO - Active CUDA Device: GPU 0
+2026-07-25 16:59:12,208 - Cuda Statistics - INFO - Available devices  1
+2026-07-25 16:59:12,208 - Cuda Statistics - INFO - Current cuda device  0
+2026-07-25 16:59:14,660 - Agent - INFO - Device: cuda:0
+2026-07-25 16:59:14,661 - Agent - INFO - Total training batches: 253, validate every 185 batches, steps per epoch: 2
+2026-07-25 16:59:21,552 - Agent - INFO - class_prior counts=[4032, 4042] prior=[0.4994, 0.5006]
+2026-07-25 16:59:21,554 - Agent - INFO - Loss Weights are {'total': 1, 'combined': 1, 'c': 1, 'g': 1}
+2026-07-25 16:59:21,554 - root - INFO - There is no CEU for train
+2026-07-25 16:59:21,853 - root - INFO - Loading enc best model state dict from ./artifacts/models/multibench/ur_funny/vt/unimodal_video_fold2_vldaccuracy_lr0.001_wd0.0001.pth.tar
+2026-07-25 16:59:22,115 - root - INFO - Loading enc best model state dict from ./artifacts/models/multibench/ur_funny/vt/unimodal_text_fold2_vldaccuracy_lr0.001_wd0.001.pth.tar
+2026-07-25 16:59:22,357 - Agent - INFO - Total number of trainable parameters are: 3520992
+2026-07-25 16:59:22,370 - Agent - INFO - Total number of trainable parameters are: 1767508
+2026-07-25 17:00:11,936 - Evaluator - INFO - New best with loss-accuracy-syn_accuracy-
+2026-07-25 17:00:11,937 - Agent - INFO - [37mVal Epoch 1 step 1 with [31mce_loss_combined : 0.678095 [31mce_loss_c : 0.700278 [31mce_loss_g : 0.680232 [31mkl_synergy_rand_1 : 0.000065 [31mkl_synergy_rand_2 : 0.000083 [31mkl_synergy_1 : 0.000049 [31mkl_synergy_2 : 0.000084 [31mtotal : 0.678376 [31mdiag_kl_1 : 0.061485 [31mdiag_kl_2 : 0.025657 [94mAcc_combined: 60.59 [94mAcc_c: 50.87 [94mAcc_g: 61.27 [92mF1_combined: 58.18 [92mF1_c: 66.84 [92mF1_g: 59.93 [95mCEU_cue_audio: 0.2753 [95mCEU_cue_video: 0.7771 [95mCEU_synergy: 0.2341 [95mCEU_coexistence: 0.8269 [97mS:[93m23.4%[97m([91m4.5c[97m-[94mF1:19.0%) [97mU1:[93m27.5%[97m([91m4.7c[97m) [97mU2:[93m77.7%[97m([91m23.6c[97m) [97mR:[93m82.7%[97m([91m27.3c[97m) [97mS-L: [92m1:[96m27%[39m [39m
+2026-07-25 17:00:11,958 - Agent - INFO - [37mTest Epoch 1 step 1 with [31mce_loss_combined : 0.635060 [31mce_loss_c : 0.688304 [31mce_loss_g : 0.636912 [31mkl_synergy_rand_1 : 0.000073 [31mkl_synergy_rand_2 : 0.000085 [31mkl_synergy_1 : 0.000043 [31mkl_synergy_2 : 0.000090 [31mtotal : 0.635352 [31mdiag_kl_1 : 0.066545 [31mdiag_kl_2 : 0.027366 [94mAcc_combined: 63.37 [94mAcc_c: 50.43 [94mAcc_g: 63.52 [92mF1_combined: 61.42 [92mF1_c: 66.56 [92mF1_g: 62.12 [95mCEU_cue_audio: 0.3556 [95mCEU_cue_video: 0.7808 [95mCEU_synergy: 0.2615 [95mCEU_coexistence: 0.8610 [97mS:[93m26.2%[97m([91m4.8c[97m-[94mF1:20.7%) [97mU1:[93m35.5%[97m([91m7.1c[97m) [97mU2:[93m78.1%[97m([91m21.6c[97m) [97mR:[93m86.1%[97m([91m29.3c[97m) [97mS-L: [92m1:[96m32%[39m [39m
+2026-07-25 17:00:12,105 - Agent - INFO - [37mModel saved successfully at: ./artifacts/models/multibench/ur_funny/vt/SynIB_RMask_REFABL_urfunny_fold2_l0.001_perturbrandom_fillema_pmin0.7_refclass_prior_lr0.001_wd0.001.pth.tar[39m
+2026-07-25 17:00:59,460 - Evaluator - INFO - New best with accuracy-syn_accuracy-
+2026-07-25 17:00:59,461 - Agent - INFO - [37mVal Epoch 2 step 2 with [31mce_loss_combined : 0.689934 [31mce_loss_c : 0.695577 [31mce_loss_g : 0.688719 [31mkl_synergy_rand_1 : 0.000084 [31mkl_synergy_rand_2 : 0.000111 [31mkl_synergy_1 : 0.000060 [31mkl_synergy_2 : 0.000113 [31mtotal : 0.690302 [31mdiag_kl_1 : 0.086282 [31mdiag_kl_2 : 0.027004 [94mAcc_combined: 61.17 [94mAcc_c: 51.16 [94mAcc_g: 61.12 [92mF1_combined: 58.97 [92mF1_c: 66.04 [92mF1_g: 59.80 [95mCEU_cue_audio: 0.1854 [95mCEU_cue_video: 0.8344 [95mCEU_synergy: 0.2937 [95mCEU_coexistence: 0.8005 [97mS:[93m29.4%[97m([91m5.7c[97m-[94mF1:22.7%) [97mU1:[93m18.5%[97m([91m3.2c[97m) [97mU2:[93m83.4%[97m([91m25.3c[97m) [97mR:[93m80.1%[97m([91m26.4c[97m) [97mS-L: [92m1:[96m35%[39m [39m
+2026-07-25 17:00:59,481 - Agent - INFO - [37mTest Epoch 2 step 2 with [31mce_loss_combined : 0.647710 [31mce_loss_c : 0.685152 [31mce_loss_g : 0.647102 [31mkl_synergy_rand_1 : 0.000097 [31mkl_synergy_rand_2 : 0.000117 [31mkl_synergy_1 : 0.000058 [31mkl_synergy_2 : 0.000121 [31mtotal : 0.648102 [31mdiag_kl_1 : 0.093251 [31mdiag_kl_2 : 0.026461 [94mAcc_combined: 62.33 [94mAcc_c: 51.56 [94mAcc_g: 62.05 [92mF1_combined: 60.01 [92mF1_c: 66.21 [92mF1_g: 60.66 [95mCEU_cue_audio: 0.2939 [95mCEU_cue_video: 0.8460 [95mCEU_synergy: 0.2718 [95mCEU_coexistence: 0.8416 [97mS:[93m27.2%[97m([91m5.0c[97m-[94mF1:21.4%) [97mU1:[93m29.4%[97m([91m5.9c[97m) [97mU2:[93m84.6%[97m([91m23.3c[97m) [97mR:[93m84.2%[97m([91m28.6c[97m) [97mS-L: [92m1:[96m34%[39m [39m
+2026-07-25 17:00:59,727 - Agent - INFO - [37mModel saved successfully at: ./artifacts/models/multibench/ur_funny/vt/SynIB_RMask_REFABL_urfunny_fold2_l0.001_perturbrandom_fillema_pmin0.7_refclass_prior_lr0.001_wd0.001.pth.tar[39m
+2026-07-25 17:01:47,890 - Agent - INFO - [37mVal Epoch 3 step 3 with [31mce_loss_combined : 0.681844 [31mce_loss_c : 0.697865 [31mce_loss_g : 0.684455 [31mkl_synergy_rand_1 : 0.000052 [31mkl_synergy_rand_2 : 0.000065 [31mkl_synergy_1 : 0.000037 [31mkl_synergy_2 : 0.000063 [31mtotal : 0.682062 [31mdiag_kl_1 : 0.048917 [31mdiag_kl_2 : 0.039157 [94mAcc_combined: 59.67 [94mAcc_c: 49.37 [94mAcc_g: 60.69 [92mF1_combined: 59.00 [92mF1_c: 61.49 [92mF1_g: 59.41 [95mCEU_cue_audio: 0.2305 [95mCEU_cue_video: 0.8057 [95mCEU_synergy: 0.2788 [95mCEU_coexistence: 0.7859 [97mS:[93m27.9%[97m([91m5.4c[97m-[94mF1:21.8%) [97mU1:[93m23.0%[97m([91m4.0c[97m) [97mU2:[93m80.6%[97m([91m24.5c[97m) [97mR:[93m78.6%[97m([91m25.9c[97m) [97mS-L: [92m1:[96m33%[39m [39m
+2026-07-25 17:02:35,483 - Evaluator - INFO - New best with accuracy-
+2026-07-25 17:02:35,483 - Agent - INFO - [37mVal Epoch 4 step 4 with [31mce_loss_combined : 0.696461 [31mce_loss_c : 0.697370 [31mce_loss_g : 0.694016 [31mkl_synergy_rand_1 : 0.000123 [31mkl_synergy_rand_2 : 0.000147 [31mkl_synergy_1 : 0.000075 [31mkl_synergy_2 : 0.000149 [31mtotal : 0.696955 [31mdiag_kl_1 : 0.119640 [31mdiag_kl_2 : 0.018374 [94mAcc_combined: 61.61 [94mAcc_c: 50.87 [94mAcc_g: 61.75 [92mF1_combined: 60.14 [92mF1_c: 64.87 [92mF1_g: 60.78 [95mCEU_cue_audio: 0.1911 [95mCEU_cue_video: 0.8248 [95mCEU_synergy: 0.0947 [95mCEU_coexistence: 0.9384 [97mS:[93m9.5%[97m([91m1.8c[97m-[94mF1:8.6%) [97mU1:[93m19.1%[97m([91m3.3c[97m) [97mU2:[93m82.5%[97m([91m25.0c[97m) [97mR:[93m93.8%[97m([91m30.9c[97m) [97mS-L: [92m1:[96m11%[39m [39m
+2026-07-25 17:02:35,504 - Agent - INFO - [37mTest Epoch 4 step 4 with [31mce_loss_combined : 0.652265 [31mce_loss_c : 0.684209 [31mce_loss_g : 0.653055 [31mkl_synergy_rand_1 : 0.000124 [31mkl_synergy_rand_2 : 0.000152 [31mkl_synergy_1 : 0.000073 [31mkl_synergy_2 : 0.000154 [31mtotal : 0.652768 [31mdiag_kl_1 : 0.119583 [31mdiag_kl_2 : 0.018300 [94mAcc_combined: 63.99 [94mAcc_c: 51.89 [94mAcc_g: 63.42 [92mF1_combined: 62.50 [92mF1_c: 65.40 [92mF1_g: 62.43 [95mCEU_cue_audio: 0.2702 [95mCEU_cue_video: 0.8630 [95mCEU_synergy: 0.1281 [95mCEU_coexistence: 0.9583 [97mS:[93m12.8%[97m([91m2.4c[97m-[94mF1:11.4%) [97mU1:[93m27.0%[97m([91m5.4c[97m) [97mU2:[93m86.3%[97m([91m23.8c[97m) [97mR:[93m95.8%[97m([91m32.6c[97m) [97mS-L: [92m1:[96m16%[39m [39m
+2026-07-25 17:02:35,795 - Agent - INFO - [37mModel saved successfully at: ./artifacts/models/multibench/ur_funny/vt/SynIB_RMask_REFABL_urfunny_fold2_l0.001_perturbrandom_fillema_pmin0.7_refclass_prior_lr0.001_wd0.001.pth.tar[39m
+2026-07-25 17:03:23,145 - Evaluator - INFO - New best with accuracy-
+2026-07-25 17:03:23,145 - Agent - INFO - [37mVal Epoch 5 step 5 with [31mce_loss_combined : 0.725488 [31mce_loss_c : 0.699396 [31mce_loss_g : 0.721803 [31mkl_synergy_rand_1 : 0.000164 [31mkl_synergy_rand_2 : 0.000207 [31mkl_synergy_1 : 0.000106 [31mkl_synergy_2 : 0.000210 [31mtotal : 0.726175 [31mdiag_kl_1 : 0.162203 [31mdiag_kl_2 : 0.047274 [94mAcc_combined: 61.70 [94mAcc_c: 50.53 [94mAcc_g: 61.36 [92mF1_combined: 59.67 [92mF1_c: 66.69 [92mF1_g: 60.97 [95mCEU_cue_audio: 0.2305 [95mCEU_cue_video: 0.8311 [95mCEU_synergy: 0.2685 [95mCEU_coexistence: 0.8211 [97mS:[93m26.9%[97m([91m5.2c[97m-[94mF1:21.2%) [97mU1:[93m23.0%[97m([91m4.0c[97m) [97mU2:[93m83.1%[97m([91m25.2c[97m) [97mR:[93m82.1%[97m([91m27.1c[97m) [97mS-L: [92m1:[96m32%[39m [39m
+2026-07-25 17:03:23,167 - Agent - INFO - [37mTest Epoch 5 step 5 with [31mce_loss_combined : 0.672494 [31mce_loss_c : 0.690583 [31mce_loss_g : 0.667440 [31mkl_synergy_rand_1 : 0.000170 [31mkl_synergy_rand_2 : 0.000208 [31mkl_synergy_1 : 0.000113 [31mkl_synergy_2 : 0.000209 [31mtotal : 0.673194 [31mdiag_kl_1 : 0.162820 [31mdiag_kl_2 : 0.045317 [94mAcc_combined: 63.61 [94mAcc_c: 50.28 [94mAcc_g: 63.89 [92mF1_combined: 62.14 [92mF1_c: 66.56 [92mF1_g: 63.62 [95mCEU_cue_audio: 0.3318 [95mCEU_cue_video: 0.8185 [95mCEU_synergy: 0.2821 [95mCEU_coexistence: 0.8584 [97mS:[93m28.2%[97m([91m5.2c[97m-[94mF1:22.0%) [97mU1:[93m33.2%[97m([91m6.6c[97m) [97mU2:[93m81.8%[97m([91m22.6c[97m) [97mR:[93m85.8%[97m([91m29.2c[97m) [97mS-L: [92m1:[96m35%[39m [39m
+2026-07-25 17:03:23,469 - Agent - INFO - [37mModel saved successfully at: ./artifacts/models/multibench/ur_funny/vt/SynIB_RMask_REFABL_urfunny_fold2_l0.001_perturbrandom_fillema_pmin0.7_refclass_prior_lr0.001_wd0.001.pth.tar[39m
+2026-07-25 17:04:11,222 - Agent - INFO - [37mVal Epoch 6 step 6 with [31mce_loss_combined : 0.696949 [31mce_loss_c : 0.698832 [31mce_loss_g : 0.696305 [31mkl_synergy_rand_1 : 0.000098 [31mkl_synergy_rand_2 : 0.000135 [31mkl_synergy_1 : 0.000071 [31mkl_synergy_2 : 0.000135 [31mtotal : 0.697387 [31mdiag_kl_1 : 0.091355 [31mdiag_kl_2 : 0.021779 [94mAcc_combined: 61.41 [94mAcc_c: 50.77 [94mAcc_g: 61.99 [92mF1_combined: 58.65 [92mF1_c: 63.82 [92mF1_g: 61.32 [95mCEU_cue_audio: 0.2416 [95mCEU_cue_video: 0.7833 [95mCEU_synergy: 0.1044 [95mCEU_coexistence: 0.9415 [97mS:[93m10.4%[97m([91m2.0c[97m-[94mF1:9.5%) [97mU1:[93m24.2%[97m([91m4.2c[97m) [97mU2:[93m78.3%[97m([91m23.8c[97m) [97mR:[93m94.1%[97m([91m31.0c[97m) [97mS-L: [92m1:[96m12%[39m [39m
+2026-07-25 17:04:57,942 - Agent - INFO - [37mVal Epoch 7 step 7 with [31mce_loss_combined : 0.700425 [31mce_loss_c : 0.696853 [31mce_loss_g : 0.702303 [31mkl_synergy_rand_1 : 0.000107 [31mkl_synergy_rand_2 : 0.000130 [31mkl_synergy_1 : 0.000070 [31mkl_synergy_2 : 0.000128 [31mtotal : 0.700860 [31mdiag_kl_1 : 0.100463 [31mdiag_kl_2 : 0.019942 [94mAcc_combined: 61.32 [94mAcc_c: 50.68 [94mAcc_g: 61.56 [92mF1_combined: 58.93 [92mF1_c: 64.58 [92mF1_g: 60.59 [95mCEU_cue_audio: 0.1795 [95mCEU_cue_video: 0.8248 [95mCEU_synergy: 0.1245 [95mCEU_coexistence: 0.9151 [97mS:[93m12.4%[97m([91m2.4c[97m-[94mF1:11.1%) [97mU1:[93m18.0%[97m([91m3.1c[97m) [97mU2:[93m82.5%[97m([91m25.0c[97m) [97mR:[93m91.5%[97m([91m30.2c[97m) [97mS-L: [92m1:[96m15%[39m [39m
+2026-07-25 17:05:46,945 - Agent - INFO - [37mVal Epoch 8 step 8 with [31mce_loss_combined : 0.714848 [31mce_loss_c : 0.697254 [31mce_loss_g : 0.714209 [31mkl_synergy_rand_1 : 0.000131 [31mkl_synergy_rand_2 : 0.000169 [31mkl_synergy_1 : 0.000088 [31mkl_synergy_2 : 0.000168 [31mtotal : 0.715403 [31mdiag_kl_1 : 0.128190 [31mdiag_kl_2 : 0.027235 [94mAcc_combined: 61.56 [94mAcc_c: 51.16 [94mAcc_g: 62.14 [92mF1_combined: 59.25 [92mF1_c: 65.86 [92mF1_g: 61.37 [95mCEU_cue_audio: 0.2079 [95mCEU_cue_video: 0.8185 [95mCEU_synergy: 0.1143 [95mCEU_coexistence: 0.9178 [97mS:[93m11.4%[97m([91m2.2c[97m-[94mF1:10.3%) [97mU1:[93m20.8%[97m([91m3.6c[97m) [97mU2:[93m81.8%[97m([91m24.9c[97m) [97mR:[93m91.8%[97m([91m30.3c[97m) [97mS-L: [92m1:[96m13%[39m [39m
+2026-07-25 17:06:35,260 - Evaluator - INFO - New best with accuracy-
+2026-07-25 17:06:35,261 - Agent - INFO - [37mVal Epoch 9 step 9 with [31mce_loss_combined : 0.713938 [31mce_loss_c : 0.696576 [31mce_loss_g : 0.712109 [31mkl_synergy_rand_1 : 0.000119 [31mkl_synergy_rand_2 : 0.000152 [31mkl_synergy_1 : 0.000076 [31mkl_synergy_2 : 0.000147 [31mtotal : 0.714432 [31mdiag_kl_1 : 0.115754 [31mdiag_kl_2 : 0.023743 [94mAcc_combined: 62.04 [94mAcc_c: 50.58 [94mAcc_g: 61.07 [92mF1_combined: 61.20 [92mF1_c: 63.66 [92mF1_g: 60.33 [95mCEU_cue_audio: 0.1854 [95mCEU_cue_video: 0.8248 [95mCEU_synergy: 0.1441 [95mCEU_coexistence: 0.8975 [97mS:[93m14.4%[97m([91m2.8c[97m-[94mF1:12.6%) [97mU1:[93m18.5%[97m([91m3.2c[97m) [97mU2:[93m82.5%[97m([91m25.0c[97m) [97mR:[93m89.7%[97m([91m29.6c[97m) [97mS-L: [92m1:[96m17%[39m [39m
+2026-07-25 17:06:35,282 - Agent - INFO - [37mTest Epoch 9 step 9 with [31mce_loss_combined : 0.654746 [31mce_loss_c : 0.682860 [31mce_loss_g : 0.658477 [31mkl_synergy_rand_1 : 0.000122 [31mkl_synergy_rand_2 : 0.000154 [31mkl_synergy_1 : 0.000071 [31mkl_synergy_2 : 0.000149 [31mtotal : 0.655243 [31mdiag_kl_1 : 0.117474 [31mdiag_kl_2 : 0.023422 [94mAcc_combined: 62.90 [94mAcc_c: 53.02 [94mAcc_g: 61.96 [92mF1_combined: 61.73 [92mF1_c: 65.37 [92mF1_g: 60.90 [95mCEU_cue_audio: 0.2371 [95mCEU_cue_video: 0.8870 [95mCEU_synergy: 0.1232 [95mCEU_coexistence: 0.9195 [97mS:[93m12.3%[97m([91m2.3c[97m-[94mF1:11.0%) [97mU1:[93m23.7%[97m([91m4.7c[97m) [97mU2:[93m88.7%[97m([91m24.5c[97m) [97mR:[93m91.9%[97m([91m31.3c[97m) [97mS-L: [92m1:[96m15%[39m [39m
+2026-07-25 17:06:35,585 - Agent - INFO - [37mModel saved successfully at: ./artifacts/models/multibench/ur_funny/vt/SynIB_RMask_REFABL_urfunny_fold2_l0.001_perturbrandom_fillema_pmin0.7_refclass_prior_lr0.001_wd0.001.pth.tar[39m
+2026-07-25 17:07:23,196 - Agent - INFO - [37mVal Epoch 10 step 10 with [31mce_loss_combined : 0.717496 [31mce_loss_c : 0.697199 [31mce_loss_g : 0.711963 [31mkl_synergy_rand_1 : 0.000126 [31mkl_synergy_rand_2 : 0.000149 [31mkl_synergy_1 : 0.000081 [31mkl_synergy_2 : 0.000149 [31mtotal : 0.718001 [31mdiag_kl_1 : 0.119755 [31mdiag_kl_2 : 0.029761 [94mAcc_combined: 60.59 [94mAcc_c: 51.26 [94mAcc_g: 61.22 [92mF1_combined: 60.42 [92mF1_c: 64.95 [92mF1_g: 60.41 [95mCEU_cue_audio: 0.3033 [95mCEU_cue_video: 0.7580 [95mCEU_synergy: 0.0149 [95mCEU_coexistence: 0.9767 [97mS:[93m1.5%[97m([91m0.3c[97m-[94mF1:1.5%) [97mU1:[93m30.3%[97m([91m5.2c[97m) [97mU2:[93m75.8%[97m([91m23.0c[97m) [97mR:[93m97.7%[97m([91m32.2c[97m) [97mS-L: [92m0:[96m7% [92m1:[96m1%[39m [39m
+2026-07-25 17:08:10,456 - Agent - INFO - [37mVal Epoch 11 step 11 with [31mce_loss_combined : 0.721459 [31mce_loss_c : 0.696634 [31mce_loss_g : 0.710544 [31mkl_synergy_rand_1 : 0.000136 [31mkl_synergy_rand_2 : 0.000163 [31mkl_synergy_1 : 0.000089 [31mkl_synergy_2 : 0.000165 [31mtotal : 0.722014 [31mdiag_kl_1 : 0.130439 [31mdiag_kl_2 : 0.026806 [94mAcc_combined: 60.49 [94mAcc_c: 50.44 [94mAcc_g: 62.23 [92mF1_combined: 60.78 [92mF1_c: 63.43 [92mF1_g: 61.20 [95mCEU_cue_audio: 0.3202 [95mCEU_cue_video: 0.7421 [95mCEU_synergy: 0.0298 [95mCEU_coexistence: 0.9794 [97mS:[93m3.0%[97m([91m0.6c[97m-[94mF1:3.0%) [97mU1:[93m32.0%[97m([91m5.5c[97m) [97mU2:[93m74.2%[97m([91m22.5c[97m) [97mR:[93m97.9%[97m([91m32.3c[97m) [97mS-L: [92m0:[96m13% [92m1:[96m1%[39m [39m
+2026-07-25 17:08:56,298 - Agent - INFO - [37mVal Epoch 12 step 12 with [31mce_loss_combined : 0.708039 [31mce_loss_c : 0.696076 [31mce_loss_g : 0.703140 [31mkl_synergy_rand_1 : 0.000098 [31mkl_synergy_rand_2 : 0.000123 [31mkl_synergy_1 : 0.000063 [31mkl_synergy_2 : 0.000125 [31mtotal : 0.708447 [31mdiag_kl_1 : 0.094549 [31mdiag_kl_2 : 0.032041 [94mAcc_combined: 60.54 [94mAcc_c: 50.48 [94mAcc_g: 62.33 [92mF1_combined: 57.94 [92mF1_c: 66.18 [92mF1_g: 61.26 [95mCEU_cue_audio: 0.3089 [95mCEU_cue_video: 0.7547 [95mCEU_synergy: 0.0648 [95mCEU_coexistence: 0.9767 [97mS:[93m6.5%[97m([91m1.3c[97m-[94mF1:6.3%) [97mU1:[93m30.9%[97m([91m5.3c[97m) [97mU2:[93m75.5%[97m([91m22.9c[97m) [97mR:[93m97.7%[97m([91m32.2c[97m) [97mS-L: [92m0:[96m7% [92m1:[96m6%[39m [39m
+2026-07-25 17:09:42,765 - Agent - INFO - [37mVal Epoch 13 step 13 with [31mce_loss_combined : 0.724843 [31mce_loss_c : 0.698046 [31mce_loss_g : 0.718423 [31mkl_synergy_rand_1 : 0.000143 [31mkl_synergy_rand_2 : 0.000168 [31mkl_synergy_1 : 0.000093 [31mkl_synergy_2 : 0.000168 [31mtotal : 0.725415 [31mdiag_kl_1 : 0.134786 [31mdiag_kl_2 : 0.034017 [94mAcc_combined: 60.98 [94mAcc_c: 51.84 [94mAcc_g: 61.90 [92mF1_combined: 59.79 [92mF1_c: 65.66 [92mF1_g: 60.60 [95mCEU_cue_audio: 0.2191 [95mCEU_cue_video: 0.7994 [95mCEU_synergy: 0.1394 [95mCEU_coexistence: 0.9090 [97mS:[93m13.9%[97m([91m2.7c[97m-[94mF1:12.2%) [97mU1:[93m21.9%[97m([91m3.8c[97m) [97mU2:[93m79.9%[97m([91m24.3c[97m) [97mR:[93m90.9%[97m([91m30.0c[97m) [97mS-L: [92m1:[96m16%[39m [39m

@@ -1,0 +1,91 @@
+Training:   0%|          | 0/32 [00:00<?, ?it/s]Training:   0%|          | 0/32 [00:49<?, ?it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/train.py", line 493, in <module>
+    cli()
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/train.py", line 489, in cli
+    main(config_path=args.config, default_config_path=args.default_config, args=args)
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/entrypoints/train.py", line 335, in main
+    agent.run()
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/training/pipeline/agent.py", line 157, in run
+    self.trainer.train_steps()
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/training/pipeline/helpers/Trainer.py", line 79, in train_steps
+    step_outcome, optstep_done = self.this_train_step_func(served_dict)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/training/pipeline/helpers/Trainer.py", line 128, in train_one_step
+    output = self.agent.model(data, label=label, return_features=True, current_step=self.agent.logs["current_step"], current_epoch=self.agent.logs["current_epoch"])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/vlm/synib_mask_model.py", line 1553, in forward
+    output = self._base_forward_synib(x, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/vlm/synib_mask_model.py", line 1378, in _base_forward_synib
+    uni_pred_1, uni_pred_2, z1, z2, na_z1, na_z2 = self._get_features(x, **kwargs)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/vlm/synib_mask_model.py", line 1327, in _get_features
+    out1 = self.enc_1(x, detach_pred=detach_uni, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/crema_d/crema_backbone_fusion_models.py", line 120, in forward
+    v = self.visual_net(x[1])
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/model_utils/backbone.py", line 158, in forward
+    x = self.layer3(x)
+        ^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/container.py", line 240, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/src/synib/models/model_utils/backbone.py", line 47, in forward
+    identity = self.downsample(x)
+               ^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/container.py", line 240, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 554, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 549, in _conv_forward
+    return F.conv2d(
+           ^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 74.00 MiB. GPU 0 has a total capacity of 10.58 GiB of which 61.12 MiB is free. Including non-PyTorch memory, this process has 10.45 GiB memory in use. Of the allocated memory 10.24 GiB is allocated by PyTorch, and 24.87 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

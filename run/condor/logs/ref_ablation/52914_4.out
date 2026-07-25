@@ -1,0 +1,163 @@
+Starting SynIB reference-ablation job
+Python 3.12.12
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB  (git a2fb4fd)
+GPU 0: NVIDIA GeForce RTX 2080 Ti (UUID: GPU-ebe8a4fd-f875-2528-4ec3-792027cc02ae)
+Executing: PYTHONPATH=src /esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/bin/python -m synib.entrypoints.train --config run/configs/rebuttal_ref_ablation/cremad_synib_u.json --default_config run/configs/rebuttal_ref_ablation/cremad_default.json --fold 1 --ironic_rate 0.5 --rmask random --l 1.0 --perturb_pmin 0.20 --perturb_fill ema --reference_type unimodal_anchor --ref_diag --start_over --tag REFABL_cremad
+Namespace(config='run/configs/rebuttal_ref_ablation/cremad_synib_u.json', default_config='run/configs/rebuttal_ref_ablation/cremad_default.json', fold='1', alpha=None, tanh_mode_beta=None, regby=None, batch_size=None, l='1.0', multil=None, lib=None, kmepoch=None, num_samples=None, contrcoeff=None, contr_type=None, shuffle_type=None, validate_with=None, num_classes=None, optim_method=None, ending_epoch=None, load_ongoing=None, recon_weight1=None, recon_weight2=None, recon_epochstages=None, recon_ensemblestages=None, lr=None, wd=None, cls=None, ironic_rate='0.5', perturb='random', perturb_fill='ema', perturb_pmax=None, perturb_pmin='0.20', perturb_lsparse=None, rmask='random', pmin=None, pmax=None, lsparse=None, debug_mask_stats=False, pre=False, frozen=False, tdqm_disable=False, start_over=True, no_model_save=False, num_layers=None, grad_accum=None, init_from=None, init_strict=False, perturb_lsparse_sign=None, l_anneal_epochs=None, perturb_steps=None, perturb_lsparse_warmup=None, perturb_lsparse_schedule=None, persist_ell=False, save_masks=False, penalty_swap=False, disable_ce_random=False, disable_kl_learned=False, masking_only=False, modality_dropout=None, modality_dropout_target=None, l_z1_masked=None, l_z2_masked=None, l_pareto=None, reference_type='unimodal_anchor', ref_diag=True, ref_ema_decay=None, tag='REFABL_cremad')
+2026-07-25 17:04:24,214 - Config - INFO - run/configs/rebuttal_ref_ablation/cremad_synib_u.json
+2026-07-25 17:04:24,217 - Config - INFO -  THE Configuration of your experiment ..
+{'agent': 'Agent',
+ 'dataset': {'data_roots': './data/CremaD/CREMA-D',
+             'data_split': {'fold': 0, 'method': 'non_inclusive'},
+             'dataloader_class': 'IronyCremadDataloader',
+             'fps': 1,
+             'ironic_label_name': 'SARCASM',
+             'ironic_modes': ['train', 'val', 'test'],
+             'ironic_rate': 1.0,
+             'norm': False,
+             'norm_face_path': './src/synib/mydatasets/Irony_Cremad/assets/norms/norm_face_path_fold{}.pkl',
+             'norm_wav_path': './src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold{}.pkl',
+             'num_frame': 3,
+             'return_data': {'audio': False,
+                             'face': False,
+                             'spectrogram': True,
+                             'video': True},
+             'sampling_rate': 22050},
+ 'early_stopping': {'end_of_epoch_check': True,
+                    'log_interval': 10,
+                    'max_epoch': 1500,
+                    'n_steps_stop': 30,
+                    'n_steps_stop_after': 0,
+                    'save_every_step': 3000,
+                    'save_every_valstep': 10,
+                    'validate_after': 0,
+                    'validate_every': 25,
+                    'validate_with': 'accuracy'},
+ 'exp_name': 'CREMAD Experiment',
+ 'model': {'args': {'bias_infusion': {'contrcoeff': 0.0, 'l': 1.0},
+                    'cls_type': 'mlp',
+                    'd_model': 512,
+                    'dropout': 0.1,
+                    'fc_inner': 64,
+                    'in_dim': 64,
+                    'multi_loss': {'multi_supervised_w': {'c': 1,
+                                                          'combined': 1,
+                                                          'g': 1}},
+                    'norm_decision': False,
+                    'num_classes': 7,
+                    'synergy_type': 'unimodal_anchor'},
+           'ceu': {'test': './artifacts/ceus/cremad/cremadplus_ceu_test_res_{}.pkl',
+                   'val': './artifacts/ceus/cremad/cremadplus_ceu_val_res_{}.pkl'},
+           'encoders': [{'args': {'d_model': 512,
+                                  'dropout': 0.1,
+                                  'fc_inner': 64,
+                                  'freeze_encoder': False,
+                                  'num_classes': 7},
+                         'model': 'Audio_ResNet',
+                         'name': 'enc_0_modality1_encoder',
+                         'pretrainedEncoder': {'dir': 'unimodal_audio_fold{}_ir1.0_lr0.001_wd0.0001_clsmlp_bs64.pth.tar',
+                                               'use': True},
+                         'save_encoder': False},
+                        {'args': {'d_model': 512,
+                                  'dropout': 0.1,
+                                  'fc_inner': 64,
+                                  'freeze_encoder': False,
+                                  'num_classes': 7},
+                         'model': 'Video_ResNet',
+                         'name': 'enc_1_modality2_encoder',
+                         'pretrainedEncoder': {'dir': 'unimodal_video_fold{}_ir1.0_lr0.0001_wd0.0001_clsmlp_bs64.pth.tar',
+                                               'use': True},
+                         'save_encoder': False},
+                        {'args': {'d_model': 512,
+                                  'dropout': 0.1,
+                                  'fc_inner': 64,
+                                  'freeze_encoder': False},
+                         'model': 'FusionTrunkLinear',
+                         'name': 'enc_2_fusion_trunk',
+                         'pretrainedEncoder': {'dir': 'enc_2_fusion_trunk_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False},
+                        {'args': {'freeze_encoder': False,
+                                  'in_dim': 64,
+                                  'num_classes': 7},
+                         'model': 'LinearHead',
+                         'name': 'enc_3_fusion_head',
+                         'pretrainedEncoder': {'dir': 'enc_3_fusion_head_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False},
+                        {'args': {'dropout': 0.1,
+                                  'freeze_encoder': False,
+                                  'hidden_dim': 64,
+                                  'in_dim': 512,
+                                  'num_classes': 7},
+                         'model': 'MLPHead',
+                         'name': 'enc_4_unimodal_head_1',
+                         'pretrainedEncoder': {'dir': 'enc_4_unimodal1_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False},
+                        {'args': {'dropout': 0.1,
+                                  'freeze_encoder': False,
+                                  'hidden_dim': 64,
+                                  'in_dim': 512,
+                                  'num_classes': 7},
+                         'model': 'MLPHead',
+                         'name': 'enc_5_unimodal_head_2',
+                         'pretrainedEncoder': {'dir': 'enc_5_unimodal2_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False}],
+           'load_ongoing': False,
+           'model_class': 'FusionIBModel_Mask_U',
+           'save_base_dir': './data/data/2025_data/synergy/CremadPlus/v2',
+           'save_dir': 'SynIB_RMask_U_{}.pth.tar'},
+ 'optimizer': {'beta1': 0.9,
+               'beta2': 0.999,
+               'learning_rate': 1e-05,
+               'momentum': 0.9,
+               'type': 'Adam',
+               'weight_decay': 1e-05},
+ 'scheduler': {'max_lr': 0.03, 'type': 'cosanneal', 'warm_up_steps': 780},
+ 'training_params': {'async_loading': True,
+                     'batch_size': 128,
+                     'cuda': True,
+                     'data_loader_workers': 8,
+                     'gpu_device': [0],
+                     'pin_memory': False,
+                     'rec_test': True,
+                     'res': True,
+                     'seed': 109,
+                     'tdqm_disable': False,
+                     'test_batch_size': 128,
+                     'test_on_bottoms': True,
+                     'use_test_set': True,
+                     'validation': True,
+                     'verbose': True,
+                     'wandb_disable': False}}
+2026-07-25 17:04:24,224 - Config - INFO -  *************************************** 
+2026-07-25 17:04:24,225 - Config - INFO - The experiment name is CREMAD Experiment
+2026-07-25 17:04:24,225 - Config - INFO -  *************************************** 
+2026-07-25 17:04:24,225 - root - INFO - save_dir: SynIB_RMask_U_REFABL_cremad_fold1_l1.0_ir0.5_perturbrandom_fillema_pmin0.20_refunimodal_anchor.pth.tar
+2026-07-25 17:04:24,345 - Cuda Statistics - INFO - __Python VERSION:  3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:16:04) [GCC 11.2.0]
+2026-07-25 17:04:24,345 - Cuda Statistics - INFO - __pyTorch VERSION:  2.7.1+cu118
+2026-07-25 17:04:24,345 - Cuda Statistics - INFO - __CUDA VERSION
+2026-07-25 17:04:24,365 - Cuda Statistics - INFO - __CUDNN VERSION:  90100
+2026-07-25 17:04:24,391 - Cuda Statistics - INFO - __Number CUDA Devices:  1
+2026-07-25 17:04:24,391 - Cuda Statistics - INFO - __Devices
+2026-07-25 17:04:24,392 - Cuda Statistics - INFO - index, name, driver_version, memory.total [MiB], memory.used [MiB], memory.free [MiB]
+2026-07-25 17:04:24,392 - Cuda Statistics - INFO - 0, NVIDIA GeForce RTX 2080 Ti, 610.43.03, 11264 MiB, 290 MiB, 10537 MiB
+2026-07-25 17:04:24,398 - Cuda Statistics - INFO - Active CUDA Device: GPU 0
+2026-07-25 17:04:24,398 - Cuda Statistics - INFO - Available devices  1
+2026-07-25 17:04:24,398 - Cuda Statistics - INFO - Current cuda device  0
+2026-07-25 17:04:26,560 - IronyCremadDataset - INFO - Loaded wav norm from ./src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold1.pkl
+2026-07-25 17:04:27,067 - IronyCremadDataset - INFO - Loaded wav norm from ./src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold1.pkl
+2026-07-25 17:04:27,532 - IronyCremadDataset - INFO - Loaded wav norm from ./src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold1.pkl
+2026-07-25 17:04:27,549 - Agent - INFO - Device: cuda:0
+2026-07-25 17:04:27,549 - Agent - INFO - Total training batches: 32, validate every 25 batches, steps per epoch: 2
+2026-07-25 17:04:27,715 - Agent - INFO - Loss Weights are {'total': 1, 'combined': 1, 'c': 1, 'g': 1}
+2026-07-25 17:04:27,715 - root - INFO - There is no CEU for train
+2026-07-25 17:04:27,717 - root - INFO - There is no CEU for val
+2026-07-25 17:04:27,718 - root - INFO - There is no CEU for test
+{'d_model': 512, 'num_classes': 7, 'fc_inner': 64, 'dropout': 0.1, 'freeze_encoder': False}
+2026-07-25 17:04:30,240 - root - INFO - Loading enc best model state dict from ./data/data/2025_data/synergy/CremadPlus/v2/unimodal_audio_fold1_ir0.5_lr0.001_wd0.0001_clsmlp_bs64.pth.tar
+2026-07-25 17:04:32,824 - root - INFO - Loading enc best model state dict from ./data/data/2025_data/synergy/CremadPlus/v2/unimodal_video_fold1_ir0.5_lr0.0001_wd0.0001_clsmlp_bs64.pth.tar
+2026-07-25 17:04:33,210 - Agent - INFO - Total number of trainable parameters are: 67194431
+2026-07-25 17:04:33,220 - Agent - INFO - Total number of trainable parameters are: 22486563
