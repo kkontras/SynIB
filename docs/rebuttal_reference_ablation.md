@@ -46,8 +46,9 @@ solvable ones.
 | MUStARD | acc | 58.83 ± 2.19 | 60.07 ± 3.60 | 59.58 ± 2.65 |
 | MOSI | acc | 72.91 ± 1.53 | 73.10 ± 0.66 | 73.37 ± 1.37 |
 | UR-Funny | acc | 62.27 ± 0.75 | 62.85 ± 0.40 | 62.51 ± 1.13 |
-| Hateful Memes | acc | *(running)* | *(running)* | *(running)* |
-| CREMA-D-Irony α=0.5 | irony-F1 / total-F1 | *(running)* | *(running)* | *(running)* |
+| Hateful Memes | acc | 68.50 ± 2.93 | 65.52 ± 3.79 *(fold-1 arm still training)* | 67.12 ± 0.90 |
+| CREMA-D-Irony α=0.5 | acc | 64.05 ± 2.68 | 64.4 *(2 folds pending)* | 61.99 ± 4.11 |
+| CREMA-D-Irony α=0.5 | irony-F1 | 18.33 | 4.8 *(2 folds pending)* | 3.33 |
 
 Synergy-subset accuracy (test samples misclassified by every unimodal model; CEU-defined, identical
 subset across arms):
@@ -57,7 +58,7 @@ subset across arms):
 | MUStARD | 33.94 ± 14.25 | 32.10 ± 21.57 | 34.22 ± 23.54 | −1.8 … +0.3 |
 | MOSI | 17.40 ± 3.33 | 15.46 ± 3.16 | 14.56 ± 4.16 | −2.8 … −1.9 |
 | UR-Funny | 13.90 ± 6.77 | 11.79 ± 0.66 | 16.51 ± 6.94 | −2.1 … +2.6 |
-| Hateful Memes | *(running)* | | | |
+| Hateful Memes | 50.40 ± 10.97 | 37.16 ± 10.04 *(1 arm training)* | 43.64 ± 6.28 | class_prior −6.0/−3.0/−30.7; anchor −2.5/−3.8/−14.0 |
 
 Paired per-fold differences vs uniform (headline acc, pp):
 
@@ -79,7 +80,12 @@ solid = modality-2-masked branch, dashed = modality-1-masked branch.
 - MUStARD: PASS — paired Δ −1.8/+0.3 pp against fold-sd ≥ 14 pp.
 - MOSI: PASS (weak) — Δ −1.9/−2.8 pp, subset n ≈ 100–160, well within seed noise.
 - UR-Funny: PASS — Δ −2.1/+2.6 pp, within noise.
-- HM / CREMA-D: pending.
+- Hateful Memes: **FAIL (informative references hurt the synergy subset)** — paired Δ vs uniform is
+  negative on every fold for both class_prior (−6.0/−3.0/−30.7) and anchor (−2.5/−3.8/−14.0);
+  uniform 50.4 vs anchor 43.6 vs class_prior 37.2. (Fold-1 class_prior still training; magnitudes
+  may shrink but the sign pattern is 6/6.)
+- CREMA-D (class-level analogue: irony-F1): **FAIL in the same direction** — uniform 18.3 vs
+  anchor 3.3 (class_prior pending).
 
 **(b) Headline ordering unimodal_anchor ≥ class_prior ≥ uniform at matched λ; gap larger on
 unimodal-heavy datasets.**
