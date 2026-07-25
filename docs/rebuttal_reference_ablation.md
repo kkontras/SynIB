@@ -103,6 +103,32 @@ unimodal solvability.**
 **(d) λ-tolerance (uniform degrades faster with λ than unimodal_anchor).** Pending (cluster 52922 +
 CREMA-D λ wave).
 
-## Rebuttal paragraph
+## Rebuttal paragraph (working draft — numbers final for multibench/CREMA-D-α0.5-partial; HM & remaining arms pending)
 
-*(written after the full matrix lands)*
+**Purpose:** show whether the reference r makes any substantial difference, and support the
+intuition behind the paper's choice — not to characterize convergence.
+
+> *On the choice of reference distribution (W1).* The KL term compares the corrupted-input
+> prediction to a reference r, and the reviewer asks how sensitive the objective is to this
+> construction. We ran the full benchmark suite with three references — uniform, the empirical
+> class prior, and the complementary modality's unimodal prediction (EMA copy) — holding every
+> other hyperparameter at the paper's values (3 seeds/folds each). At the operating λ of every
+> benchmark, the choice of r is second-order: headline metrics move by at most ~1 point
+> (MUStARD 58.8/60.1/59.6, MOSI 72.9/73.1/73.4, UR-Funny 62.3/62.9/62.5 for
+> uniform/class-prior/anchor; HM pending), and synergy-subset accuracy is statistically
+> unchanged in paired per-fold comparisons. This matches the decomposition
+> E[D_KL(p(·|x̃₁,x₂)‖r)] = I(X̃₁;Y|X₂) + E[D_KL(p(·|x₂)‖r)]: r enters only through the second
+> term, which is bounded (≤ log K for uniform) and small exactly on the synergy-dependent
+> examples the objective targets, where the remaining-modality conditional is uncertain. The
+> one regime where r matters confirms the same intuition: on CREMA-D-Irony (λ = 1.0, where the
+> penalty binds) an *informative-but-wrong* reference — the complementary unimodal prediction,
+> which confidently asserts the base emotion on ironic samples — makes the second term large on
+> precisely the synergy class and suppresses it (irony-F1 18.3 → 3.3), while the uninformative
+> uniform reference only tempers confidence and preserves synergy. Both findings — insensitivity
+> at operating λ, and the direction of the one sensitivity — support the principle behind our
+> construction: the reference should inject no achievable label information, and we standardize
+> on the uniform reference in the revision.
+
+*(Pending before final: HM columns; CREMA-D class-prior folds 0/2; `anchor_legacy` arms —
+the released code's direction — expected to behave like the uninformative case because its
+target is not predictable from the visible modality; α=0.1 scarce-synergy check; λ sweep.)*
