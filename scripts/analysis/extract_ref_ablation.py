@@ -11,6 +11,7 @@ Usage: PYTHONPATH=src python scripts/analysis/extract_ref_ablation.py [--glob PA
 
 import argparse
 import csv
+from collections import defaultdict
 import glob
 import os
 import re
@@ -93,12 +94,29 @@ def main():
                 best_vacc, best_step = vacc, step
         if best_step is not None:
             tm = tl.get(best_step, {})
+            # n_val_steps guards against crashed/evicted runs (a killed job still writes a
+            # checkpoint): an arm with far fewer validation steps than its peers is
+            # undertrained and must not enter a paired comparison.
             summary.append({
                 "file": os.path.basename(f), **meta,
+                "n_val_steps": len(vl),
                 "best_val_step": best_step, "best_val_acc": best_vacc,
                 **{f"test_{k}": v for k, v in row_from_metrics(tm, meta["ds"]).items()},
                 "seed": logs.get("seed"),
             })
+
+    # flag runs whose validation-step count is far below the median of their dataset's arms
+    by_ds = defaultdict(list)
+    for s in summary:
+        by_ds[(s["ds"], s["alpha"], s["lam"])].append(s)
+    for key, group in by_ds.items():
+        counts = sorted(s["n_val_steps"] for s in group)
+        med = counts[len(counts) // 2]
+        for s in group:
+            s["undertrained"] = s["n_val_steps"] < 0.5 * med
+            if s["undertrained"]:
+                print(f"WARNING undertrained (likely crashed): {s['file']} "
+                      f"n_val_steps={s['n_val_steps']} vs median {med} for {key}")
 
     os.makedirs(args.outdir, exist_ok=True)
     for name, rows in (("rebuttal_ref_ablation_curves.csv", curves),

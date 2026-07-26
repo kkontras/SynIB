@@ -46,7 +46,7 @@ solvable ones.
 | MUStARD | acc | 58.83 ± 2.19 | 60.07 ± 3.60 | 59.58 ± 2.65 |
 | MOSI | acc | 72.91 ± 1.53 | 73.10 ± 0.66 | 73.37 ± 1.37 |
 | UR-Funny | acc | 62.27 ± 0.75 | 62.85 ± 0.40 | 62.51 ± 1.13 |
-| Hateful Memes | acc | 68.50 ± 2.93 | 65.30 ± 3.43 | 67.12 ± 0.90 |
+| Hateful Memes (folds 1–2 only, see note) | acc | 70.00 ± 1.91 | 65.78 ± 4.70 | 67.55 ± 0.71 |
 | CREMA-D-Irony α=0.5 | acc | 64.05 ± 2.68 | 63.32 ± 2.67 | 61.99 ± 4.11 |
 | CREMA-D-Irony α=0.5 | total-F1 | 58.93 ± 4.31 | 56.58 ± 3.98 | 54.97 ± 4.23 |
 | CREMA-D-Irony α=0.5 | irony-F1 | 18.33 ± 10.41 (6.4/25.4/23.2) | 8.28 ± 8.05 (2.5/4.8/17.5) | 3.33 ± 1.44 (2.5/5.0/2.5) |
@@ -61,7 +61,17 @@ subset across arms):
 | MUStARD | 33.94 ± 14.25 | 32.10 ± 21.57 | 34.22 ± 23.54 | −1.8 … +0.3 |
 | MOSI | 17.40 ± 3.33 | 15.46 ± 3.16 | 14.56 ± 4.16 | −2.8 … −1.9 |
 | UR-Funny | 13.90 ± 6.77 | 11.79 ± 0.66 | 16.51 ± 6.94 | −2.1 … +2.6 |
-| Hateful Memes | 50.40 ± 10.97 | 38.17 ± 11.76 | 43.64 ± 6.28 | class_prior −6.0/0.0/−30.7; anchor −2.5/−3.8/−14.0 |
+| Hateful Memes (folds 1–2) | 56.15 ± 6.43 | 40.80 ± 15.27 | 47.25 ± 0.78 | class_prior 0.0/−30.7; anchor −3.8/−14.0 |
+
+> **Note (HM fold 0).** The fold-0 `uniform` and `class_prior` jobs (52913_3, 52913_27) crashed on
+> a node flake (`RuntimeError: DataLoader worker exited unexpectedly`, exit 1) after 2 and 4
+> validation steps respectively, while their `unimodal_anchor` counterpart ran 44 — a killed job
+> still writes a checkpoint, so those two arms were undertrained, not comparable. Fold 0 is
+> therefore excluded from the HM rows above and both runs were resubmitted (cluster 52950);
+> the table will move to n=3 when they land. `extract_ref_ablation.py` now records
+> `n_val_steps` per run and warns when an arm falls below half its dataset's median, so this
+> class of error cannot pass silently again. (Direction is unaffected: on the valid folds the
+> uniform advantage is larger, not smaller, than in the earlier 3-fold numbers.)
 
 Paired per-fold differences vs uniform (headline acc, pp):
 
@@ -83,9 +93,9 @@ solid = modality-2-masked branch, dashed = modality-1-masked branch.
 - MUStARD: PASS — paired Δ −1.8/+0.3 pp against fold-sd ≥ 14 pp.
 - MOSI: PASS (weak) — Δ −1.9/−2.8 pp, subset n ≈ 100–160, well within seed noise.
 - UR-Funny: PASS — Δ −2.1/+2.6 pp, within noise.
-- Hateful Memes: **FAIL (informative references hurt the synergy subset)** — FINAL: paired Δ vs
-  uniform ≤ 0 on every fold for both class_prior (−6.0/0.0/−30.7) and anchor (−2.5/−3.8/−14.0);
-  uniform 50.4 ± 11.0 vs anchor 43.6 ± 6.3 vs class_prior 38.2 ± 11.8.
+- Hateful Memes: **FAIL (informative references hurt the synergy subset)** — valid folds (1–2):
+  paired Δ vs uniform ≤ 0 in every comparison, class_prior 0.0/−30.7 and anchor −3.8/−14.0;
+  uniform 56.2 vs anchor 47.3 vs class_prior 40.8. n=2 pending the fold-0 reruns.
 - CREMA-D (class-level analogue: irony-F1): **FAIL in the same direction** — FINAL:
   uniform 18.3 ± 10.4 vs class_prior 8.3 ± 8.1 vs anchor 3.3 ± 1.4; ordering
   uniform > class_prior > anchor matches r's mass on the synergy class (1/7 ≈ 14% > ~8% prior
