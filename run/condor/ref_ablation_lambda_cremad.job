@@ -9,5 +9,5 @@ RequestMemory = 24G
 RequestWalltime = 43200
 Request_GPUs = 1
 NiceUser     = True
-Requirements = (GPUs_GlobalMemoryMb > 11000) && (GPUs_Capability >= 7.5) && (GPUs_Capability < 12.0) && (machine != "spinel.esat.kuleuven.be") && (machine != "raidho.esat.kuleuven.be") && (machine != "thurisaz.esat.kuleuven.be") && (machine != "spchcl18.esat.kuleuven.be") && (machine != "psi-test2.esat.kuleuven.be") && (machine != "wulfenite.esat.kuleuven.be") && (machine != "vladimir.esat.kuleuven.be") && (machine != "estragon.esat.kuleuven.be")
+Requirements = (GPUs_GlobalMemoryMb > 13000) && (GPUs_Capability >= 7.5) && (GPUs_Capability < 12.0) && (machine != "spinel.esat.kuleuven.be") && (machine != "raidho.esat.kuleuven.be") && (machine != "thurisaz.esat.kuleuven.be") && (machine != "spchcl18.esat.kuleuven.be") && (machine != "psi-test2.esat.kuleuven.be") && (machine != "wulfenite.esat.kuleuven.be") && (machine != "vladimir.esat.kuleuven.be") && (machine != "estragon.esat.kuleuven.be")
 Queue Arguments from /esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB/run/condor/ref_ablation_lambda_cremad.args

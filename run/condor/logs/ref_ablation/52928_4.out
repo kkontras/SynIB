@@ -1,0 +1,263 @@
+Starting SynIB reference-ablation job
+Python 3.12.12
+/esat/smcdata/users/kkontras/Image_Dataset/no_backup/git/SynIB  (git a0225b1)
+GPU 0: NVIDIA GeForce RTX 3090 (UUID: GPU-343c9056-1bd0-0382-0495-b4b1857887a3)
+Executing: PYTHONPATH=src /esat/smcdata/users/kkontras/Image_Dataset/no_backup/envs/synergy/bin/python -m synib.entrypoints.train --config run/configs/rebuttal_ref_ablation/cremad_synib_u.json --default_config run/configs/rebuttal_ref_ablation/cremad_default.json --fold 2 --ironic_rate 0.1 --rmask random --l 1.0 --perturb_pmin 0.20 --perturb_fill ema --reference_type uniform --ref_diag --start_over --tag REFABL_cremad_a01
+Namespace(config='run/configs/rebuttal_ref_ablation/cremad_synib_u.json', default_config='run/configs/rebuttal_ref_ablation/cremad_default.json', fold='2', alpha=None, tanh_mode_beta=None, regby=None, batch_size=None, l='1.0', multil=None, lib=None, kmepoch=None, num_samples=None, contrcoeff=None, contr_type=None, shuffle_type=None, validate_with=None, num_classes=None, optim_method=None, ending_epoch=None, load_ongoing=None, recon_weight1=None, recon_weight2=None, recon_epochstages=None, recon_ensemblestages=None, lr=None, wd=None, cls=None, ironic_rate='0.1', perturb='random', perturb_fill='ema', perturb_pmax=None, perturb_pmin='0.20', perturb_lsparse=None, rmask='random', pmin=None, pmax=None, lsparse=None, debug_mask_stats=False, pre=False, frozen=False, tdqm_disable=False, start_over=True, no_model_save=False, num_layers=None, grad_accum=None, init_from=None, init_strict=False, perturb_lsparse_sign=None, l_anneal_epochs=None, perturb_steps=None, perturb_lsparse_warmup=None, perturb_lsparse_schedule=None, persist_ell=False, save_masks=False, penalty_swap=False, disable_ce_random=False, disable_kl_learned=False, masking_only=False, modality_dropout=None, modality_dropout_target=None, l_z1_masked=None, l_z2_masked=None, l_pareto=None, reference_type='uniform', ref_diag=True, ref_ema_decay=None, tag='REFABL_cremad_a01')
+2026-07-26 03:20:24,672 - Config - INFO - run/configs/rebuttal_ref_ablation/cremad_synib_u.json
+2026-07-26 03:20:24,674 - Config - INFO -  THE Configuration of your experiment ..
+{'agent': 'Agent',
+ 'dataset': {'data_roots': './data/CremaD/CREMA-D',
+             'data_split': {'fold': 0, 'method': 'non_inclusive'},
+             'dataloader_class': 'IronyCremadDataloader',
+             'fps': 1,
+             'ironic_label_name': 'SARCASM',
+             'ironic_modes': ['train', 'val', 'test'],
+             'ironic_rate': 1.0,
+             'norm': False,
+             'norm_face_path': './src/synib/mydatasets/Irony_Cremad/assets/norms/norm_face_path_fold{}.pkl',
+             'norm_wav_path': './src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold{}.pkl',
+             'num_frame': 3,
+             'return_data': {'audio': False,
+                             'face': False,
+                             'spectrogram': True,
+                             'video': True},
+             'sampling_rate': 22050},
+ 'early_stopping': {'end_of_epoch_check': True,
+                    'log_interval': 10,
+                    'max_epoch': 1500,
+                    'n_steps_stop': 30,
+                    'n_steps_stop_after': 0,
+                    'save_every_step': 3000,
+                    'save_every_valstep': 10,
+                    'validate_after': 0,
+                    'validate_every': 25,
+                    'validate_with': 'accuracy'},
+ 'exp_name': 'CREMAD Experiment',
+ 'model': {'args': {'bias_infusion': {'contrcoeff': 0.0, 'l': 1.0},
+                    'cls_type': 'mlp',
+                    'd_model': 512,
+                    'dropout': 0.1,
+                    'fc_inner': 64,
+                    'in_dim': 64,
+                    'multi_loss': {'multi_supervised_w': {'c': 1,
+                                                          'combined': 1,
+                                                          'g': 1}},
+                    'norm_decision': False,
+                    'num_classes': 7,
+                    'synergy_type': 'unimodal_anchor'},
+           'ceu': {'test': './artifacts/ceus/cremad/cremadplus_ceu_test_res_{}.pkl',
+                   'val': './artifacts/ceus/cremad/cremadplus_ceu_val_res_{}.pkl'},
+           'encoders': [{'args': {'d_model': 512,
+                                  'dropout': 0.1,
+                                  'fc_inner': 64,
+                                  'freeze_encoder': False,
+                                  'num_classes': 7},
+                         'model': 'Audio_ResNet',
+                         'name': 'enc_0_modality1_encoder',
+                         'pretrainedEncoder': {'dir': 'unimodal_audio_fold{}_ir1.0_lr0.001_wd0.0001_clsmlp_bs64.pth.tar',
+                                               'use': True},
+                         'save_encoder': False},
+                        {'args': {'d_model': 512,
+                                  'dropout': 0.1,
+                                  'fc_inner': 64,
+                                  'freeze_encoder': False,
+                                  'num_classes': 7},
+                         'model': 'Video_ResNet',
+                         'name': 'enc_1_modality2_encoder',
+                         'pretrainedEncoder': {'dir': 'unimodal_video_fold{}_ir1.0_lr0.0001_wd0.0001_clsmlp_bs64.pth.tar',
+                                               'use': True},
+                         'save_encoder': False},
+                        {'args': {'d_model': 512,
+                                  'dropout': 0.1,
+                                  'fc_inner': 64,
+                                  'freeze_encoder': False},
+                         'model': 'FusionTrunkLinear',
+                         'name': 'enc_2_fusion_trunk',
+                         'pretrainedEncoder': {'dir': 'enc_2_fusion_trunk_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False},
+                        {'args': {'freeze_encoder': False,
+                                  'in_dim': 64,
+                                  'num_classes': 7},
+                         'model': 'LinearHead',
+                         'name': 'enc_3_fusion_head',
+                         'pretrainedEncoder': {'dir': 'enc_3_fusion_head_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False},
+                        {'args': {'dropout': 0.1,
+                                  'freeze_encoder': False,
+                                  'hidden_dim': 64,
+                                  'in_dim': 512,
+                                  'num_classes': 7},
+                         'model': 'MLPHead',
+                         'name': 'enc_4_unimodal_head_1',
+                         'pretrainedEncoder': {'dir': 'enc_4_unimodal1_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False},
+                        {'args': {'dropout': 0.1,
+                                  'freeze_encoder': False,
+                                  'hidden_dim': 64,
+                                  'in_dim': 512,
+                                  'num_classes': 7},
+                         'model': 'MLPHead',
+                         'name': 'enc_5_unimodal_head_2',
+                         'pretrainedEncoder': {'dir': 'enc_5_unimodal2_fold{}.pth.tar',
+                                               'use': False},
+                         'save_encoder': False}],
+           'load_ongoing': False,
+           'model_class': 'FusionIBModel_Mask_U',
+           'save_base_dir': './data/data/2025_data/synergy/CremadPlus/v2',
+           'save_dir': 'SynIB_RMask_U_{}.pth.tar'},
+ 'optimizer': {'beta1': 0.9,
+               'beta2': 0.999,
+               'learning_rate': 1e-05,
+               'momentum': 0.9,
+               'type': 'Adam',
+               'weight_decay': 1e-05},
+ 'scheduler': {'max_lr': 0.03, 'type': 'cosanneal', 'warm_up_steps': 780},
+ 'training_params': {'async_loading': True,
+                     'batch_size': 128,
+                     'cuda': True,
+                     'data_loader_workers': 8,
+                     'gpu_device': [0],
+                     'pin_memory': False,
+                     'rec_test': True,
+                     'res': True,
+                     'seed': 109,
+                     'tdqm_disable': False,
+                     'test_batch_size': 128,
+                     'test_on_bottoms': True,
+                     'use_test_set': True,
+                     'validation': True,
+                     'verbose': True,
+                     'wandb_disable': False}}
+2026-07-26 03:20:24,677 - Config - INFO -  *************************************** 
+2026-07-26 03:20:24,677 - Config - INFO - The experiment name is CREMAD Experiment
+2026-07-26 03:20:24,677 - Config - INFO -  *************************************** 
+2026-07-26 03:20:24,677 - root - INFO - save_dir: SynIB_RMask_U_REFABL_cremad_a01_fold2_l1.0_ir0.1_perturbrandom_fillema_pmin0.20_refuniform.pth.tar
+2026-07-26 03:20:24,795 - Cuda Statistics - INFO - __Python VERSION:  3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:16:04) [GCC 11.2.0]
+2026-07-26 03:20:24,795 - Cuda Statistics - INFO - __pyTorch VERSION:  2.7.1+cu118
+2026-07-26 03:20:24,795 - Cuda Statistics - INFO - __CUDA VERSION
+2026-07-26 03:20:24,802 - Cuda Statistics - INFO - __CUDNN VERSION:  90100
+2026-07-26 03:20:24,830 - Cuda Statistics - INFO - __Number CUDA Devices:  1
+2026-07-26 03:20:24,830 - Cuda Statistics - INFO - __Devices
+2026-07-26 03:20:24,830 - Cuda Statistics - INFO - index, name, driver_version, memory.total [MiB], memory.used [MiB], memory.free [MiB]
+2026-07-26 03:20:24,830 - Cuda Statistics - INFO - 0, NVIDIA GeForce RTX 3090, 610.43.03, 24576 MiB, 4 MiB, 24120 MiB
+2026-07-26 03:20:24,834 - Cuda Statistics - INFO - Active CUDA Device: GPU 0
+2026-07-26 03:20:24,834 - Cuda Statistics - INFO - Available devices  1
+2026-07-26 03:20:24,834 - Cuda Statistics - INFO - Current cuda device  0
+2026-07-26 03:20:26,229 - IronyCremadDataset - INFO - Loaded wav norm from ./src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold2.pkl
+2026-07-26 03:20:26,642 - IronyCremadDataset - INFO - Loaded wav norm from ./src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold2.pkl
+2026-07-26 03:20:27,072 - IronyCremadDataset - INFO - Loaded wav norm from ./src/synib/mydatasets/Irony_Cremad/assets/norms/wav_norm_22050_fold2.pkl
+2026-07-26 03:20:27,076 - Agent - INFO - Device: cuda:0
+2026-07-26 03:20:27,076 - Agent - INFO - Total training batches: 32, validate every 25 batches, steps per epoch: 2
+2026-07-26 03:20:27,189 - Agent - INFO - Loss Weights are {'total': 1, 'combined': 1, 'c': 1, 'g': 1}
+2026-07-26 03:20:27,189 - root - INFO - There is no CEU for train
+2026-07-26 03:20:27,191 - root - INFO - There is no CEU for val
+2026-07-26 03:20:27,191 - root - INFO - There is no CEU for test
+{'d_model': 512, 'num_classes': 7, 'fc_inner': 64, 'dropout': 0.1, 'freeze_encoder': False}
+2026-07-26 03:20:28,547 - root - INFO - Loading enc best model state dict from ./data/data/2025_data/synergy/CremadPlus/v2/unimodal_audio_fold2_ir0.1_lr0.001_wd0.0001_clsmlp_bs64.pth.tar
+2026-07-26 03:20:29,821 - root - INFO - Loading enc best model state dict from ./data/data/2025_data/synergy/CremadPlus/v2/unimodal_video_fold2_ir0.1_lr0.0001_wd0.0001_clsmlp_bs64.pth.tar
+2026-07-26 03:20:30,067 - Agent - INFO - Total number of trainable parameters are: 44840497
+2026-07-26 03:20:30,074 - Agent - INFO - Total number of trainable parameters are: 22486563
+2026-07-26 03:21:55,926 - Evaluator - INFO - New best with loss-accuracy-
+2026-07-26 03:21:55,927 - Agent - INFO - [37mVal Epoch 1 step 1 with [31mce_loss_combined : 1.680152 [31mce_loss_c : 2.015471 [31mce_loss_g : 2.105473 [31mkl_synergy_rand_1 : 0.029746 [31mkl_synergy_rand_2 : 0.030748 [31mkl_synergy_1 : 0.029693 [31mkl_synergy_2 : 0.031602 [31mtotal : 1.801941 [31mdiag_kl_1 : 1.357810 [31mdiag_kl_2 : 1.173971 [94mAcc_combined: 56.50 [94mAcc_c: 59.49 [94mAcc_g: 51.90 [92mF1_combined: 45.32 [92mF1_c: 50.96 [92mF1_g: 43.61 [39m
+2026-07-26 03:21:55,947 - Agent - INFO - [37mTest Epoch 1 step 1 with [31mce_loss_combined : 1.687811 [31mce_loss_c : 2.094534 [31mce_loss_g : 2.307391 [31mkl_synergy_rand_1 : 0.029204 [31mkl_synergy_rand_2 : 0.030040 [31mkl_synergy_1 : 0.029472 [31mkl_synergy_2 : 0.031330 [31mtotal : 1.807858 [31mdiag_kl_1 : 1.342990 [31mdiag_kl_2 : 1.295978 [94mAcc_combined: 56.64 [94mAcc_c: 59.64 [94mAcc_g: 49.14 [92mF1_combined: 46.77 [92mF1_c: 50.52 [92mF1_g: 41.69 [39m
+2026-07-26 03:21:56,593 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_a01_fold2_l1.0_ir0.1_perturbrandom_fillema_pmin0.20_refuniform.pth.tar[39m
+2026-07-26 03:23:19,617 - Evaluator - INFO - New best with loss-accuracy-
+2026-07-26 03:23:19,617 - Agent - INFO - [37mVal Epoch 2 step 2 with [31mce_loss_combined : 1.538384 [31mce_loss_c : 2.033187 [31mce_loss_g : 1.961674 [31mkl_synergy_rand_1 : 0.046522 [31mkl_synergy_rand_2 : 0.047628 [31mkl_synergy_1 : 0.048364 [31mkl_synergy_2 : 0.050882 [31mtotal : 1.731779 [31mdiag_kl_1 : 1.225518 [31mdiag_kl_2 : 1.069712 [94mAcc_combined: 69.62 [94mAcc_c: 58.46 [94mAcc_g: 53.97 [92mF1_combined: 58.92 [92mF1_c: 49.89 [92mF1_g: 45.92 [39m
+2026-07-26 03:23:19,632 - Agent - INFO - [37mTest Epoch 2 step 2 with [31mce_loss_combined : 1.552020 [31mce_loss_c : 2.098463 [31mce_loss_g : 2.380864 [31mkl_synergy_rand_1 : 0.046263 [31mkl_synergy_rand_2 : 0.046941 [31mkl_synergy_1 : 0.047594 [31mkl_synergy_2 : 0.049123 [31mtotal : 1.741941 [31mdiag_kl_1 : 1.223064 [31mdiag_kl_2 : 1.192202 [94mAcc_combined: 67.77 [94mAcc_c: 58.67 [94mAcc_g: 48.50 [92mF1_combined: 57.69 [92mF1_c: 49.33 [92mF1_g: 41.75 [39m
+2026-07-26 03:23:20,853 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_a01_fold2_l1.0_ir0.1_perturbrandom_fillema_pmin0.20_refuniform.pth.tar[39m
+2026-07-26 03:24:39,596 - Evaluator - INFO - New best with loss-accuracy-
+2026-07-26 03:24:39,596 - Agent - INFO - [37mVal Epoch 3 step 3 with [31mce_loss_combined : 1.462759 [31mce_loss_c : 2.001199 [31mce_loss_g : 1.994066 [31mkl_synergy_rand_1 : 0.058836 [31mkl_synergy_rand_2 : 0.060037 [31mkl_synergy_1 : 0.061989 [31mkl_synergy_2 : 0.064460 [31mtotal : 1.708081 [31mdiag_kl_1 : 1.144657 [31mdiag_kl_2 : 1.009923 [94mAcc_combined: 71.23 [94mAcc_c: 58.23 [94mAcc_g: 54.43 [92mF1_combined: 60.39 [92mF1_c: 49.57 [92mF1_g: 46.00 [39m
+2026-07-26 03:24:39,615 - Agent - INFO - [37mTest Epoch 3 step 3 with [31mce_loss_combined : 1.479057 [31mce_loss_c : 2.070449 [31mce_loss_g : 2.353320 [31mkl_synergy_rand_1 : 0.058646 [31mkl_synergy_rand_2 : 0.056696 [31mkl_synergy_1 : 0.059962 [31mkl_synergy_2 : 0.062371 [31mtotal : 1.716732 [31mdiag_kl_1 : 1.149801 [31mdiag_kl_2 : 1.138360 [94mAcc_combined: 70.24 [94mAcc_c: 59.21 [94mAcc_g: 49.36 [92mF1_combined: 59.94 [92mF1_c: 49.90 [92mF1_g: 42.47 [39m
+2026-07-26 03:24:40,946 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_a01_fold2_l1.0_ir0.1_perturbrandom_fillema_pmin0.20_refuniform.pth.tar[39m
+2026-07-26 03:26:02,293 - Evaluator - INFO - New best with loss-
+2026-07-26 03:26:02,293 - Agent - INFO - [37mVal Epoch 4 step 4 with [31mce_loss_combined : 1.423347 [31mce_loss_c : 1.988104 [31mce_loss_g : 1.880777 [31mkl_synergy_rand_1 : 0.070646 [31mkl_synergy_rand_2 : 0.067596 [31mkl_synergy_1 : 0.072354 [31mkl_synergy_2 : 0.075369 [31mtotal : 1.709311 [31mdiag_kl_1 : 1.090020 [31mdiag_kl_2 : 0.988983 [94mAcc_combined: 71.23 [94mAcc_c: 57.77 [94mAcc_g: 54.09 [92mF1_combined: 60.60 [92mF1_c: 49.03 [92mF1_g: 45.84 [39m
+2026-07-26 03:26:02,309 - Agent - INFO - [37mTest Epoch 4 step 4 with [31mce_loss_combined : 1.432598 [31mce_loss_c : 2.013000 [31mce_loss_g : 2.156426 [31mkl_synergy_rand_1 : 0.066900 [31mkl_synergy_rand_2 : 0.064843 [31mkl_synergy_1 : 0.069336 [31mkl_synergy_2 : 0.070482 [31mtotal : 1.704158 [31mdiag_kl_1 : 1.101342 [31mdiag_kl_2 : 1.116067 [94mAcc_combined: 71.20 [94mAcc_c: 59.21 [94mAcc_g: 47.22 [92mF1_combined: 60.77 [92mF1_c: 50.05 [92mF1_g: 40.73 [39m
+2026-07-26 03:26:04,188 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_a01_fold2_l1.0_ir0.1_perturbrandom_fillema_pmin0.20_refuniform.pth.tar[39m
+2026-07-26 03:27:29,912 - Evaluator - INFO - New best with loss-
+2026-07-26 03:27:29,913 - Agent - INFO - [37mVal Epoch 5 step 5 with [31mce_loss_combined : 1.410762 [31mce_loss_c : 1.978449 [31mce_loss_g : 1.794897 [31mkl_synergy_rand_1 : 0.073218 [31mkl_synergy_rand_2 : 0.070079 [31mkl_synergy_1 : 0.077298 [31mkl_synergy_2 : 0.078860 [31mtotal : 1.710218 [31mdiag_kl_1 : 1.066993 [31mdiag_kl_2 : 0.992041 [94mAcc_combined: 70.31 [94mAcc_c: 57.31 [94mAcc_g: 54.32 [92mF1_combined: 59.69 [92mF1_c: 48.29 [92mF1_g: 46.13 [39m
+2026-07-26 03:27:29,933 - Agent - INFO - [37mTest Epoch 5 step 5 with [31mce_loss_combined : 1.423259 [31mce_loss_c : 1.995602 [31mce_loss_g : 2.036137 [31mkl_synergy_rand_1 : 0.068026 [31mkl_synergy_rand_2 : 0.065138 [31mkl_synergy_1 : 0.072583 [31mkl_synergy_2 : 0.072248 [31mtotal : 1.701254 [31mdiag_kl_1 : 1.089269 [31mdiag_kl_2 : 1.116651 [94mAcc_combined: 71.31 [94mAcc_c: 59.21 [94mAcc_g: 47.43 [92mF1_combined: 60.92 [92mF1_c: 49.66 [92mF1_g: 41.16 [39m
+2026-07-26 03:27:31,557 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_a01_fold2_l1.0_ir0.1_perturbrandom_fillema_pmin0.20_refuniform.pth.tar[39m
+2026-07-26 03:28:54,934 - Evaluator - INFO - New best with loss-
+2026-07-26 03:28:54,934 - Agent - INFO - [37mVal Epoch 6 step 6 with [31mce_loss_combined : 1.406773 [31mce_loss_c : 1.946866 [31mce_loss_g : 1.777380 [31mkl_synergy_rand_1 : 0.075216 [31mkl_synergy_rand_2 : 0.072289 [31mkl_synergy_1 : 0.079650 [31mkl_synergy_2 : 0.082293 [31mtotal : 1.716221 [31mdiag_kl_1 : 1.059433 [31mdiag_kl_2 : 0.996700 [94mAcc_combined: 70.08 [94mAcc_c: 56.62 [94mAcc_g: 53.39 [92mF1_combined: 61.12 [92mF1_c: 47.31 [92mF1_g: 45.69 [39m
+2026-07-26 03:28:54,950 - Agent - INFO - [37mTest Epoch 6 step 6 with [31mce_loss_combined : 1.414408 [31mce_loss_c : 1.939851 [31mce_loss_g : 1.947964 [31mkl_synergy_rand_1 : 0.070848 [31mkl_synergy_rand_2 : 0.067555 [31mkl_synergy_1 : 0.075062 [31mkl_synergy_2 : 0.076359 [31mtotal : 1.704232 [31mdiag_kl_1 : 1.083168 [31mdiag_kl_2 : 1.115786 [94mAcc_combined: 71.20 [94mAcc_c: 58.46 [94mAcc_g: 48.07 [92mF1_combined: 60.91 [92mF1_c: 48.97 [92mF1_g: 42.04 [39m
+2026-07-26 03:28:56,627 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_a01_fold2_l1.0_ir0.1_perturbrandom_fillema_pmin0.20_refuniform.pth.tar[39m
+2026-07-26 03:30:21,248 - Evaluator - INFO - New best with loss-
+2026-07-26 03:30:21,249 - Agent - INFO - [37mVal Epoch 7 step 7 with [31mce_loss_combined : 1.403588 [31mce_loss_c : 1.941385 [31mce_loss_g : 1.703972 [31mkl_synergy_rand_1 : 0.075915 [31mkl_synergy_rand_2 : 0.072869 [31mkl_synergy_1 : 0.081905 [31mkl_synergy_2 : 0.082793 [31mtotal : 1.717071 [31mdiag_kl_1 : 1.051046 [31mdiag_kl_2 : 0.986372 [94mAcc_combined: 70.89 [94mAcc_c: 55.58 [94mAcc_g: 54.78 [92mF1_combined: 61.57 [92mF1_c: 46.26 [92mF1_g: 46.40 [39m
+2026-07-26 03:30:21,268 - Agent - INFO - [37mTest Epoch 7 step 7 with [31mce_loss_combined : 1.409494 [31mce_loss_c : 1.907403 [31mce_loss_g : 1.921542 [31mkl_synergy_rand_1 : 0.070647 [31mkl_synergy_rand_2 : 0.066614 [31mkl_synergy_1 : 0.076160 [31mkl_synergy_2 : 0.077702 [31mtotal : 1.700616 [31mdiag_kl_1 : 1.077274 [31mdiag_kl_2 : 1.119010 [94mAcc_combined: 72.16 [94mAcc_c: 57.28 [94mAcc_g: 47.00 [92mF1_combined: 61.45 [92mF1_c: 48.05 [92mF1_g: 40.39 [39m
+2026-07-26 03:30:22,924 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_a01_fold2_l1.0_ir0.1_perturbrandom_fillema_pmin0.20_refuniform.pth.tar[39m
+2026-07-26 03:31:52,304 - Evaluator - INFO - New best with loss-
+2026-07-26 03:31:52,305 - Agent - INFO - [37mVal Epoch 8 step 8 with [31mce_loss_combined : 1.403344 [31mce_loss_c : 1.932695 [31mce_loss_g : 1.690581 [31mkl_synergy_rand_1 : 0.077278 [31mkl_synergy_rand_2 : 0.074069 [31mkl_synergy_1 : 0.083661 [31mkl_synergy_2 : 0.084617 [31mtotal : 1.722969 [31mdiag_kl_1 : 1.049656 [31mdiag_kl_2 : 0.994630 [94mAcc_combined: 70.31 [94mAcc_c: 53.97 [94mAcc_g: 53.16 [92mF1_combined: 60.97 [92mF1_c: 44.79 [92mF1_g: 45.35 [39m
+2026-07-26 03:31:52,324 - Agent - INFO - [37mTest Epoch 8 step 8 with [31mce_loss_combined : 1.407588 [31mce_loss_c : 1.849340 [31mce_loss_g : 1.852033 [31mkl_synergy_rand_1 : 0.071404 [31mkl_synergy_rand_2 : 0.067923 [31mkl_synergy_1 : 0.078344 [31mkl_synergy_2 : 0.076970 [31mtotal : 1.702229 [31mdiag_kl_1 : 1.075611 [31mdiag_kl_2 : 1.128750 [94mAcc_combined: 71.73 [94mAcc_c: 57.17 [94mAcc_g: 46.79 [92mF1_combined: 62.35 [92mF1_c: 48.05 [92mF1_g: 40.75 [39m
+2026-07-26 03:31:53,973 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_a01_fold2_l1.0_ir0.1_perturbrandom_fillema_pmin0.20_refuniform.pth.tar[39m
+2026-07-26 03:33:22,691 - Evaluator - INFO - New best with loss-
+2026-07-26 03:33:22,692 - Agent - INFO - [37mVal Epoch 9 step 9 with [31mce_loss_combined : 1.397859 [31mce_loss_c : 1.833581 [31mce_loss_g : 1.656246 [31mkl_synergy_rand_1 : 0.077963 [31mkl_synergy_rand_2 : 0.072872 [31mkl_synergy_1 : 0.083267 [31mkl_synergy_2 : 0.084199 [31mtotal : 1.716161 [31mdiag_kl_1 : 1.040625 [31mdiag_kl_2 : 1.004258 [94mAcc_combined: 71.23 [94mAcc_c: 53.39 [94mAcc_g: 52.36 [92mF1_combined: 61.61 [92mF1_c: 44.14 [92mF1_g: 44.58 [39m
+2026-07-26 03:33:22,707 - Agent - INFO - [37mTest Epoch 9 step 9 with [31mce_loss_combined : 1.401356 [31mce_loss_c : 1.767484 [31mce_loss_g : 1.781541 [31mkl_synergy_rand_1 : 0.074458 [31mkl_synergy_rand_2 : 0.067536 [31mkl_synergy_1 : 0.078948 [31mkl_synergy_2 : 0.078329 [31mtotal : 1.700627 [31mdiag_kl_1 : 1.056815 [31mdiag_kl_2 : 1.132720 [94mAcc_combined: 72.38 [94mAcc_c: 56.32 [94mAcc_g: 45.82 [92mF1_combined: 64.52 [92mF1_c: 47.37 [92mF1_g: 39.69 [39m
+2026-07-26 03:33:24,412 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_a01_fold2_l1.0_ir0.1_perturbrandom_fillema_pmin0.20_refuniform.pth.tar[39m
+2026-07-26 03:34:55,641 - Agent - INFO - [37mVal Epoch 10 step 10 with [31mce_loss_combined : 1.398330 [31mce_loss_c : 1.764187 [31mce_loss_g : 1.620379 [31mkl_synergy_rand_1 : 0.080132 [31mkl_synergy_rand_2 : 0.074560 [31mkl_synergy_1 : 0.085904 [31mkl_synergy_2 : 0.084829 [31mtotal : 1.723755 [31mdiag_kl_1 : 1.033240 [31mdiag_kl_2 : 1.007480 [94mAcc_combined: 70.54 [94mAcc_c: 51.90 [94mAcc_g: 52.01 [92mF1_combined: 61.96 [92mF1_c: 42.54 [92mF1_g: 44.67 [39m
+2026-07-26 03:34:55,657 - Agent - INFO - [37mTest Epoch 10 step 10 with [31mce_loss_combined : 1.404825 [31mce_loss_c : 1.689620 [31mce_loss_g : 1.672944 [31mkl_synergy_rand_1 : 0.074246 [31mkl_synergy_rand_2 : 0.067492 [31mkl_synergy_1 : 0.080535 [31mkl_synergy_2 : 0.078014 [31mtotal : 1.705113 [31mdiag_kl_1 : 1.064208 [31mdiag_kl_2 : 1.147380 [94mAcc_combined: 71.84 [94mAcc_c: 54.93 [94mAcc_g: 46.57 [92mF1_combined: 63.86 [92mF1_c: 46.15 [92mF1_g: 40.61 [39m
+2026-07-26 03:36:27,537 - Agent - INFO - [37mVal Epoch 11 step 11 with [31mce_loss_combined : 1.407820 [31mce_loss_c : 1.656439 [31mce_loss_g : 1.571247 [31mkl_synergy_rand_1 : 0.078866 [31mkl_synergy_rand_2 : 0.070564 [31mkl_synergy_1 : 0.084650 [31mkl_synergy_2 : 0.079148 [31mtotal : 1.721047 [31mdiag_kl_1 : 1.028186 [31mdiag_kl_2 : 1.027664 [94mAcc_combined: 70.43 [94mAcc_c: 52.59 [94mAcc_g: 51.78 [92mF1_combined: 62.53 [92mF1_c: 43.41 [92mF1_g: 44.33 [39m
+2026-07-26 03:36:27,557 - Agent - INFO - [37mTest Epoch 11 step 11 with [31mce_loss_combined : 1.412352 [31mce_loss_c : 1.613341 [31mce_loss_g : 1.627152 [31mkl_synergy_rand_1 : 0.072687 [31mkl_synergy_rand_2 : 0.065668 [31mkl_synergy_1 : 0.077463 [31mkl_synergy_2 : 0.073700 [31mtotal : 1.701870 [31mdiag_kl_1 : 1.057078 [31mdiag_kl_2 : 1.164667 [94mAcc_combined: 71.41 [94mAcc_c: 53.53 [94mAcc_g: 46.47 [92mF1_combined: 63.35 [92mF1_c: 45.16 [92mF1_g: 40.51 [39m
+2026-07-26 03:37:59,013 - Agent - INFO - [37mVal Epoch 12 step 12 with [31mce_loss_combined : 1.414214 [31mce_loss_c : 1.567819 [31mce_loss_g : 1.572496 [31mkl_synergy_rand_1 : 0.078985 [31mkl_synergy_rand_2 : 0.071174 [31mkl_synergy_1 : 0.083446 [31mkl_synergy_2 : 0.078075 [31mtotal : 1.725894 [31mdiag_kl_1 : 1.022773 [31mdiag_kl_2 : 1.029492 [94mAcc_combined: 68.81 [94mAcc_c: 51.67 [94mAcc_g: 50.86 [92mF1_combined: 60.25 [92mF1_c: 42.26 [92mF1_g: 43.52 [39m
+2026-07-26 03:37:59,033 - Agent - INFO - [37mTest Epoch 12 step 12 with [31mce_loss_combined : 1.420891 [31mce_loss_c : 1.552556 [31mce_loss_g : 1.617181 [31mkl_synergy_rand_1 : 0.072632 [31mkl_synergy_rand_2 : 0.064185 [31mkl_synergy_1 : 0.078852 [31mkl_synergy_2 : 0.073235 [31mtotal : 1.709794 [31mdiag_kl_1 : 1.053648 [31mdiag_kl_2 : 1.168313 [94mAcc_combined: 69.91 [94mAcc_c: 52.03 [94mAcc_g: 45.82 [92mF1_combined: 61.93 [92mF1_c: 43.79 [92mF1_g: 39.66 [39m
+2026-07-26 03:39:34,041 - Agent - INFO - [37mVal Epoch 13 step 13 with [31mce_loss_combined : 1.419731 [31mce_loss_c : 1.498552 [31mce_loss_g : 1.563375 [31mkl_synergy_rand_1 : 0.078771 [31mkl_synergy_rand_2 : 0.067659 [31mkl_synergy_1 : 0.083823 [31mkl_synergy_2 : 0.076185 [31mtotal : 1.726169 [31mdiag_kl_1 : 1.017953 [31mdiag_kl_2 : 1.050150 [94mAcc_combined: 68.35 [94mAcc_c: 50.63 [94mAcc_g: 49.02 [92mF1_combined: 59.84 [92mF1_c: 41.92 [92mF1_g: 41.76 [39m
+2026-07-26 03:39:34,062 - Agent - INFO - [37mTest Epoch 13 step 13 with [31mce_loss_combined : 1.428567 [31mce_loss_c : 1.510017 [31mce_loss_g : 1.615302 [31mkl_synergy_rand_1 : 0.072617 [31mkl_synergy_rand_2 : 0.061657 [31mkl_synergy_1 : 0.079486 [31mkl_synergy_2 : 0.069405 [31mtotal : 1.711731 [31mdiag_kl_1 : 1.046154 [31mdiag_kl_2 : 1.184931 [94mAcc_combined: 68.95 [94mAcc_c: 50.75 [94mAcc_g: 44.97 [92mF1_combined: 61.13 [92mF1_c: 42.81 [92mF1_g: 38.76 [39m
+2026-07-26 03:41:01,908 - Agent - INFO - [37mVal Epoch 14 step 14 with [31mce_loss_combined : 1.430899 [31mce_loss_c : 1.439986 [31mce_loss_g : 1.594992 [31mkl_synergy_rand_1 : 0.078339 [31mkl_synergy_rand_2 : 0.066499 [31mkl_synergy_1 : 0.082834 [31mkl_synergy_2 : 0.073399 [31mtotal : 1.731969 [31mdiag_kl_1 : 1.020408 [31mdiag_kl_2 : 1.048514 [94mAcc_combined: 66.28 [94mAcc_c: 49.25 [94mAcc_g: 47.64 [92mF1_combined: 57.79 [92mF1_c: 40.70 [92mF1_g: 40.46 [39m
+2026-07-26 03:41:01,934 - Agent - INFO - [37mTest Epoch 14 step 14 with [31mce_loss_combined : 1.433781 [31mce_loss_c : 1.485953 [31mce_loss_g : 1.615549 [31mkl_synergy_rand_1 : 0.071636 [31mkl_synergy_rand_2 : 0.062559 [31mkl_synergy_1 : 0.079327 [31mkl_synergy_2 : 0.066484 [31mtotal : 1.713787 [31mdiag_kl_1 : 1.051219 [31mdiag_kl_2 : 1.180727 [94mAcc_combined: 68.42 [94mAcc_c: 48.93 [94mAcc_g: 43.04 [92mF1_combined: 60.53 [92mF1_c: 41.25 [92mF1_g: 36.74 [39m
+2026-07-26 03:42:29,931 - Agent - INFO - [37mVal Epoch 15 step 15 with [31mce_loss_combined : 1.425830 [31mce_loss_c : 1.438228 [31mce_loss_g : 1.564945 [31mkl_synergy_rand_1 : 0.076234 [31mkl_synergy_rand_2 : 0.066631 [31mkl_synergy_1 : 0.083974 [31mkl_synergy_2 : 0.067314 [31mtotal : 1.719984 [31mdiag_kl_1 : 1.019214 [31mdiag_kl_2 : 1.056019 [94mAcc_combined: 66.28 [94mAcc_c: 47.18 [94mAcc_g: 47.07 [92mF1_combined: 57.96 [92mF1_c: 39.13 [92mF1_g: 40.03 [39m
+2026-07-26 03:42:29,947 - Agent - INFO - [37mTest Epoch 15 step 15 with [31mce_loss_combined : 1.433037 [31mce_loss_c : 1.503765 [31mce_loss_g : 1.581623 [31mkl_synergy_rand_1 : 0.071928 [31mkl_synergy_rand_2 : 0.059377 [31mkl_synergy_1 : 0.080079 [31mkl_synergy_2 : 0.063504 [31mtotal : 1.707926 [31mdiag_kl_1 : 1.038048 [31mdiag_kl_2 : 1.196264 [94mAcc_combined: 68.84 [94mAcc_c: 46.15 [94mAcc_g: 42.61 [92mF1_combined: 60.92 [92mF1_c: 39.20 [92mF1_g: 36.28 [39m
+2026-07-26 03:43:56,937 - Agent - INFO - [37mVal Epoch 16 step 16 with [31mce_loss_combined : 1.436700 [31mce_loss_c : 1.447253 [31mce_loss_g : 1.589370 [31mkl_synergy_rand_1 : 0.077920 [31mkl_synergy_rand_2 : 0.064777 [31mkl_synergy_1 : 0.083669 [31mkl_synergy_2 : 0.063622 [31mtotal : 1.726687 [31mdiag_kl_1 : 1.014194 [31mdiag_kl_2 : 1.066261 [94mAcc_combined: 65.59 [94mAcc_c: 46.03 [94mAcc_g: 43.73 [92mF1_combined: 57.47 [92mF1_c: 38.24 [92mF1_g: 36.86 [39m
+2026-07-26 03:43:56,952 - Agent - INFO - [37mTest Epoch 16 step 16 with [31mce_loss_combined : 1.437038 [31mce_loss_c : 1.531040 [31mce_loss_g : 1.636836 [31mkl_synergy_rand_1 : 0.072423 [31mkl_synergy_rand_2 : 0.059390 [31mkl_synergy_1 : 0.080330 [31mkl_synergy_2 : 0.058726 [31mtotal : 1.707907 [31mdiag_kl_1 : 1.038377 [31mdiag_kl_2 : 1.203255 [94mAcc_combined: 67.45 [94mAcc_c: 42.93 [94mAcc_g: 39.08 [92mF1_combined: 59.86 [92mF1_c: 36.46 [92mF1_g: 32.84 [39m
+2026-07-26 03:45:25,775 - Agent - INFO - [37mVal Epoch 17 step 17 with [31mce_loss_combined : 1.430317 [31mce_loss_c : 1.490795 [31mce_loss_g : 1.638971 [31mkl_synergy_rand_1 : 0.078635 [31mkl_synergy_rand_2 : 0.064351 [31mkl_synergy_1 : 0.085988 [31mkl_synergy_2 : 0.061026 [31mtotal : 1.720316 [31mdiag_kl_1 : 1.005350 [31mdiag_kl_2 : 1.064353 [94mAcc_combined: 65.94 [94mAcc_c: 42.00 [94mAcc_g: 39.36 [92mF1_combined: 57.92 [92mF1_c: 35.02 [92mF1_g: 33.44 [39m
+2026-07-26 03:45:25,796 - Agent - INFO - [37mTest Epoch 17 step 17 with [31mce_loss_combined : 1.435609 [31mce_loss_c : 1.571525 [31mce_loss_g : 1.660090 [31mkl_synergy_rand_1 : 0.073187 [31mkl_synergy_rand_2 : 0.059069 [31mkl_synergy_1 : 0.080477 [31mkl_synergy_2 : 0.056465 [31mtotal : 1.704808 [31mdiag_kl_1 : 1.025295 [31mdiag_kl_2 : 1.209036 [94mAcc_combined: 67.99 [94mAcc_c: 39.72 [94mAcc_g: 36.40 [92mF1_combined: 59.82 [92mF1_c: 34.18 [92mF1_g: 30.94 [39m
+2026-07-26 03:46:50,279 - Agent - INFO - [37mVal Epoch 18 step 18 with [31mce_loss_combined : 1.433938 [31mce_loss_c : 1.548796 [31mce_loss_g : 1.737622 [31mkl_synergy_rand_1 : 0.080122 [31mkl_synergy_rand_2 : 0.065787 [31mkl_synergy_1 : 0.086912 [31mkl_synergy_2 : 0.060564 [31mtotal : 1.727323 [31mdiag_kl_1 : 0.998479 [31mdiag_kl_2 : 1.066866 [94mAcc_combined: 64.44 [94mAcc_c: 37.97 [94mAcc_g: 32.80 [92mF1_combined: 56.89 [92mF1_c: 31.22 [92mF1_g: 27.89 [39m
+2026-07-26 03:46:50,300 - Agent - INFO - [37mTest Epoch 18 step 18 with [31mce_loss_combined : 1.435322 [31mce_loss_c : 1.631560 [31mce_loss_g : 1.748397 [31mkl_synergy_rand_1 : 0.074551 [31mkl_synergy_rand_2 : 0.060808 [31mkl_synergy_1 : 0.082001 [31mkl_synergy_2 : 0.056769 [31mtotal : 1.709451 [31mdiag_kl_1 : 1.026593 [31mdiag_kl_2 : 1.203205 [94mAcc_combined: 67.02 [94mAcc_c: 36.51 [94mAcc_g: 31.37 [92mF1_combined: 60.19 [92mF1_c: 30.35 [92mF1_g: 26.19 [39m
+2026-07-26 03:48:20,476 - Agent - INFO - [37mVal Epoch 19 step 19 with [31mce_loss_combined : 1.422688 [31mce_loss_c : 1.636752 [31mce_loss_g : 1.798321 [31mkl_synergy_rand_1 : 0.080199 [31mkl_synergy_rand_2 : 0.065391 [31mkl_synergy_1 : 0.086705 [31mkl_synergy_2 : 0.062411 [31mtotal : 1.717394 [31mdiag_kl_1 : 0.992561 [31mdiag_kl_2 : 1.066355 [94mAcc_combined: 65.59 [94mAcc_c: 31.30 [94mAcc_g: 30.15 [92mF1_combined: 56.80 [92mF1_c: 26.76 [92mF1_g: 25.70 [39m
+2026-07-26 03:48:20,492 - Agent - INFO - [37mTest Epoch 19 step 19 with [31mce_loss_combined : 1.425379 [31mce_loss_c : 1.702500 [31mce_loss_g : 1.797576 [31mkl_synergy_rand_1 : 0.075105 [31mkl_synergy_rand_2 : 0.060636 [31mkl_synergy_1 : 0.083897 [31mkl_synergy_2 : 0.055509 [31mtotal : 1.700526 [31mdiag_kl_1 : 1.009328 [31mdiag_kl_2 : 1.199982 [94mAcc_combined: 67.77 [94mAcc_c: 29.98 [94mAcc_g: 29.66 [92mF1_combined: 59.65 [92mF1_c: 25.15 [92mF1_g: 24.93 [39m
+2026-07-26 03:49:47,952 - Agent - INFO - [37mVal Epoch 20 step 20 with [31mce_loss_combined : 1.437137 [31mce_loss_c : 1.772480 [31mce_loss_g : 1.822766 [31mkl_synergy_rand_1 : 0.079439 [31mkl_synergy_rand_2 : 0.064273 [31mkl_synergy_1 : 0.087463 [31mkl_synergy_2 : 0.059962 [31mtotal : 1.728275 [31mdiag_kl_1 : 0.996494 [31mdiag_kl_2 : 1.082117 [94mAcc_combined: 64.44 [94mAcc_c: 23.01 [94mAcc_g: 27.04 [92mF1_combined: 57.03 [92mF1_c: 18.01 [92mF1_g: 23.27 [39m
+2026-07-26 03:49:47,971 - Agent - INFO - [37mTest Epoch 20 step 20 with [31mce_loss_combined : 1.435930 [31mce_loss_c : 1.826294 [31mce_loss_g : 1.810993 [31mkl_synergy_rand_1 : 0.076597 [31mkl_synergy_rand_2 : 0.060420 [31mkl_synergy_1 : 0.084440 [31mkl_synergy_2 : 0.056275 [31mtotal : 1.713662 [31mdiag_kl_1 : 1.009330 [31mdiag_kl_2 : 1.217885 [94mAcc_combined: 66.81 [94mAcc_c: 20.77 [94mAcc_g: 28.16 [92mF1_combined: 60.50 [92mF1_c: 16.62 [92mF1_g: 23.87 [39m
+2026-07-26 03:51:13,390 - Agent - INFO - [37mVal Epoch 21 step 21 with [31mce_loss_combined : 1.438362 [31mce_loss_c : 1.820490 [31mce_loss_g : 1.875512 [31mkl_synergy_rand_1 : 0.077263 [31mkl_synergy_rand_2 : 0.064696 [31mkl_synergy_1 : 0.083255 [31mkl_synergy_2 : 0.057868 [31mtotal : 1.721444 [31mdiag_kl_1 : 1.001839 [31mdiag_kl_2 : 1.063938 [94mAcc_combined: 65.25 [94mAcc_c: 17.03 [94mAcc_g: 21.63 [92mF1_combined: 56.50 [92mF1_c: 15.49 [92mF1_g: 18.67 [39m
+2026-07-26 03:51:13,409 - Agent - INFO - [37mTest Epoch 21 step 21 with [31mce_loss_combined : 1.439051 [31mce_loss_c : 1.857289 [31mce_loss_g : 1.868084 [31mkl_synergy_rand_1 : 0.072078 [31mkl_synergy_rand_2 : 0.058963 [31mkl_synergy_1 : 0.079254 [31mkl_synergy_2 : 0.053678 [31mtotal : 1.703024 [31mdiag_kl_1 : 1.020370 [31mdiag_kl_2 : 1.201049 [94mAcc_combined: 67.02 [94mAcc_c: 18.84 [94mAcc_g: 25.27 [92mF1_combined: 59.82 [92mF1_c: 16.35 [92mF1_g: 20.60 [39m
+2026-07-26 03:52:44,041 - Agent - INFO - [37mVal Epoch 22 step 22 with [31mce_loss_combined : 1.445494 [31mce_loss_c : 1.906255 [31mce_loss_g : 1.909076 [31mkl_synergy_rand_1 : 0.077684 [31mkl_synergy_rand_2 : 0.063370 [31mkl_synergy_1 : 0.081234 [31mkl_synergy_2 : 0.057835 [31mtotal : 1.725617 [31mdiag_kl_1 : 0.997437 [31mdiag_kl_2 : 1.068014 [94mAcc_combined: 63.64 [94mAcc_c: 16.00 [94mAcc_g: 19.45 [92mF1_combined: 55.52 [92mF1_c: 14.08 [92mF1_g: 16.66 [39m
+2026-07-26 03:52:44,057 - Agent - INFO - [37mTest Epoch 22 step 22 with [31mce_loss_combined : 1.440286 [31mce_loss_c : 1.927443 [31mce_loss_g : 1.903184 [31mkl_synergy_rand_1 : 0.073169 [31mkl_synergy_rand_2 : 0.059262 [31mkl_synergy_1 : 0.081132 [31mkl_synergy_2 : 0.053681 [31mtotal : 1.707530 [31mdiag_kl_1 : 1.018124 [31mdiag_kl_2 : 1.199950 [94mAcc_combined: 67.45 [94mAcc_c: 15.95 [94mAcc_g: 23.13 [92mF1_combined: 60.15 [92mF1_c: 12.95 [92mF1_g: 18.97 [39m
+2026-07-26 03:54:15,828 - Agent - INFO - [37mVal Epoch 23 step 23 with [31mce_loss_combined : 1.447504 [31mce_loss_c : 2.002518 [31mce_loss_g : 1.941996 [31mkl_synergy_rand_1 : 0.076091 [31mkl_synergy_rand_2 : 0.063233 [31mkl_synergy_1 : 0.081808 [31mkl_synergy_2 : 0.058888 [31mtotal : 1.727524 [31mdiag_kl_1 : 1.011408 [31mdiag_kl_2 : 1.066450 [94mAcc_combined: 63.64 [94mAcc_c: 13.23 [94mAcc_g: 16.23 [92mF1_combined: 54.17 [92mF1_c: 11.24 [92mF1_g: 13.95 [39m
+2026-07-26 03:54:15,850 - Agent - INFO - [37mTest Epoch 23 step 23 with [31mce_loss_combined : 1.441324 [31mce_loss_c : 2.008353 [31mce_loss_g : 1.956928 [31mkl_synergy_rand_1 : 0.073048 [31mkl_synergy_rand_2 : 0.059959 [31mkl_synergy_1 : 0.079735 [31mkl_synergy_2 : 0.054862 [31mtotal : 1.708928 [31mdiag_kl_1 : 1.032784 [31mdiag_kl_2 : 1.192110 [94mAcc_combined: 66.60 [94mAcc_c: 12.31 [94mAcc_g: 20.99 [92mF1_combined: 59.87 [92mF1_c: 9.78 [92mF1_g: 17.10 [39m
+2026-07-26 03:55:43,302 - Agent - INFO - [37mVal Epoch 24 step 24 with [31mce_loss_combined : 1.443322 [31mce_loss_c : 2.082099 [31mce_loss_g : 1.916801 [31mkl_synergy_rand_1 : 0.076399 [31mkl_synergy_rand_2 : 0.063682 [31mkl_synergy_1 : 0.082816 [31mkl_synergy_2 : 0.058646 [31mtotal : 1.724866 [31mdiag_kl_1 : 1.007693 [31mdiag_kl_2 : 1.066632 [94mAcc_combined: 64.44 [94mAcc_c: 11.39 [94mAcc_g: 17.38 [92mF1_combined: 56.10 [92mF1_c: 9.57 [92mF1_g: 14.80 [39m
+2026-07-26 03:55:43,322 - Agent - INFO - [37mTest Epoch 24 step 24 with [31mce_loss_combined : 1.441758 [31mce_loss_c : 2.079134 [31mce_loss_g : 1.916339 [31mkl_synergy_rand_1 : 0.072526 [31mkl_synergy_rand_2 : 0.059640 [31mkl_synergy_1 : 0.078545 [31mkl_synergy_2 : 0.054749 [31mtotal : 1.707218 [31mdiag_kl_1 : 1.024775 [31mdiag_kl_2 : 1.189747 [94mAcc_combined: 66.49 [94mAcc_c: 9.21 [94mAcc_g: 20.99 [92mF1_combined: 59.19 [92mF1_c: 7.37 [92mF1_g: 16.76 [39m
+2026-07-26 03:57:13,044 - Agent - INFO - [37mVal Epoch 25 step 25 with [31mce_loss_combined : 1.439601 [31mce_loss_c : 2.111816 [31mce_loss_g : 1.900227 [31mkl_synergy_rand_1 : 0.077771 [31mkl_synergy_rand_2 : 0.065486 [31mkl_synergy_1 : 0.080734 [31mkl_synergy_2 : 0.059668 [31mtotal : 1.723259 [31mdiag_kl_1 : 0.999152 [31mdiag_kl_2 : 1.050977 [94mAcc_combined: 64.10 [94mAcc_c: 14.15 [94mAcc_g: 16.00 [92mF1_combined: 55.81 [92mF1_c: 12.64 [92mF1_g: 13.82 [39m
+2026-07-26 03:57:13,061 - Agent - INFO - [37mTest Epoch 25 step 25 with [31mce_loss_combined : 1.433442 [31mce_loss_c : 2.095850 [31mce_loss_g : 1.916619 [31mkl_synergy_rand_1 : 0.074614 [31mkl_synergy_rand_2 : 0.061409 [31mkl_synergy_1 : 0.079088 [31mkl_synergy_2 : 0.057217 [31mtotal : 1.705770 [31mdiag_kl_1 : 1.013561 [31mdiag_kl_2 : 1.179332 [94mAcc_combined: 66.81 [94mAcc_c: 10.81 [94mAcc_g: 20.56 [92mF1_combined: 59.53 [92mF1_c: 9.35 [92mF1_g: 16.96 [39m
+2026-07-26 03:58:34,578 - Agent - INFO - [37mVal Epoch 26 step 26 with [31mce_loss_combined : 1.437186 [31mce_loss_c : 2.137836 [31mce_loss_g : 1.897049 [31mkl_synergy_rand_1 : 0.078079 [31mkl_synergy_rand_2 : 0.064158 [31mkl_synergy_1 : 0.083257 [31mkl_synergy_2 : 0.058859 [31mtotal : 1.721539 [31mdiag_kl_1 : 0.996737 [31mdiag_kl_2 : 1.052020 [94mAcc_combined: 64.44 [94mAcc_c: 14.27 [94mAcc_g: 16.23 [92mF1_combined: 56.22 [92mF1_c: 12.72 [92mF1_g: 13.84 [39m
+2026-07-26 03:58:34,594 - Agent - INFO - [37mTest Epoch 26 step 26 with [31mce_loss_combined : 1.434191 [31mce_loss_c : 2.117184 [31mce_loss_g : 1.910735 [31mkl_synergy_rand_1 : 0.074147 [31mkl_synergy_rand_2 : 0.061483 [31mkl_synergy_1 : 0.079718 [31mkl_synergy_2 : 0.056182 [31mtotal : 1.705720 [31mdiag_kl_1 : 1.013618 [31mdiag_kl_2 : 1.181762 [94mAcc_combined: 66.81 [94mAcc_c: 10.39 [94mAcc_g: 19.91 [92mF1_combined: 59.72 [92mF1_c: 9.09 [92mF1_g: 16.36 [39m
+2026-07-26 04:00:01,968 - Agent - INFO - [37mVal Epoch 27 step 27 with [31mce_loss_combined : 1.438746 [31mce_loss_c : 2.162690 [31mce_loss_g : 1.886230 [31mkl_synergy_rand_1 : 0.079031 [31mkl_synergy_rand_2 : 0.064861 [31mkl_synergy_1 : 0.083289 [31mkl_synergy_2 : 0.060821 [31mtotal : 1.726748 [31mdiag_kl_1 : 0.996843 [31mdiag_kl_2 : 1.052536 [94mAcc_combined: 64.56 [94mAcc_c: 11.74 [94mAcc_g: 16.92 [92mF1_combined: 56.23 [92mF1_c: 10.58 [92mF1_g: 14.31 [39m
+2026-07-26 04:00:01,984 - Agent - INFO - [37mTest Epoch 27 step 27 with [31mce_loss_combined : 1.435613 [31mce_loss_c : 2.136872 [31mce_loss_g : 1.896221 [31mkl_synergy_rand_1 : 0.075712 [31mkl_synergy_rand_2 : 0.062903 [31mkl_synergy_1 : 0.080393 [31mkl_synergy_2 : 0.058447 [31mtotal : 1.713069 [31mdiag_kl_1 : 1.012480 [31mdiag_kl_2 : 1.178429 [94mAcc_combined: 66.06 [94mAcc_c: 9.31 [94mAcc_g: 20.77 [92mF1_combined: 57.75 [92mF1_c: 8.29 [92mF1_g: 16.86 [39m
+2026-07-26 04:01:23,564 - Agent - INFO - [37mVal Epoch 28 step 28 with [31mce_loss_combined : 1.437607 [31mce_loss_c : 2.140673 [31mce_loss_g : 1.881976 [31mkl_synergy_rand_1 : 0.077296 [31mkl_synergy_rand_2 : 0.065029 [31mkl_synergy_1 : 0.083553 [31mkl_synergy_2 : 0.060849 [31mtotal : 1.724334 [31mdiag_kl_1 : 0.999303 [31mdiag_kl_2 : 1.050660 [94mAcc_combined: 64.56 [94mAcc_c: 14.61 [94mAcc_g: 17.15 [92mF1_combined: 56.47 [92mF1_c: 12.82 [92mF1_g: 14.31 [39m
+2026-07-26 04:01:23,580 - Agent - INFO - [37mTest Epoch 28 step 28 with [31mce_loss_combined : 1.433872 [31mce_loss_c : 2.118567 [31mce_loss_g : 1.893212 [31mkl_synergy_rand_1 : 0.074747 [31mkl_synergy_rand_2 : 0.061809 [31mkl_synergy_1 : 0.082023 [31mkl_synergy_2 : 0.056646 [31mtotal : 1.709097 [31mdiag_kl_1 : 1.015259 [31mdiag_kl_2 : 1.180065 [94mAcc_combined: 66.49 [94mAcc_c: 10.71 [94mAcc_g: 20.34 [92mF1_combined: 58.35 [92mF1_c: 8.96 [92mF1_g: 16.62 [39m
+2026-07-26 04:02:48,501 - Agent - INFO - [37mVal Epoch 29 step 29 with [31mce_loss_combined : 1.437198 [31mce_loss_c : 2.159643 [31mce_loss_g : 1.887360 [31mkl_synergy_rand_1 : 0.076914 [31mkl_synergy_rand_2 : 0.065384 [31mkl_synergy_1 : 0.084348 [31mkl_synergy_2 : 0.061201 [31mtotal : 1.725046 [31mdiag_kl_1 : 1.002144 [31mdiag_kl_2 : 1.050314 [94mAcc_combined: 64.10 [94mAcc_c: 13.92 [94mAcc_g: 16.92 [92mF1_combined: 56.00 [92mF1_c: 12.32 [92mF1_g: 14.23 [39m
+2026-07-26 04:02:48,517 - Agent - INFO - [37mTest Epoch 29 step 29 with [31mce_loss_combined : 1.432992 [31mce_loss_c : 2.135147 [31mce_loss_g : 1.897591 [31mkl_synergy_rand_1 : 0.075046 [31mkl_synergy_rand_2 : 0.061714 [31mkl_synergy_1 : 0.080622 [31mkl_synergy_2 : 0.057425 [31mtotal : 1.707799 [31mdiag_kl_1 : 1.011382 [31mdiag_kl_2 : 1.178432 [94mAcc_combined: 67.13 [94mAcc_c: 10.06 [94mAcc_g: 20.77 [92mF1_combined: 58.79 [92mF1_c: 8.72 [92mF1_g: 16.94 [39m
+2026-07-26 04:04:22,071 - Agent - INFO - [37mVal Epoch 30 step 30 with [31mce_loss_combined : 1.435882 [31mce_loss_c : 2.154807 [31mce_loss_g : 1.880984 [31mkl_synergy_rand_1 : 0.077356 [31mkl_synergy_rand_2 : 0.065621 [31mkl_synergy_1 : 0.082782 [31mkl_synergy_2 : 0.060828 [31mtotal : 1.722469 [31mdiag_kl_1 : 0.998540 [31mdiag_kl_2 : 1.044956 [94mAcc_combined: 64.90 [94mAcc_c: 13.69 [94mAcc_g: 17.03 [92mF1_combined: 56.73 [92mF1_c: 12.06 [92mF1_g: 14.27 [39m
+2026-07-26 04:04:22,087 - Agent - INFO - [37mTest Epoch 30 step 30 with [31mce_loss_combined : 1.433289 [31mce_loss_c : 2.130257 [31mce_loss_g : 1.890981 [31mkl_synergy_rand_1 : 0.073778 [31mkl_synergy_rand_2 : 0.061725 [31mkl_synergy_1 : 0.079481 [31mkl_synergy_2 : 0.057407 [31mtotal : 1.705679 [31mdiag_kl_1 : 1.013614 [31mdiag_kl_2 : 1.175939 [94mAcc_combined: 66.92 [94mAcc_c: 9.96 [94mAcc_g: 20.77 [92mF1_combined: 58.68 [92mF1_c: 8.70 [92mF1_g: 16.90 [39m
+2026-07-26 04:05:51,226 - Agent - INFO - [37mVal Epoch 31 step 31 with [31mce_loss_combined : 1.439047 [31mce_loss_c : 2.162472 [31mce_loss_g : 1.882175 [31mkl_synergy_rand_1 : 0.078120 [31mkl_synergy_rand_2 : 0.065417 [31mkl_synergy_1 : 0.082825 [31mkl_synergy_2 : 0.060924 [31mtotal : 1.726333 [31mdiag_kl_1 : 0.997898 [31mdiag_kl_2 : 1.050765 [94mAcc_combined: 64.56 [94mAcc_c: 13.92 [94mAcc_g: 16.57 [92mF1_combined: 54.84 [92mF1_c: 12.17 [92mF1_g: 13.92 [39m
+2026-07-26 04:05:51,246 - Agent - INFO - [37mTest Epoch 31 step 31 with [31mce_loss_combined : 1.435304 [31mce_loss_c : 2.135410 [31mce_loss_g : 1.894072 [31mkl_synergy_rand_1 : 0.073887 [31mkl_synergy_rand_2 : 0.061054 [31mkl_synergy_1 : 0.080676 [31mkl_synergy_2 : 0.058163 [31mtotal : 1.709085 [31mdiag_kl_1 : 1.017679 [31mdiag_kl_2 : 1.177198 [94mAcc_combined: 66.38 [94mAcc_c: 10.28 [94mAcc_g: 20.66 [92mF1_combined: 56.76 [92mF1_c: 8.90 [92mF1_g: 16.74 [39m
+2026-07-26 04:07:12,516 - Agent - INFO - [37mVal Epoch 32 step 32 with [31mce_loss_combined : 1.442326 [31mce_loss_c : 2.137166 [31mce_loss_g : 1.882913 [31mkl_synergy_rand_1 : 0.077066 [31mkl_synergy_rand_2 : 0.065672 [31mkl_synergy_1 : 0.080979 [31mkl_synergy_2 : 0.060436 [31mtotal : 1.726480 [31mdiag_kl_1 : 1.001108 [31mdiag_kl_2 : 1.042046 [94mAcc_combined: 64.67 [94mAcc_c: 14.96 [94mAcc_g: 17.03 [92mF1_combined: 56.59 [92mF1_c: 12.69 [92mF1_g: 14.24 [39m
+2026-07-26 04:07:12,533 - Agent - INFO - [37mTest Epoch 32 step 32 with [31mce_loss_combined : 1.438103 [31mce_loss_c : 2.108971 [31mce_loss_g : 1.892716 [31mkl_synergy_rand_1 : 0.073088 [31mkl_synergy_rand_2 : 0.061788 [31mkl_synergy_1 : 0.077950 [31mkl_synergy_2 : 0.055843 [31mtotal : 1.706772 [31mdiag_kl_1 : 1.018956 [31mdiag_kl_2 : 1.167104 [94mAcc_combined: 66.70 [94mAcc_c: 12.10 [94mAcc_g: 21.09 [92mF1_combined: 57.14 [92mF1_c: 10.00 [92mF1_g: 17.12 [39m
+2026-07-26 04:08:41,221 - Agent - INFO - [37mVal Epoch 33 step 33 with [31mce_loss_combined : 1.432950 [31mce_loss_c : 2.159728 [31mce_loss_g : 1.852346 [31mkl_synergy_rand_1 : 0.076701 [31mkl_synergy_rand_2 : 0.064693 [31mkl_synergy_1 : 0.079997 [31mkl_synergy_2 : 0.059824 [31mtotal : 1.714165 [31mdiag_kl_1 : 1.000024 [31mdiag_kl_2 : 1.052003 [94mAcc_combined: 65.25 [94mAcc_c: 14.96 [94mAcc_g: 19.22 [92mF1_combined: 55.78 [92mF1_c: 13.20 [92mF1_g: 14.99 [39m
+2026-07-26 04:08:41,240 - Agent - INFO - [37mTest Epoch 33 step 33 with [31mce_loss_combined : 1.433300 [31mce_loss_c : 2.133181 [31mce_loss_g : 1.875244 [31mkl_synergy_rand_1 : 0.073172 [31mkl_synergy_rand_2 : 0.061971 [31mkl_synergy_1 : 0.078643 [31mkl_synergy_2 : 0.056372 [31mtotal : 1.703457 [31mdiag_kl_1 : 1.018870 [31mdiag_kl_2 : 1.177212 [94mAcc_combined: 67.99 [94mAcc_c: 11.35 [94mAcc_g: 22.06 [92mF1_combined: 59.70 [92mF1_c: 9.61 [92mF1_g: 17.36 [39m
+2026-07-26 04:10:07,268 - Agent - INFO - [37mVal Epoch 34 step 34 with [31mce_loss_combined : 1.435297 [31mce_loss_c : 2.160353 [31mce_loss_g : 1.789273 [31mkl_synergy_rand_1 : 0.076123 [31mkl_synergy_rand_2 : 0.065043 [31mkl_synergy_1 : 0.080443 [31mkl_synergy_2 : 0.061234 [31mtotal : 1.718140 [31mdiag_kl_1 : 1.007435 [31mdiag_kl_2 : 1.045152 [94mAcc_combined: 65.59 [94mAcc_c: 13.23 [94mAcc_g: 22.09 [92mF1_combined: 55.72 [92mF1_c: 11.44 [92mF1_g: 17.50 [39m
+2026-07-26 04:10:07,287 - Agent - INFO - [37mTest Epoch 34 step 34 with [31mce_loss_combined : 1.436726 [31mce_loss_c : 2.122914 [31mce_loss_g : 1.806708 [31mkl_synergy_rand_1 : 0.071537 [31mkl_synergy_rand_2 : 0.060753 [31mkl_synergy_1 : 0.076161 [31mkl_synergy_2 : 0.056328 [31mtotal : 1.701506 [31mdiag_kl_1 : 1.027560 [31mdiag_kl_2 : 1.173883 [94mAcc_combined: 66.92 [94mAcc_c: 10.81 [94mAcc_g: 25.80 [92mF1_combined: 57.25 [92mF1_c: 9.19 [92mF1_g: 19.61 [39m
+2026-07-26 04:11:34,048 - Agent - INFO - [37mVal Epoch 35 step 35 with [31mce_loss_combined : 1.444799 [31mce_loss_c : 2.154328 [31mce_loss_g : 1.742341 [31mkl_synergy_rand_1 : 0.074399 [31mkl_synergy_rand_2 : 0.064869 [31mkl_synergy_1 : 0.077830 [31mkl_synergy_2 : 0.060295 [31mtotal : 1.722192 [31mdiag_kl_1 : 1.019484 [31mdiag_kl_2 : 1.049973 [94mAcc_combined: 65.25 [94mAcc_c: 17.49 [94mAcc_g: 26.70 [92mF1_combined: 57.14 [92mF1_c: 13.06 [92mF1_g: 20.37 [39m
+2026-07-26 04:11:34,068 - Agent - INFO - [37mTest Epoch 35 step 35 with [31mce_loss_combined : 1.446654 [31mce_loss_c : 2.111402 [31mce_loss_g : 1.762872 [31mkl_synergy_rand_1 : 0.070668 [31mkl_synergy_rand_2 : 0.060421 [31mkl_synergy_1 : 0.075054 [31mkl_synergy_2 : 0.056069 [31mtotal : 1.708865 [31mdiag_kl_1 : 1.042248 [31mdiag_kl_2 : 1.168762 [94mAcc_combined: 66.49 [94mAcc_c: 14.99 [94mAcc_g: 26.98 [92mF1_combined: 56.78 [92mF1_c: 10.76 [92mF1_g: 19.45 [39m
+2026-07-26 04:13:02,571 - Agent - INFO - [37mVal Epoch 36 step 36 with [31mce_loss_combined : 1.428473 [31mce_loss_c : 2.133986 [31mce_loss_g : 1.724031 [31mkl_synergy_rand_1 : 0.074434 [31mkl_synergy_rand_2 : 0.065195 [31mkl_synergy_1 : 0.077112 [31mkl_synergy_2 : 0.059669 [31mtotal : 1.704884 [31mdiag_kl_1 : 1.010348 [31mdiag_kl_2 : 1.029793 [94mAcc_combined: 65.36 [94mAcc_c: 12.66 [94mAcc_g: 29.00 [92mF1_combined: 57.19 [92mF1_c: 10.86 [92mF1_g: 21.45 [39m
+2026-07-26 04:13:02,591 - Agent - INFO - [37mTest Epoch 36 step 36 with [31mce_loss_combined : 1.433435 [31mce_loss_c : 2.096035 [31mce_loss_g : 1.753341 [31mkl_synergy_rand_1 : 0.072705 [31mkl_synergy_rand_2 : 0.062374 [31mkl_synergy_1 : 0.075748 [31mkl_synergy_2 : 0.057068 [31mtotal : 1.701331 [31mdiag_kl_1 : 1.016868 [31mdiag_kl_2 : 1.164345 [94mAcc_combined: 67.99 [94mAcc_c: 11.13 [94mAcc_g: 28.37 [92mF1_combined: 58.17 [92mF1_c: 9.33 [92mF1_g: 19.87 [39m
+2026-07-26 04:14:33,909 - Agent - INFO - [37mVal Epoch 37 step 37 with [31mce_loss_combined : 1.434309 [31mce_loss_c : 2.121823 [31mce_loss_g : 1.668436 [31mkl_synergy_rand_1 : 0.071939 [31mkl_synergy_rand_2 : 0.063746 [31mkl_synergy_1 : 0.074899 [31mkl_synergy_2 : 0.059513 [31mtotal : 1.704407 [31mdiag_kl_1 : 1.026287 [31mdiag_kl_2 : 1.032899 [94mAcc_combined: 65.25 [94mAcc_c: 13.23 [94mAcc_g: 34.41 [92mF1_combined: 56.73 [92mF1_c: 11.41 [92mF1_g: 25.98 [39m
+2026-07-26 04:14:33,928 - Agent - INFO - [37mTest Epoch 37 step 37 with [31mce_loss_combined : 1.438536 [31mce_loss_c : 2.081262 [31mce_loss_g : 1.702956 [31mkl_synergy_rand_1 : 0.069891 [31mkl_synergy_rand_2 : 0.061017 [31mkl_synergy_1 : 0.075021 [31mkl_synergy_2 : 0.056093 [31mtotal : 1.700558 [31mdiag_kl_1 : 1.032877 [31mdiag_kl_2 : 1.160987 [94mAcc_combined: 67.77 [94mAcc_c: 12.53 [94mAcc_g: 31.48 [92mF1_combined: 57.51 [92mF1_c: 10.71 [92mF1_g: 20.85 [39m
+2026-07-26 04:16:01,934 - Agent - INFO - [37mVal Epoch 38 step 38 with [31mce_loss_combined : 1.442629 [31mce_loss_c : 2.094798 [31mce_loss_g : 1.642978 [31mkl_synergy_rand_1 : 0.071649 [31mkl_synergy_rand_2 : 0.062287 [31mkl_synergy_1 : 0.075009 [31mkl_synergy_2 : 0.060585 [31mtotal : 1.712157 [31mdiag_kl_1 : 1.029226 [31mdiag_kl_2 : 1.037743 [94mAcc_combined: 65.48 [94mAcc_c: 15.54 [94mAcc_g: 36.36 [92mF1_combined: 57.42 [92mF1_c: 12.61 [92mF1_g: 26.89 [39m
+2026-07-26 04:16:01,953 - Agent - INFO - [37mTest Epoch 38 step 38 with [31mce_loss_combined : 1.449945 [31mce_loss_c : 2.055072 [31mce_loss_g : 1.678144 [31mkl_synergy_rand_1 : 0.068905 [31mkl_synergy_rand_2 : 0.058668 [31mkl_synergy_1 : 0.071809 [31mkl_synergy_2 : 0.055857 [31mtotal : 1.705183 [31mdiag_kl_1 : 1.039055 [31mdiag_kl_2 : 1.157671 [94mAcc_combined: 67.88 [94mAcc_c: 13.81 [94mAcc_g: 34.05 [92mF1_combined: 57.87 [92mF1_c: 10.75 [92mF1_g: 22.75 [39m
+2026-07-26 04:16:16,571 - Agent - INFO - We are in the final state.
+2026-07-26 04:16:17,007 - root - INFO - Loaded best model from best_model_accuracy_state_dict
+2026-07-26 04:16:34,324 - Agent - INFO - [37mVal Epoch 38 step 0 with [31mce_loss_combined : 1.462759 [31mce_loss_c : 2.001199 [31mce_loss_g : 1.994066 [31mkl_synergy_rand_1 : 0.060359 [31mkl_synergy_rand_2 : 0.059433 [31mkl_synergy_1 : 0.062756 [31mkl_synergy_2 : 0.064236 [31mtotal : 1.709543 [31mdiag_kl_1 : 1.142863 [31mdiag_kl_2 : 1.016582 [94mAcc_combined: 71.23 [94mAcc_c: 58.23 [94mAcc_g: 54.43 [92mF1_combined: 60.39 [92mF1_c: 49.57 [92mF1_g: 46.00 [39m
+2026-07-26 04:16:48,105 - Agent - INFO - [37mTest Epoch 38 step 0 with [31mce_loss_combined : 1.479057 [31mce_loss_c : 2.070449 [31mce_loss_g : 2.353320 [31mkl_synergy_rand_1 : 0.058372 [31mkl_synergy_rand_2 : 0.057131 [31mkl_synergy_1 : 0.059109 [31mkl_synergy_2 : 0.062602 [31mtotal : 1.716271 [31mdiag_kl_1 : 1.148075 [31mdiag_kl_2 : 1.139631 [94mAcc_combined: 70.24 [94mAcc_c: 59.21 [94mAcc_g: 49.36 [92mF1_combined: 59.94 [92mF1_c: 49.90 [92mF1_g: 42.47 [39m
+2026-07-26 04:16:49,993 - Agent - INFO - [37mModel saved successfully at: ./data/data/2025_data/synergy/CremadPlus/v2/SynIB_RMask_U_REFABL_cremad_a01_fold2_l1.0_ir0.1_perturbrandom_fillema_pmin0.20_refuniform.pth.tar[39m
+Job finished
