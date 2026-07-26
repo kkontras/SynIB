@@ -4,8 +4,9 @@ Working draft of the OpenReview response — all sections number-filled from
 `synib_internal/scripts/rebuttal/` results (E2 masking + E1 subset validity + PID calibration) and
 the drafted theory/positioning responses. All sections number-filled; only the N11/N12 domain
 runs (in progress) remain as marked. Full per-item versions:
-`rebuttal_e2_masking_response.md` (masking) and `rebuttal_response_synergy_subset.md` (subset
-validity). Keep OpenReview length limits in mind.
+`rebuttal_e2_masking_response.md` (masking), `rebuttal_response_synergy_subset.md` (subset
+validity) and `rebuttal_response_entangled_xor.md` (RpxH W5 disentanglement / entangled-XOR).
+Keep OpenReview length limits in mind.
 
 ---
 
@@ -122,7 +123,7 @@ per-gate spread (σ_g ≈ 0.10–0.23): the adversary is selective, not all-or-n
 responds smoothly to ℓ_sparse (ḡ ≈ 0.38 at ℓ_sparse=1 "keep"; ≈ 0.94 at ℓ_sparse=10, where the
 penalty idles the adversary without pinning) — a working control knob, not a knife edge.
 Crucially, this includes a stress test of the reviewer's exact scenario (N9/N10): on CREMA-D-irony
-with synergistic samples made 10× rarer (α = 0.1), final gate levels remain interior (ḡ 0.72–0.84,
+with synergistic samples made 10× rarer (α = 0.1), final gate levels remain interior (ḡ 0.70–0.84,
 indistinguishable from α = 1.0), and on Hateful Memes gates sit at ḡ 0.73–0.86 across
 ℓ_sparse ∈ {0.001…1}, near-identical across seeds.
 
@@ -252,16 +253,44 @@ emotion) and the fifth — Hateful Memes — is a vision–language reasoning be
 affect task. The reviewer's substantive point stands: none of them is an application domain outside
 web/affect media.
 
-We are therefore adding two non-affective domains during the discussion window, each with the
+We are therefore adding **three** non-affective domains during the discussion window, each with the
 paper's **complete 8-method suite** (Ensemble, Vanilla Fusion, D&R, MMPareto, ReconBoost, MCR,
 SynIB M_Random, SynIB M_Learned) plus both unimodal baselines, 3 seeds, and val-selected
-hyperparameter grids for the balancing baselines as well as for SynIB — the paper's protocol
-exactly, so no row is under-tuned:
+hyperparameter grids for SynIB and the balancing baselines:
 
+- **MM-IMDb** (multimedia / vision–language): movie-poster image + plot text, 5-class single-label
+  genre. **Complete — table below.**
 - **PTB-XL** (healthcare): clinical 12-lead ECG + static patient features, 5-class diagnostic
   superclass. [PENDING: PTB-XL results table]
 - **Vision & Touch** (robotics): vision + force/proprioception, binary contact prediction.
   [PENDING: Vision & Touch results table]
+
+**MM-IMDb, test accuracy (%), mean ± sd over 3 seeds.** Frozen CLIP ViT-B/16 + DeBERTa-v3-base;
+23-genre multi-label reduced to single-label (`exactly_one`, top-5 genres, 5,526/25,959 records — so
+these are *not* comparable to published multi-label MM-IMDb F1). Majority-class test accuracy 47.8.
+
+| Method | Synergy-subset acc | Whole-test acc |
+|---|---|---|
+| Ensemble | 11.5 ± 1.4 | 84.5 ± 0.5 |
+| Vanilla Fusion | 21.4 ± 1.2 | 83.5 ± 0.2 |
+| D&R | 24.4 ± 3.5 | 83.4 ± 0.9 |
+| MMPareto | 24.9 ± 1.6 | 83.7 ± 0.2 |
+| ReconBoost | 18.7 ± 0.8 | 84.6 ± 0.1 |
+| MCR | 20.9 ± 3.1 | 83.8 ± 0.1 |
+| SynIB M_Random | 24.6 ± 0.6 | **85.1 ± 0.4** |
+| SynIB M_Learned | **25.6 ± 2.4** | 85.0 ± 0.3 |
+
+SynIB leads both columns, and macro-F1 agrees (subset 28.6, whole-test 85.7 for M_Learned). We state
+the strength of each result honestly: the **whole-test** advantage over the best baseline (+0.5pp over
+ReconBoost) is outside the run-to-run spread, whereas on the **synergy subset** SynIB's +0.7pp over
+MMPareto is *within* it (±2.4 sd, and ±≈7pp resolution at |S|=134) — so on this dataset we claim SynIB
+is the best method overall and competitive-to-best on the subset, not that it separates from the
+balancing baselines there.
+
+Independently, the paper's central claim reproduces in this new domain without being targeted:
+**Ensemble is second-best on whole-test accuracy (84.5) yet worst by far on the synergy subset (11.5),
+roughly half of vanilla fusion** — late fusion looks competitive in aggregate while failing precisely
+on the examples that require combining the modalities.
 
 **On MIMIC.** MultiBench's MIMIC task needs PhysioNet credentialed access *plus* a data request to
 the benchmark maintainers, which cannot complete inside the window. PTB-XL is open access and has
@@ -277,7 +306,20 @@ static features, and vision and force both signal contact), SynIB should be neut
 harmful. Every dataset we start is reported, win or null, with its diagnostic alongside. This is
 also our empirical answer to FTxm W4/Q4: the diagnostic is cheap, is needed for the subset metric
 anyway, and predicts the regime before SynIB is trained.
-[PENDING: per-dataset diagnostic — unimodal-vs-joint gap and unimodal-missed subset size]
+
+**The diagnostic did predict the regime, in all three cases, before any SynIB run.** Joint − best
+unimodal, with the unimodal-missed subset size:
+
+| dataset | unimodal A | unimodal B | joint | gap | subset \|S\| | predicted regime |
+|---|---|---|---|---|---|---|
+| MM-IMDb | 73.6 image | 74.3 text | 83.5 | **+9.2** | 134 / 1,683 (8.0%) | synergy present |
+| Vision & Touch | 86.1 vision | 94.3 force | 94.2 | **−0.1** (McNemar p = 1.00) | ~660 / 22,048 (3.0%) | force-dominated |
+| PTB-XL | 78.1 ECG | 56.8 static | — | ~+1 (CI spans 0) | ~300 / 1,650 (18%) | ECG-dominated |
+
+The two modalities are *balanced* only on MM-IMDb (73.6 vs 74.3) — and that is the only dataset where a
+large gap exists. Where one modality dominates, the joint model has little to add and, by our own
+argument, neither should SynIB. We report those cases as applicability boundaries rather than omit
+them. [PENDING: PTB-XL and Vision & Touch SynIB rows to confirm the predicted neutrality]
 
 ### W3 — Extension to ≥3 modalities
 
@@ -291,9 +333,18 @@ implicit in the k=2 presentation) together with what it does *not* claim: it doe
 modalities redundant, their join synergistic with a third" from other higher-order structure — that
 is the part of the lattice we decline to estimate.
 
-Empirically, the trimodal experiment is planned on the *non-affective* Vision & Touch dataset (it
-ships five modalities; we use vision + force + proprioception), so one experiment addresses this
-weakness and W2 together. [PENDING: Vision & Touch trimodal result]
+We are explicit about the gap between that generalisation and our released code: **the current
+implementation is two-modality**, and we will say so in the paper rather than leave it implied. The
+k=2 structure is not a configuration choice but is written into the model — two encoder slots, a
+fixed-arity fusion trunk (`nn.Linear(2·d_model, ·)` over `cat[z1, z2]`), the three mask heads that are
+precisely the 2²−1 non-empty subsets of a 2-set, and two hand-written KL branches each anchored to the
+other modality's unimodal prediction. Supporting k>2 therefore requires a variadic fusion trunk, a
+leave-one-out (or 2^k−1 subset) mask/KL construction, a variadic mask adversary, and a k-way
+synergy-subset evaluator — a genuine extension of the implementation, not a flag. We scoped a trimodal
+Vision & Touch run (it ships five modalities: vision + force + proprioception) for this rebuttal and
+stopped when this became clear, rather than report a "trimodal" number that had silently trained on two
+modalities. We commit to the k-modality implementation and that experiment for the camera-ready, and in
+the meantime we make the k=2 restriction an explicit stated limitation.
 
 ### W4 — InfMasking
 
@@ -321,25 +372,28 @@ sufficient subspace the adversary finds yields the same regularization effect (s
 learned-vs-random equivalence in the FTxm W3 response). New appendix analysis.
 
 **New causal test (N14): we removed disentanglement by construction.** If learned masking assumed
-a disentangled latent, it should fail when no coordinate subset corresponds to any PID source. We
-rotated each PID-XOR modality by a fixed random orthogonal matrix (and, in a second arm, applied
-an elementwise tanh after rotation — invertible nonlinear mixing that no linear layer can absorb)
-before standardization, and re-ran vanilla, random-masking, and learned-masking SynIB at paper
-hyperparameters. No variant fails: vanilla stays at chance on the synergy slice (0.50), and SynIB
-retains its gains under full rotation (random masking 0.915 ± 0.006, learned masking 0.845 ±
-0.046, stable across three different rotation matrices) and under nonlinear mixing (learned
-0.874 ± 0.010). An oracle applied in the pre-rotation source basis reaches 0.920 ± 0.007,
-confirming the rotated task itself is unchanged. Mechanistically, the mask behaves exactly as the
-fallback argument in the paper claims: on unrotated data the inner adversary identifies the
-unimodal head's support — its soft gate ranks the true support coordinates above chance
-throughout training, and with a longer inner loop (100 steps) the binary mask localizes outright
-(IoU 0.31 vs 0.27 random-mask baseline; corruption fraction converging to the ideal 0.625 =
-synergy+noise blocks) — while under rotation, where no coordinate support exists, the identical
-configuration reverts to random-mask-like corruption (fraction 0.555) with accuracy statistically
-close to random masking. The assumption at stake is therefore only *sparse functional reliance of
-the unimodal head*; when it is violated, SynIB degrades gracefully to its documented
-random-masking behavior rather than failing. Full protocol, per-source training dynamics, and
-mask–oracle agreement curves in the new appendix.
+a disentangled latent, it should fail when no coordinate subset corresponds to any PID source. On
+PID-Controlled XOR we mixed each modality with a fixed random orthogonal matrix and, in the
+primary arm, a **frozen random two-layer MLP with saturating pre-activations** (std ≈ 2.5) that no
+linear layer can absorb. We verified the intended effect rather than assuming it: a destruction
+probe shows 5–6 of 32 coordinates must be corrupted to remove a source on the original data versus
+**24–31 of 32** under mixing. No variant fails: vanilla stays at chance on the synergy slice in
+every mixed condition (0.48–0.52) while SynIB retains large gains — under rotation 0.915 ± 0.006
+(random) and 0.845 ± 0.046 (learned, stable over three rotation matrices), under the frozen mixer
+0.813 ± 0.007 and 0.769 ± 0.025, reproduced on a second mixer draw (0.688 / 0.662 vs vanilla
+0.515). A pre-mixing-basis oracle reaches 0.920 ± 0.007, confirming the task is unchanged.
+Mechanistically the mask behaves as the paper's fallback argument claims: on unmixed data the
+adversary finds the unimodal head's support (soft gate ranks it above chance throughout; with a
+100-step inner loop the binary mask localizes outright — IoU 0.31 vs 0.27 random, corruption
+fraction converging to the ideal 0.625), while under mixing the identical configuration reverts to
+random-mask-like corruption (0.555) at accuracy close to random masking. The assumption at stake
+is therefore only *sparse functional reliance of the unimodal head*, and its violation produces
+graceful degradation to random masking, not failure. Under the hardest mixing the learned mask's
+small edge over random masking does not persist (0.75–0.77 vs 0.81–0.83) — what survives
+entanglement is the masked-input confidence penalty, with random masking as its most robust
+instantiation, independently echoing the learned-vs-random equivalence in the FTxm W3 response.
+Full protocol, entanglement table, and mask–support curves: `rebuttal_response_entangled_xor.md`
+and the new appendix.
 
 ### Factual question — joint training and symmetry
 
