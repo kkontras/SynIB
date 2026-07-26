@@ -1,9 +1,20 @@
 # Entangled-XOR Response (N14) — Reviewer RpxH, Weakness 5
 
 Standalone, OpenReview-ready response for the disentanglement-assumption concern, built on the
-entangled PID-XOR experiment. Companion to `rebuttal_e2_masking_response.md` (which answers the
-same weakness from the multi-seed-mask angle, N4) and to the full experimental record in
-`docs/rebuttal_entangled_xor.md`.
+entangled PID-XOR experiment.
+
+**Document roles (three W5 files — keep them in these lanes to prevent number drift):**
+
+| file | role | owns |
+|---|---|---|
+| `rebuttal_entangled_xor.md` | full narrative lab record (§0–9) | source of truth for every number |
+| `rebuttal_W5_report.md` | internal standalone evidence digest | design, Arms A/B/C detail, checklists, caveats, provenance |
+| **this file** | the **posted** response | reviewer text, short + full ship versions, mask-localization evidence |
+
+If a number changes, change it in `rebuttal_entangled_xor.md` first, then propagate. The
+mask-localization evidence (soft-gate AUROC, hard-mask IoU, corruption fraction) appears only here
+and in `rebuttal_entangled_xor.md` §4 — the W5 report does not cover it. Companion for the same
+weakness from the multi-seed-mask angle (N4): `rebuttal_e2_masking_response.md`.
 
 Format: reviewer's verbatim text, then a short ship version and a full version, then the evidence
 tables and internal notes. All numbers final; every run recorded in
@@ -174,15 +185,20 @@ numbers.
 3. **Do not describe the rotation arms as showing masking *improves* under entanglement.** Rotated
    arms score ~4 pp higher than identity for every KL-based variant including a no-masking control,
    with vanilla unmoved — a representation-level optimization effect, not a masking effect
-   (`docs/rebuttal_entangled_xor.md` §3.1).
+   (`docs/rebuttal_entangled_xor.md` §3.1). This caveat is specific to this file's rotation table;
+   it is not in the W5 report.
 
 4. **Cells at n=3** (learned masking, identity/rotated primary; all mixer and tanh arms). The
    cheap cells were expanded to n=8. If a quoted learned-masking number becomes load-bearing in
    discussion, expand it first (~30 min/cell). The partial-rotation learned cell
    (0.761 ± 0.095, one 0.58 seed) is deliberately not quoted here.
 
-5. **Sources.** Full record `docs/rebuttal_entangled_xor.md`; runs, mixers, probe tables and Q
-   matrices under `artifacts/rebuttal_entangled_xor/`; runner
-   `scripts/analysis/rebuttal_entangled_xor.py`; probes
-   `scripts/analysis/rebuttal_entangled_probe.py`; configs
+5. **Further caveats we should not hide** — learned-under-random on hard mixing, mixer-draw
+   sensitivity, synthetic-only scope: see `rebuttal_W5_report.md` §9, which owns them. Not
+   duplicated here to keep a single source.
+
+6. **Sources.** Full record `docs/rebuttal_entangled_xor.md`; evidence digest
+   `docs/rebuttal_W5_report.md`; runs, mixers, probe tables and Q matrices under
+   `artifacts/rebuttal_entangled_xor/`; runner `scripts/analysis/rebuttal_entangled_xor.py`;
+   probes `scripts/analysis/rebuttal_entangled_probe.py`; configs
    `run/configs/rebuttal_entangled_xor/`.
