@@ -50,6 +50,8 @@ solvable ones.
 | CREMA-D-Irony α=0.5 | acc | 64.05 ± 2.68 | 63.32 ± 2.67 | 61.99 ± 4.11 |
 | CREMA-D-Irony α=0.5 | total-F1 | 58.93 ± 4.31 | 56.58 ± 3.98 | 54.97 ± 4.23 |
 | CREMA-D-Irony α=0.5 | irony-F1 | 18.33 ± 10.41 (6.4/25.4/23.2) | 8.28 ± 8.05 (2.5/4.8/17.5) | 3.33 ± 1.44 (2.5/5.0/2.5) |
+| CREMA-D-Irony α=0.1 | acc | 69.70 ± 3.39 | 69.99 ± 4.02 | 69.26 ± 2.26 |
+| CREMA-D-Irony α=0.1 | irony-F1 | 2.90 ± 5.02 (0/8.7/0) | 0.00 (0/0/0) | 0.00 (0/0/0) |
 
 Synergy-subset accuracy (test samples misclassified by every unimodal model; CEU-defined, identical
 subset across arms):
