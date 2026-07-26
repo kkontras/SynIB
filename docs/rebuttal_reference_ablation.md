@@ -47,8 +47,9 @@ solvable ones.
 | MOSI | acc | 72.91 ± 1.53 | 73.10 ± 0.66 | 73.37 ± 1.37 |
 | UR-Funny | acc | 62.27 ± 0.75 | 62.85 ± 0.40 | 62.51 ± 1.13 |
 | Hateful Memes | acc | 68.50 ± 2.93 | 65.30 ± 3.43 | 67.12 ± 0.90 |
-| CREMA-D-Irony α=0.5 | acc | 64.05 ± 2.68 | 64.4 *(2 folds pending)* | 61.99 ± 4.11 |
-| CREMA-D-Irony α=0.5 | irony-F1 | 18.33 | 4.8 *(2 folds pending)* | 3.33 |
+| CREMA-D-Irony α=0.5 | acc | 64.05 ± 2.68 | 63.32 ± 2.67 | 61.99 ± 4.11 |
+| CREMA-D-Irony α=0.5 | total-F1 | 58.93 ± 4.31 | 56.58 ± 3.98 | 54.97 ± 4.23 |
+| CREMA-D-Irony α=0.5 | irony-F1 | 18.33 ± 10.41 (6.4/25.4/23.2) | 8.28 ± 8.05 (2.5/4.8/17.5) | 3.33 ± 1.44 (2.5/5.0/2.5) |
 
 Synergy-subset accuracy (test samples misclassified by every unimodal model; CEU-defined, identical
 subset across arms):
@@ -83,8 +84,10 @@ solid = modality-2-masked branch, dashed = modality-1-masked branch.
 - Hateful Memes: **FAIL (informative references hurt the synergy subset)** — FINAL: paired Δ vs
   uniform ≤ 0 on every fold for both class_prior (−6.0/0.0/−30.7) and anchor (−2.5/−3.8/−14.0);
   uniform 50.4 ± 11.0 vs anchor 43.6 ± 6.3 vs class_prior 38.2 ± 11.8.
-- CREMA-D (class-level analogue: irony-F1): **FAIL in the same direction** — uniform 18.3 vs
-  anchor 3.3 (class_prior pending).
+- CREMA-D (class-level analogue: irony-F1): **FAIL in the same direction** — FINAL:
+  uniform 18.3 ± 10.4 vs class_prior 8.3 ± 8.1 vs anchor 3.3 ± 1.4; ordering
+  uniform > class_prior > anchor matches r's mass on the synergy class (1/7 ≈ 14% > ~8% prior
+  > near-0 anchor).
 
 **(b) Headline ordering unimodal_anchor ≥ class_prior ≥ uniform at matched λ; gap larger on
 unimodal-heavy datasets.**
