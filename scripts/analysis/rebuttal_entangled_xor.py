@@ -47,8 +47,9 @@ ANALYSIS = REPO / "scripts" / "analysis"
 ART_DIR = REPO / "artifacts" / "rebuttal_entangled_xor"
 RUN_DIR = ART_DIR / "runs"
 Q_DIR = ART_DIR / "Q"
+MIXER_DIR = ART_DIR / "mixers"
 FIG_DIR = REPO / "docs" / "figures" / "rebuttal_entangled_xor"
-for d in (ART_DIR, RUN_DIR, Q_DIR, FIG_DIR):
+for d in (ART_DIR, RUN_DIR, Q_DIR, MIXER_DIR, FIG_DIR):
     d.mkdir(parents=True, exist_ok=True)
 
 
@@ -140,6 +141,68 @@ def get_rotation(pid_mod, rotation: str, rot_seed: int, mod_idx: int, dim: int, 
     np.save(path, Q.numpy())
     meta_path.write_text(json.dumps(meta, indent=2))
     return Q
+
+
+# =====================================================================================
+# Frozen random MLP mixer (rebuttal Arm A)
+# =====================================================================================
+
+MIXER_HIDDEN = 64  # x in R^32 -> tanh(W1 x) in R^64 -> W2 back to R^32
+
+
+def _raw_train_inputs(pid_mod, cfg) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Raw (pre-standardization) identity-basis train inputs for gain calibration.
+    Uses data seed 0 regardless of the training seed so the mixer is one fixed
+    object shared by every run."""
+    cal_cfg = copy.deepcopy(cfg)
+    cal_cfg.seed = 0
+    for attr in ("rotation_Q0", "rotation_Q1", "rotation_nonlinearity",
+                 "mlp_mixer0", "mlp_mixer1"):
+        if hasattr(cal_cfg, attr):
+            delattr(cal_cfg, attr)
+    set_global_seed(0)
+    _, _, train_l, _, _ = pid_mod.build_loaders(cal_cfg, verbose=False)
+    ds = train_l.dataset.dataset  # Subset -> PID4BlockDataset
+    idx = train_l.dataset.indices
+    raw0 = ds.x0[idx] * ds.stats["x0"]["s"] + ds.stats["x0"]["m"]
+    raw1 = ds.x1[idx] * ds.stats["x1"]["s"] + ds.stats["x1"]["m"]
+    return raw0, raw1
+
+
+def get_mlp_mixer(pid_mod, cfg, mixer_seed: int, mod_idx: int, dim: int,
+                  target_preact_std: float) -> Dict[str, Any]:
+    """Build (or load) one frozen per-modality MLP mixer x <- W2 tanh(W1 x).
+    W1 entries are i.i.d. Gaussian with gain calibrated so tanh pre-activations
+    have std ~= target_preact_std on the seed-0 training data. Saved to disk with
+    full provenance; identical across splits/methods/training seeds."""
+    stem = f"mlp_mixer_seed{mixer_seed}_mod{mod_idx}_d{dim}_h{MIXER_HIDDEN}_t{target_preact_std:g}"
+    npz_path = MIXER_DIR / f"{stem}.npz"
+    meta_path = MIXER_DIR / f"{stem}.json"
+    if npz_path.exists():
+        z = np.load(npz_path)
+        return {"W1": torch.from_numpy(z["W1"]), "W2": torch.from_numpy(z["W2"]),
+                "meta_file": meta_path.name, "npz_file": npz_path.name,
+                "realized_preact_std": float(json.loads(meta_path.read_text())["realized_preact_std"])}
+    gen_seed = 8800 + 100 * mixer_seed + mod_idx
+    g = torch.Generator().manual_seed(gen_seed)
+    W1_raw = torch.randn(MIXER_HIDDEN, dim, generator=g)
+    W2 = torch.randn(dim, MIXER_HIDDEN, generator=g) / np.sqrt(MIXER_HIDDEN)
+    raw0, raw1 = _raw_train_inputs(pid_mod, cfg)
+    raw = raw0 if mod_idx == 0 else raw1
+    pre_raw_std = float((raw @ W1_raw.T).std().item())
+    W1 = W1_raw * (target_preact_std / pre_raw_std)
+    realized = float((raw @ W1.T).std().item())
+    np.savez(npz_path, W1=W1.numpy(), W2=W2.numpy())
+    meta_path.write_text(json.dumps({
+        "mixer_seed": mixer_seed, "mod_idx": mod_idx, "dim": dim,
+        "hidden": MIXER_HIDDEN, "gen_seed": gen_seed,
+        "target_preact_std": target_preact_std,
+        "realized_preact_std": realized,
+        "calibration": "seed-0 identity train split, raw (pre-standardization) inputs",
+    }, indent=2))
+    print(f"[mixer] built {stem}: realized pre-act std = {realized:.3f}")
+    return {"W1": W1, "W2": W2, "meta_file": meta_path.name, "npz_file": npz_path.name,
+            "realized_preact_std": realized}
 
 
 # =====================================================================================
@@ -424,6 +487,25 @@ def run_arm(config_path: Path, device: str, methods_override: Optional[List[str]
             nonlinearity = conf.get("nonlinearity", None)
             if nonlinearity:
                 cfg.rotation_nonlinearity = nonlinearity
+            if "tanh_scale" in conf:
+                cfg.rotation_tanh_scale = float(conf["tanh_scale"])
+
+            # Frozen MLP mixer (Arm A) — built once, shared by all methods/seeds
+            mixer_info: Dict[str, Any] = {}
+            if conf.get("mixer", None) == "mlp":
+                mixer_seed = int(conf.get("mixer_seed", 0))
+                target_std = float(conf.get("mixer_target_preact_std", 2.5))
+                mix0 = get_mlp_mixer(pid_mod, cfg, mixer_seed, 0, cfg.dim0, target_std)
+                mix1 = get_mlp_mixer(pid_mod, cfg, mixer_seed, 1, cfg.dim1, target_std)
+                cfg.mlp_mixer0 = mix0
+                cfg.mlp_mixer1 = mix1
+                mixer_info = {
+                    "mixer": "mlp", "mixer_seed": mixer_seed,
+                    "mixer_target_preact_std": target_std,
+                    "mixer_realized_preact_std": [mix0["realized_preact_std"],
+                                                  mix1["realized_preact_std"]],
+                    "mixer_files": [mix0["npz_file"], mix1["npz_file"]],
+                }
 
             set_global_seed(seed)
             _, splits, train_l, val_l, test_l = pid_mod.build_loaders(cfg, verbose=False)
@@ -468,6 +550,8 @@ def run_arm(config_path: Path, device: str, methods_override: Optional[List[str]
                     "tag": tag, "method": method, "seed": seed,
                     "rotation": rotation, "rot_seed": rot_seed,
                     "nonlinearity": conf.get("nonlinearity", None),
+                    "tanh_scale": float(conf.get("tanh_scale", 1.0)),
+                    **mixer_info,
                     "mask_steps": int(conf.get("mask_steps", 20)),
                     "destroy_fix": destroy_fix,
                     "simplex": list(simplex),

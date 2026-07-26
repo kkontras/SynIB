@@ -1,0 +1,16 @@
+{
+  "tag": "mlp_mixer",
+  "rotation": "identity",
+  "mixer": "mlp",
+  "mixer_seed": 0,
+  "mixer_target_preact_std": 2.5,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["vanilla", "mrand", "mlearned"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 1.0,
+  "epochs": 30,
+  "mask_diag": false,
+  "destroy_fix": true,
+  "note": "Arm A primary: frozen random 32->64->32 tanh MLP mixer per modality, applied after block construction, before standardization. Pre-activation std calibrated to ~2.5 (saturating regime) on seed-0 train data; provably not absorbable by the encoder's first Linear layer. Blocking sanity gate: vanilla U1/R >= 0.95, syn at chance."
+}

@@ -1,0 +1,17 @@
+{
+  "tag": "mlp_mixer_steps100",
+  "rotation": "identity",
+  "mixer": "mlp",
+  "mixer_seed": 0,
+  "mixer_target_preact_std": 2.5,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["mlearned"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 0.0,
+  "mask_steps": 100,
+  "epochs": 30,
+  "mask_diag": false,
+  "destroy_fix": true,
+  "note": "Arm A diagnostic learned arm: 100 inner steps, lam_sparsity=0, matching the steps100 arms of the previous task."
+}

@@ -1,0 +1,16 @@
+{
+  "tag": "mlp_mixer_seed1",
+  "rotation": "identity",
+  "mixer": "mlp",
+  "mixer_seed": 1,
+  "mixer_target_preact_std": 2.5,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["vanilla", "mrand", "mlearned"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 1.0,
+  "epochs": 30,
+  "mask_diag": false,
+  "destroy_fix": true,
+  "note": "Arm A mixer-seed robustness: second frozen mixer (seed 1), same calibration target; rules out a single-mixer artifact. Vanilla included to re-apply the sanity gate under this mixer."
+}

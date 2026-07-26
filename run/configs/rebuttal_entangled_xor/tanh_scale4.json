@@ -1,0 +1,16 @@
+{
+  "tag": "tanh_scale4",
+  "rotation": "full",
+  "rot_seed": 0,
+  "nonlinearity": "tanh",
+  "tanh_scale": 4.0,
+  "simplex": [0.45, 0.0, 0.45, 0.10],
+  "methods": ["vanilla", "mrand", "mlearned"],
+  "seeds": [0, 1, 2],
+  "lambda_kl": 10.0,
+  "lam_sparsity": 1.0,
+  "epochs": 30,
+  "mask_diag": false,
+  "destroy_fix": true,
+  "note": "Arm C: x <- tanh(4*Qx), same Q as rotated_full_tanh. Vanilla included for the per-s sanity gate."
+}

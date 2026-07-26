@@ -208,6 +208,9 @@ class PID4BlockDataset(Dataset):
         # NEW: sources (batchable + debug)
         self.source = torch.zeros(self.n, len(_SOURCES), dtype=torch.float32)  # [n,4]
         self.source_str: List[str] = [""] * self.n
+        # Latent synergy bits per modality (rebuttal Arm-B probes; -1 = syn inactive).
+        self.synbit0 = torch.full((self.n,), -1.0)
+        self.synbit1 = torch.full((self.n,), -1.0)
 
         # validate probs
         if not hasattr(cfg, "signal_probs") or cfg.signal_probs is None:
@@ -279,6 +282,8 @@ class PID4BlockDataset(Dataset):
 
                 b_s0 = float(torch.rand(1, generator=g).item() > 0.5)
                 b_s1 = float(b_s0 != y_i)
+                self.synbit0[i] = b_s0
+                self.synbit1[i] = b_s1
 
                 z_s0 = torch.randn(cfg.latent_s, generator=g) * float(cfg.syn_strength)
                 z_s1 = torch.randn(cfg.latent_s, generator=g) * float(cfg.syn_strength)
@@ -303,9 +308,21 @@ class PID4BlockDataset(Dataset):
             self.x1 = self.x1 @ torch.as_tensor(Q1, dtype=self.x1.dtype).T
         # Optional elementwise nonlinearity after rotation (invertible mixing that
         # no linear layer can absorb). Off unless cfg.rotation_nonlinearity is set.
+        # rotation_tanh_scale s gives x <- tanh(s*x); default 1.0 reproduces the
+        # original tanh arm exactly.
         if getattr(cfg, "rotation_nonlinearity", None) == "tanh":
-            self.x0 = torch.tanh(self.x0)
-            self.x1 = torch.tanh(self.x1)
+            s_scale = float(getattr(cfg, "rotation_tanh_scale", 1.0))
+            self.x0 = torch.tanh(s_scale * self.x0)
+            self.x1 = torch.tanh(s_scale * self.x1)
+        # Optional frozen random MLP mixer (rebuttal Arm A): x <- W2 @ tanh(W1 @ x),
+        # applied after block construction, before standardization. Weights are
+        # built/frozen by the runner and passed via cfg; never trained.
+        mix0 = getattr(cfg, "mlp_mixer0", None)
+        mix1 = getattr(cfg, "mlp_mixer1", None)
+        if mix0 is not None:
+            self.x0 = torch.tanh(self.x0 @ mix0["W1"].T) @ mix0["W2"].T
+        if mix1 is not None:
+            self.x1 = torch.tanh(self.x1 @ mix1["W1"].T) @ mix1["W2"].T
 
         self.stats = self._normalize(split, train_stats)
 

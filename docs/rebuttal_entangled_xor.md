@@ -366,3 +366,144 @@ pre-registration:**
 - Figures: `docs/figures/rebuttal_entangled_xor/fig1_entangled_dynamics.*`,
   `fig1_identity_as_published.*`, `fig2_mask_oracle_overlap.*`,
   `fig2_mask_oracle_overlap_steps100.*`, `fig2_mask_oracle_overlap_as_published.*`.
+
+## 9. Follow-up: frozen-MLP mixing, measured entanglement, tanh saturation
+
+Closes the remaining hole in §3.2: standardized inputs live roughly in [−1, 1], where tanh is
+nearly linear, so the tanh∘Q arm could be read as "mild squashing of a rotation," approximately
+invertible by the encoder's first Linear layer. Three additions: (A) a frozen random two-layer MLP
+mixer with saturating pre-activations, which no single Linear layer can absorb; (B) a measured
+verification that no small coordinate subset carries any source, on all mixing variants; (C) a
+tanh-saturation sweep. All on the FIXED track (`destroy_fix: true`), paper protocol (mixture
+0.45/0/0.45/0.10, 1800/200/4000, 30 epochs, seeds {0,1,2}, final-epoch test, mean ± SE).
+
+### 9.0 Pre-registered predictions (written 2026-07-25, BEFORE launching Arms A/C)
+
+(a) **Arm A (frozen-MLP mixer):** vanilla synergy at chance; M_Random and M_Learned both remain
+    ≥ 0.80 synergy accuracy (band chosen from the tanh∘Q arm: 0.834 / 0.874). PASS/FAIL: ______
+
+(b) **Arm B (entanglement probes):** minimal L1-probe support ≈ block size (~6 of 32 coordinates)
+    on the identity variant; ≥ 28/32 coordinates on both mixed variants for every source
+    (unique, redundant, per-modality synergy bit). PASS/FAIL: ______
+
+(c) **Arm C (tanh saturation s ∈ {1, 2, 4}):** synergy accuracy varies by < 5 pp across s for
+    each SynIB variant (s = 1 must reproduce §3.2 as a consistency check). PASS/FAIL: ______
+
+A FAIL is reported as a FAIL.
+
+### 9.1 Arm A — frozen random MLP mixer (primary)
+
+Mixer: per modality, x ← W2·tanh(W1·x) with W1 ∈ R^{64×32}, W2 ∈ R^{32×64}, i.i.d. Gaussian,
+W1 gain calibrated on the seed-0 identity training data so tanh pre-activations have std ≈ 2.5
+(realized: **2.500** both modalities, both mixer seeds — deep in the saturating regime, not
+absorbable by the encoder's first Linear layer). Frozen, saved with seeds/gain to
+`artifacts/rebuttal_entangled_xor/mixers/`, identical across methods/splits/training seeds.
+
+**Sanity gate (blocking): PASSED with no gain adjustment.** Vanilla on mixed data: U1
+0.983–0.989, R 0.982–0.991 (both ≥ 0.95), synergy at chance (0.48–0.52). Mixer seed 1 gate also
+passed (U1 0.976–0.980, R ≥ 0.985, syn 0.46–0.54).
+
+Test accuracy, mean ± SE over training seeds {0,1,2}:
+
+| method | S (synergy) | total | U1 | R |
+|---|---|---|---|---|
+| vanilla | 0.498 ± 0.011 | 0.940 ± 0.001 | 0.987 | 0.986 |
+| M_Random (π=0.5) | **0.813 ± 0.007** | 0.951 ± 0.003 | 0.967 | 0.964 |
+| M_Learned (paper HPs) | 0.769 ± 0.025 | 0.960 ± 0.004 | 0.976 | 0.984 |
+| M_Learned (100 steps, λ_M=0) | 0.751 ± 0.015 | 0.958 ± 0.004 | 0.977 | 0.983 |
+| — mixer seed 1: vanilla | 0.515 ± 0.025 | 0.937 ± 0.003 | 0.977 | 0.985 |
+| — mixer seed 1: M_Random | 0.688 ± 0.047 | 0.939 ± 0.008 | 0.955 | 0.975 |
+| — mixer seed 1: M_Learned | 0.662 ± 0.061 | 0.932 ± 0.003 | 0.946 | 0.975 |
+
+Reading: SynIB's synergy gain over vanilla survives the hard mixer on both mixer realizations
+(+15 to +32 pp), but the absolute level varies with the mixer draw (0.66–0.81), and M_Random ≥
+M_Learned throughout — the learned mask's mild-mixing edge (§3.2: 0.874 vs 0.834) does not
+persist under saturating mixing.
+
+### 9.2 Arm B — measured entanglement (Table B)
+
+Two operationalizations, computed on seed-0 train data for all three variants
+(`scripts/analysis/rebuttal_entangled_probe.py`; curves in
+`docs/figures/rebuttal_entangled_xor/fig3_sparse_probes.*` and `fig4_destroy_support.*`):
+
+- **READ support** (as pre-registered): minimal L1-logistic support reaching ≥ 90% of the
+  unregularized probe's accuracy. Result: ~1–4 coordinates suffice even under mixing — the
+  pre-registered operationalization was wrong for rank-1 sources: mixing spreads a 1-D signed
+  direction across all coordinates, so every coordinate remains individually correlated with the
+  bit (max |point-biserial| up to 0.99 under tanh∘Q). Reading was never the hard part.
+- **DESTROY support** (masking-relevant; inverse-RFE: iteratively destroy the highest-|coef|
+  coordinate, retrain the reader on the remainder): minimal number of destroyed coordinates
+  driving the best remaining-coordinate reader to ≤ 0.60 accuracy.
+
+| variant | source | read support | **destroy support** | max \|pb\| | max binned MI (bits) |
+|---|---|---|---|---|---|
+| identity | unique (m0) | 2/32 | **5/32** | 0.88 | 0.94 |
+| identity | red (m0) | 2/32 | **6/32** | 0.90 | 0.97 |
+| identity | syn b0 (m0) | 2/32 | **5/32** | 0.91 | 0.96 |
+| identity | syn b1 (m1) | 3/32 | **5/32** | 0.82 | 0.77 |
+| tanh∘Q | unique (m0) | 1/32 | **27/32** | 0.95 | 0.85 |
+| tanh∘Q | red (m0) | 1/32 | **24/32** | 0.93 | 0.84 |
+| tanh∘Q | syn b0 (m0) | 1/32 | **28/32** | 0.99 | 0.96 |
+| tanh∘Q | syn b1 (m1) | 10/32 | **25/32** | 0.61 | 0.37 |
+| frozen-MLP | unique (m0) | 1/32 | **31/32** | 0.91 | 0.90 |
+| frozen-MLP | red (m0) | 4/32 | **27/32** | 0.74 | 0.53 |
+| frozen-MLP | syn b0 (m0) | 2/32 | **29/32** | 0.88 | 0.87 |
+| frozen-MLP | syn b1 (m1) | 3/32 | **24/32** | 0.67 | 0.48 |
+
+Destroy support matches the ground truth exactly on identity (block size = 6) and shows that
+under either mixing **75–97% of coordinates must be destroyed to remove any source** — the
+measured, masking-relevant sense in which no small coordinate subset carries a source.
+
+### 9.3 Arm C — tanh saturation sweep (x ← tanh(s·Qx))
+
+s = 1 reproduces §3.2 **exactly** (bitwise-identical metrics, mrand seed 0 consistency run).
+Sanity gate passed at every s (vanilla U1/R ≥ 0.986; synergy at chance) — s = 4 does not
+destroy learnability. Synergy accuracy (mean ± SE, 3 seeds):
+
+| s | vanilla | M_Random | M_Learned |
+|---|---|---|---|
+| 1 | 0.488 ± 0.018 | 0.834 ± 0.014 | 0.874 ± 0.010 |
+| 2 | 0.477 ± 0.014 | 0.832 ± 0.019 | 0.745 ± 0.025 |
+| 4 | 0.477 ± 0.010 | 0.820 ± 0.032 | 0.747 ± 0.019 |
+
+M_Random is stable across a 4× saturation range (span 1.4 pp); M_Learned loses ~13 pp from
+s = 1 to s ≥ 2 and then plateaus. Note M_Random trades some U1 accuracy at s ≥ 2 (0.64–0.84).
+
+### 9.4 Filled prediction checklist
+
+(a) **PARTIAL FAIL.** Vanilla at chance: PASS (0.498 ± 0.011). M_Random ≥ 0.80: PASS
+    (0.813 ± 0.007). M_Learned ≥ 0.80: **FAIL** (0.769 ± 0.025; second mixer 0.662 ± 0.061).
+    The surviving claim is "gains survive, attenuated" (+15 to +32 pp over chance on every
+    mixer), not "gains unchanged."
+
+(b) **FAIL as pre-registered — corrected measure passes decisively.** Read support on mixed
+    variants is 1–10/32, not ≥ 28/32: the prediction mis-operationalized entanglement for
+    rank-1 sources (spreading a 1-D direction leaves every coordinate readable). The
+    masking-relevant destroy support behaves exactly as intended: ≈ block size (5–6/32) on
+    identity vs 24–31/32 under both mixings.
+
+(c) **PARTIAL.** M_Random: PASS (varies 1.4 pp across s ∈ {1,2,4}). M_Learned: **FAIL**
+    (−12.9 pp from s=1 to s=2, then stable). s=1 consistency check: exact reproduction.
+
+### 9.5 Rebuttal-ready sentences
+
+- "Under a frozen random two-layer MLP mixer with saturating pre-activations (std ≈ 2.5) —
+  where a destruction-probe analysis confirms that 24–31 of 32 coordinates must be corrupted to
+  remove any source — SynIB retains its synergy gains over vanilla fusion (M_Random 0.81 vs
+  0.50 chance; M_Learned 0.77), and this holds for a second independent mixer (0.69/0.66 vs
+  0.52)."
+- "Synergy accuracy under random masking is stable across a 4× tanh-saturation range
+  (0.834/0.832/0.820 for s = 1/2/4), while vanilla fusion stays at chance throughout."
+- Honest scoping sentence: "The learned mask's small advantage over random masking under mild
+  mixing (0.874 vs 0.834) does not persist under saturating mixing (0.75–0.77 vs 0.81–0.83);
+  SynIB's synergy mechanism — the masked-input confidence penalty — is what survives
+  entanglement, with random masking as its most robust instantiation. This matches the
+  learned-vs-random equivalence we report on the real datasets."
+
+### 9.6 Provenance
+
+Runs: `artifacts/rebuttal_entangled_xor/runs/{mlp_mixer*,tanh_scale*}__*__seed*.json` (each
+records git commit, config hash, exact command, mixer files, realized pre-activation std).
+Mixers: `artifacts/rebuttal_entangled_xor/mixers/`. Probes:
+`artifacts/rebuttal_entangled_xor/probe_table.{md,json}`. Configs:
+`run/configs/rebuttal_entangled_xor/{mlp_mixer,mlp_mixer_steps100,mlp_mixer_seed1,tanh_scale1_check,tanh_scale2,tanh_scale4}.json`.
