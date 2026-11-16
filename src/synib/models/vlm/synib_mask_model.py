@@ -994,14 +994,14 @@ class SynIB(nn.Module):
 
         if self.cls_type == "mlp":
             z1K, z2K = z1, z2
-            tz1K = _apply_destroy(this_z1, g1_final, ema_stats=this_stats1, inv_mask=True)
-            tz2K = _apply_destroy(this_z2, g2_final, ema_stats=this_stats2, inv_mask=True)
+            tz1K = _apply_destroy(this_z1, g1_final, ema_stats=this_stats1, inv_mask=False)
+            tz2K = _apply_destroy(this_z2, g2_final, ema_stats=this_stats2, inv_mask=False)
             na_z1K, na_z2K = na_z1, na_z2
             na_tz1K, na_tz2K = na_z1, na_z2
         elif self.cls_type == "tf":
             na_z1K, na_z2K = na_z1, na_z2
-            na_tz1K = _apply_destroy(this_z1, g1_final, ema_stats=this_stats1, inv_mask=True)
-            na_tz2K = _apply_destroy(this_z2, g2_final, ema_stats=this_stats2, inv_mask=True)
+            na_tz1K = _apply_destroy(this_z1, g1_final, ema_stats=this_stats1, inv_mask=False)
+            na_tz2K = _apply_destroy(this_z2, g2_final, ema_stats=this_stats2, inv_mask=False)
             z1K, z2K = z1, z2
             tz1K, tz2K = z1, z2
 
